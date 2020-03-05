@@ -2,7 +2,7 @@ from mesa.visualization.ModularVisualization import ModularServer
 from mesa.visualization.modules import CanvasGrid, ChartModule, TextElement
 from mesa.visualization.UserParam import UserSettableParameter
 
-from model import Schelling
+from model import SpeechModel
 
 
 class HappyElement(TextElement):
