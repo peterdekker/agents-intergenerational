@@ -113,7 +113,7 @@ class SpeechAgent(Agent):
         '''
         # (L5) Update articulation table based on feedback
         # Update becomes positive when feedback is True, negative when feedback is False
-        sign = feedback : 1 ? -1
+        sign = 1 if feedback else -1
         articulation_own = self.articulations[self.concept_closest]
         difference = self.articulation_inferred_speaker - articulation_own
         # Move own articulation towards or away from own articulation
