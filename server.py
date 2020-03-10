@@ -15,7 +15,7 @@ class StatsElement(TextElement):
         pass
 
     def render(self, model):
-        return "This can be used to show general statistics. "
+        return f"Global model distance: {model.global_model_distance}"
 
 
 def draw(agent):
@@ -24,7 +24,7 @@ def draw(agent):
     '''
     if agent is None:
         return
-    color = str(max(255-10*agent.interactions,0))
+    color = str(max(255-10*agent.interactions, 0))
     portrayal = {"Shape": "circle", "r": 0.5, "Filled": "true", "Layer": 0}
     portrayal["Color"] = [f"rgb({color},0,0)", f"rgb({color},0,0)"]
     portrayal["stroke_color"] = f"rgb({color},0,0)"
@@ -33,8 +33,8 @@ def draw(agent):
 
 
 canvas_element = CanvasGrid(draw, HEIGHT, WIDTH, 500, 500)
-#stats_element = StatsElement()
-#stats_chart = ChartModule([{"Label": "happy", "Color": "Black"}])
+stats_element = StatsElement()
+stats_chart = ChartModule([{"Label": "global_model_distance", "Color": "Black"}])
 
 model_params = {
     "height": HEIGHT,
@@ -44,5 +44,5 @@ model_params = {
 }
 
 server = ModularServer(SpeechModel,
-                       [canvas_element], #, stats_element, stats_chart],
+                       [canvas_element, stats_chart, stats_element],
                        "Agents of speech", model_params)

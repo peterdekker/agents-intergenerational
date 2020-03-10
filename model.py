@@ -7,8 +7,8 @@ import time
 import numpy as np
 from scipy.spatial.distance import cdist
 
-from constants import HEIGHT, WIDTH, MAX_RADIUS, N_CONCEPTS, N_FEATURES, NOISE_STD, LEARNING_RATE
-
+from constants import HEIGHT, WIDTH, MAX_RADIUS, N_CONCEPTS, N_FEATURES, NOISE_STD, LEARNING_RATE, SAMPLE, HSAMPLE
+import itertools
 
 class SpeechAgent(Agent):
     def __init__(self, pos, model):
@@ -124,12 +124,6 @@ class SpeechAgent(Agent):
         self.articulations[self.concept_closest] = articulation_own + sign * LEARNING_RATE * difference
 
 
-    
-
-    
-
-
-
 
 class SpeechModel(Model):
     '''
@@ -148,10 +142,10 @@ class SpeechModel(Model):
 
         self.schedule = RandomActivation(self)
         self.grid = SingleGrid(width, height, torus=True)
+        self.global_model_distance = 0.0
 
         self.datacollector = DataCollector(
-            # For testing purposes, agent's individual x and y
-            {})
+            {"global_model_distance": "global_model_distance"})
 
         # Set up agents
         # We use a grid iterator that returns
@@ -172,6 +166,20 @@ class SpeechModel(Model):
         '''
         Run one step of the model.
         '''
+        self.global_model_distance = 0.0
+        cumul_model_distance = 0
+        n_pairs = 0
         self.schedule.step()
-        # collect data
+        # Compute test statistic by sampling some pairs
+        agents = [a for a,x,y in self.grid.coord_iter()]
+        agents_sample = np.random.choice(agents, SAMPLE , replace=False)
+        agents1 = agents_sample[:HSAMPLE]
+        agents2 = agents_sample[HSAMPLE:]
+        for agent1 in agents1:
+            for agent2 in agents2:
+                # Euclidean distance
+                dist = np.linalg.norm(agent1.articulations - agent2.articulations)
+                cumul_model_distance += dist
+                n_pairs +=1
+        self.global_model_distance = float(cumul_model_distance)/float(n_pairs)
         self.datacollector.collect(self)
