@@ -4,8 +4,9 @@ from mesa.visualization.UserParam import UserSettableParameter
 
 from model import SpeechModel
 
+from constants import HEIGHT, WIDTH, MAX_RADIUS
 
-class HappyElement(TextElement):
+class StatsElement(TextElement):
     '''
     Display a text count of how many happy agents there are.
     '''
@@ -14,38 +15,34 @@ class HappyElement(TextElement):
         pass
 
     def render(self, model):
-        return "Happy agents: " + str(model.happy)
+        return "This can be used to show general statistics. "
 
 
-def schelling_draw(agent):
+def draw(agent):
     '''
     Portrayal Method for canvas
     '''
     if agent is None:
         return
+    color = str(max(255-10*agent.interactions,0))
     portrayal = {"Shape": "circle", "r": 0.5, "Filled": "true", "Layer": 0}
+    portrayal["Color"] = [f"rgb({color},0,0)", f"rgb({color},0,0)"]
+    portrayal["stroke_color"] = f"rgb({color},0,0)"
 
-    if agent.type == 0:
-        portrayal["Color"] = ["#FF0000", "#FF9999"]
-        portrayal["stroke_color"] = "#00FF00"
-    else:
-        portrayal["Color"] = ["#0000FF", "#9999FF"]
-        portrayal["stroke_color"] = "#000000"
     return portrayal
 
 
-happy_element = HappyElement()
-canvas_element = CanvasGrid(schelling_draw, 20, 20, 500, 500)
-happy_chart = ChartModule([{"Label": "happy", "Color": "Black"}])
+canvas_element = CanvasGrid(draw, HEIGHT, WIDTH, 500, 500)
+#stats_element = StatsElement()
+#stats_chart = ChartModule([{"Label": "happy", "Color": "Black"}])
 
 model_params = {
-    "height": 20,
-    "width": 20,
-    "density": UserSettableParameter("slider", "Agent density", 0.8, 0.1, 1.0, 0.1),
-    "minority_pc": UserSettableParameter("slider", "Fraction minority", 0.2, 0.00, 1.0, 0.05),
-    "homophily": UserSettableParameter("slider", "Homophily", 3, 0, 8, 1)
+    "height": HEIGHT,
+    "width": WIDTH,
+    "density": UserSettableParameter("slider", "Agent density", 1.0, 0.1, 1.0, 0.1),
+    "radius": UserSettableParameter("slider", "Neighbourhood radius", MAX_RADIUS, 1, MAX_RADIUS,1),
 }
 
-server = ModularServer(Schelling,
-                       [canvas_element, happy_element, happy_chart],
-                       "Schelling", model_params)
+server = ModularServer(SpeechModel,
+                       [canvas_element], #, stats_element, stats_chart],
+                       "Agents of speech", model_params)
