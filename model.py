@@ -7,7 +7,7 @@ import time
 import numpy as np
 from scipy.spatial.distance import cdist
 
-from constants import HEIGHT, WIDTH, MAX_RADIUS, N_CONCEPTS, N_FEATURES, NOISE_STD
+from constants import HEIGHT, WIDTH, MAX_RADIUS, N_CONCEPTS, N_FEATURES, NOISE_STD, LEARNING_RATE
 
 
 class SpeechAgent(Agent):
