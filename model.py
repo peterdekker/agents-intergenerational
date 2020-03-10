@@ -86,13 +86,17 @@ class SpeechAgent(Agent):
 
          Args:
             signal: received signal
+         
+         Returns:
+            concept_closest: concept which listener thinks is closest to heard signal
         '''
         # (L1) Receive signal
         self.interactions += 1
         # (L2) Perform inverse mapping, from sound to articulation that could have produced it
         articulation_inferred = signal  # TODO: add inverse mapping NN here, now just identity function
+        articulation_inferred = articulation_inferred.reshape(1,articulation_inferred.shape[0])
         # Save inferred articulation from speaker, used when updating
-        self.articulating_inferred_speaker = articulation_inferred
+        self.articulation_inferred_speaker = articulation_inferred
         # (L3) Find target closest to articulation
         distances = cdist(self.articulations, articulation_inferred)
         concept_closest = np.argmin(distances)
