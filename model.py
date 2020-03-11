@@ -6,6 +6,7 @@ from mesa.datacollection import DataCollector
 import time
 import numpy as np
 from scipy.spatial.distance import cdist
+from scipy.special import expit
 
 from constants import HEIGHT, WIDTH, MAX_RADIUS, N_CONCEPTS, N_FEATURES, NOISE_STD, LEARNING_RATE, SAMPLE, HSAMPLE
 import itertools
@@ -21,12 +22,21 @@ class SpeechAgent(Agent):
         '''
         super().__init__(pos, model)
         self.pos = pos
-        self.interactions = 0
+        self.articulations_agg = [0, 0, 0]
 
         # Initialize array of concepts
-        self.concepts = np.arange(0,N_CONCEPTS)
+        self.concepts = np.arange(0, N_CONCEPTS)
         # Initialize array of of articulations: one uniform random feature array per concept
         self.articulations = np.random.rand(N_CONCEPTS, N_FEATURES)
+        self.articulations_agg = self.compute_articulations_agg(self.articulations)
+        print(self.articulations_agg)
+
+    def compute_articulations_agg(self, articulations):
+        # Only look at first three concepts: every concept will be a channel
+        # Scale by total possible sum
+        color_scale = 255
+        return articulations[1,:3].clip(0).clip(max=1) * color_scale
+
 
     def step(self):
         '''
@@ -91,7 +101,6 @@ class SpeechAgent(Agent):
             concept_closest: concept which listener thinks is closest to heard signal
         '''
         # (L1) Receive signal
-        self.interactions += 1
         # (L2) Perform inverse mapping, from sound to articulation that could have produced it
         articulation_inferred = signal  # TODO: add inverse mapping NN here, now just identity function
         articulation_inferred = articulation_inferred.reshape(1,articulation_inferred.shape[0])
@@ -123,6 +132,9 @@ class SpeechAgent(Agent):
         # Move own articulation towards or away from own articulation
         self.articulations[self.concept_closest] = articulation_own + sign * LEARNING_RATE * difference
 
+        # After update, compute aggregate of articulation model, to color dot
+        self.articulations_agg = self.compute_articulations_agg(self.articulations)
+
 
 
 class SpeechModel(Model):
@@ -143,6 +155,7 @@ class SpeechModel(Model):
         self.schedule = RandomActivation(self)
         self.grid = SingleGrid(width, height, torus=True)
         self.global_model_distance = 0.0
+        self.steps = 0
 
         self.datacollector = DataCollector(
             {"global_model_distance": "global_model_distance"})
@@ -163,23 +176,27 @@ class SpeechModel(Model):
         self.datacollector.collect(self)
 
     def step(self):
+        self.steps+=1
         '''
         Run one step of the model.
         '''
-        self.global_model_distance = 0.0
-        cumul_model_distance = 0
-        n_pairs = 0
         self.schedule.step()
-        # Compute test statistic by sampling some pairs
-        agents = [a for a,x,y in self.grid.coord_iter()]
-        agents_sample = np.random.choice(agents, SAMPLE , replace=False)
-        agents1 = agents_sample[:HSAMPLE]
-        agents2 = agents_sample[HSAMPLE:]
-        for agent1 in agents1:
-            for agent2 in agents2:
-                # Euclidean distance
-                dist = np.linalg.norm(agent1.articulations - agent2.articulations)
-                cumul_model_distance += dist
-                n_pairs +=1
-        self.global_model_distance = float(cumul_model_distance)/float(n_pairs)
-        self.datacollector.collect(self)
+        if self.steps%10 == 0:
+            self.global_model_distance = 0.0
+            cumul_model_distance = 0
+            n_pairs = 0
+            # Compute test statistic by sampling some pairs
+            agents = [a for a,x,y in self.grid.coord_iter()]
+            agents_sample = np.random.choice(agents, SAMPLE , replace=False)
+            agents1 = agents_sample[:HSAMPLE]
+            agents2 = agents_sample[HSAMPLE:]
+            for agent1 in agents1:
+                for agent2 in agents2:
+                    # Euclidean distance
+                    dist = np.linalg.norm(agent1.articulations - agent2.articulations)
+                    cumul_model_distance += dist
+                    n_pairs +=1
+            self.global_model_distance = float(cumul_model_distance)/float(n_pairs)
+
+            # Only collect data for graph every 10 steps
+            self.datacollector.collect(self)

@@ -24,10 +24,11 @@ def draw(agent):
     '''
     if agent is None:
         return
-    color = str(max(255-10*agent.interactions, 0))
+    c = agent.articulations_agg
+    color_str = f"rgb({c[0]},{c[1]},{c[2]})"
     portrayal = {"Shape": "circle", "r": 0.5, "Filled": "true", "Layer": 0}
-    portrayal["Color"] = [f"rgb({color},0,0)", f"rgb({color},0,0)"]
-    portrayal["stroke_color"] = f"rgb({color},0,0)"
+    portrayal["Color"] = [color_str, color_str]
+    portrayal["stroke_color"] = color_str
 
     return portrayal
 
