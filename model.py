@@ -11,7 +11,8 @@ from scipy.special import expit
 from constants import HEIGHT, WIDTH, MAX_RADIUS, N_CONCEPTS, N_FEATURES, NOISE_STD, LEARNING_RATE, SAMPLE, HSAMPLE
 import itertools
 
-class SpeechAgent(Agent):
+
+class Agent(Agent):
     def __init__(self, pos, model):
         '''
          Create a new speech agent.
@@ -22,20 +23,20 @@ class SpeechAgent(Agent):
         '''
         super().__init__(pos, model)
         self.pos = pos
-        self.articulations_agg = [0, 0, 0]
+        self.language_agg = [0, 0, 0]
 
         # Initialize array of concepts
         self.concepts = np.arange(0, N_CONCEPTS)
-        # Initialize array of of articulations: one uniform random feature array per concept
-        self.articulations = np.random.rand(N_CONCEPTS, N_FEATURES)
-        self.articulations_agg = self.compute_articulations_agg(self.articulations)
-        print(self.articulations_agg)
+        # Initialize array of of language: one uniform random feature array per concept
+        self.language = np.random.rand(N_CONCEPTS, N_FEATURES)
+        self.language_agg = self.compute_language_agg(self.language)
+        print(self.language_agg)
 
-    def compute_articulations_agg(self, articulations):
+    def compute_language_agg(self, language):
         # Only look at first three concepts: every concept will be a channel
         # Scale by total possible sum
         color_scale = 255
-        return articulations[1,:3].clip(0).clip(max=1) * color_scale
+        return language[1,:3].clip(0).clip(max=1) * color_scale
 
 
     def step(self):
@@ -61,7 +62,7 @@ class SpeechAgent(Agent):
         concept = np.random.choice(self.concepts)
 
         # (S1+2) Sample new vocal tract position for this concept + add Gaussian noise
-        articulation = self.articulations[concept]
+        articulation = self.language[concept]
         noise_art = np.random.normal(loc=0.0, scale=NOISE_STD, size=articulation.shape)
         articulation_noisy = articulation+noise_art
 
@@ -107,7 +108,7 @@ class SpeechAgent(Agent):
         # Save inferred articulation from speaker, used when updating
         self.articulation_inferred_speaker = articulation_inferred
         # (L3) Find target closest to articulation
-        distances = cdist(self.articulations, articulation_inferred)
+        distances = cdist(self.language, articulation_inferred)
         concept_closest = np.argmin(distances)
         # Save closest concept, used when updating later
         self.concept_closest = concept_closest
@@ -127,17 +128,17 @@ class SpeechAgent(Agent):
         # (L5) Update articulation table based on feedback
         # Update becomes positive when feedback is True, negative when feedback is False
         sign = 1 if feedback else -1
-        articulation_own = self.articulations[self.concept_closest]
+        articulation_own = self.language[self.concept_closest]
         difference = self.articulation_inferred_speaker - articulation_own
         # Move own articulation towards or away from own articulation
-        self.articulations[self.concept_closest] = articulation_own + sign * LEARNING_RATE * difference
+        self.language[self.concept_closest] = articulation_own + sign * LEARNING_RATE * difference
 
         # After update, compute aggregate of articulation model, to color dot
-        self.articulations_agg = self.compute_articulations_agg(self.articulations)
+        self.language_agg = self.compute_language_agg(self.language)
 
 
 
-class SpeechModel(Model):
+class Model(Model):
     '''
     Model class
     '''
@@ -168,7 +169,7 @@ class SpeechModel(Model):
             x = cell[1]
             y = cell[2]
             if np.random.rand() < self.density:
-                agent = SpeechAgent((x, y), self)
+                agent = Agent((x, y), self)
                 self.grid.position_agent(agent, (x, y))
                 self.schedule.add(agent)
 
@@ -193,7 +194,7 @@ class SpeechModel(Model):
             for agent1 in agents1:
                 for agent2 in agents2:
                     # Euclidean distance
-                    dist = np.linalg.norm(agent1.articulations - agent2.articulations)
+                    dist = np.linalg.norm(agent1.language - agent2.language)
                     cumul_model_distance += dist
                     n_pairs +=1
             self.global_model_distance = float(cumul_model_distance)/float(n_pairs)

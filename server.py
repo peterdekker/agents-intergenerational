@@ -2,7 +2,7 @@ from mesa.visualization.ModularVisualization import ModularServer
 from mesa.visualization.modules import CanvasGrid, ChartModule, TextElement
 from mesa.visualization.UserParam import UserSettableParameter
 
-from model import SpeechModel
+from model import Model
 
 from constants import HEIGHT, WIDTH, MAX_RADIUS
 
@@ -24,7 +24,7 @@ def draw(agent):
     '''
     if agent is None:
         return
-    c = agent.articulations_agg
+    c = agent.language_agg
     color_str = f"rgb({c[0]},{c[1]},{c[2]})"
     portrayal = {"Shape": "circle", "r": 0.5, "Filled": "true", "Layer": 0}
     portrayal["Color"] = [color_str, color_str]
@@ -44,6 +44,6 @@ model_params = {
     "radius": UserSettableParameter("slider", "Neighbourhood radius", MAX_RADIUS, 1, MAX_RADIUS,1),
 }
 
-server = ModularServer(SpeechModel,
+server = ModularServer(Model,
                        [canvas_element, stats_chart, stats_element],
                        "Agents of speech", model_params)
