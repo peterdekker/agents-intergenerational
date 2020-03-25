@@ -8,7 +8,7 @@ import numpy as np
 from scipy.spatial.distance import cdist
 from scipy.special import expit
 
-from constants import HEIGHT, WIDTH, MAX_RADIUS, N_CONCEPTS, N_FEATURES, NOISE_STD, LEARNING_RATE, SAMPLE, HSAMPLE
+from constants import HEIGHT, WIDTH, MAX_RADIUS, N_CONCEPTS, N_FEATURES, NOISE_STD, LEARNING_RATE, SAMPLE, HSAMPLE, N_AGENTS
 import itertools
 
 
@@ -27,10 +27,9 @@ class Agent(Agent):
 
         # Initialize array of concepts
         self.concepts = np.arange(0, N_CONCEPTS)
-        # Initialize array of of language: one uniform random feature array per concept
-        self.language = np.random.rand(N_CONCEPTS, N_FEATURES)
-        self.language_agg = self.compute_language_agg(self.language)
-        print(self.language_agg)
+        # Initialize array of of language: draw binary features from uniform distribution
+        self.language = np.random.randint(0,2, (N_CONCEPTS, N_FEATURES))
+        self.language_agg = self.compute_language_agg(self.language)  
 
     def compute_language_agg(self, language):
         # Only look at first three concepts: every concept will be a channel
@@ -58,22 +57,14 @@ class Agent(Agent):
          Args:
             listener: agent to speak to
         '''
-        # (S0) Sample concept to talk about, from list of concepts
         concept = np.random.choice(self.concepts)
 
-        # (S1+2) Sample new vocal tract position for this concept + add Gaussian noise
-        articulation = self.language[concept]
-        noise_art = np.random.normal(loc=0.0, scale=NOISE_STD, size=articulation.shape)
-        articulation_noisy = articulation+noise_art
-
-        # (S3) Generate sound (MFC) based on articulation parameters
-        # + add Gaussian noise
-        sound = articulation_noisy  # TODO: add LeVI here, now just identitify function
-        noise_sound = np.random.normal(loc=0.0, scale=NOISE_STD, size=sound.shape)
-        sound_noisy = sound + noise_sound
+        signal = self.language[concept]
+        noise = np.random.normal(loc=0.0, scale=NOISE_STD, size=signal.shape)
+        signal_noisy = signal #+noise
 
         # (S4) Send to listener, and receive concept listener points to
-        concept_listener = listener.listen(sound_noisy)
+        concept_listener = listener.listen(signal_noisy)
         # (S5) Send feedback to listener
         self.send_feedback(concept_listener, concept, listener)
     
@@ -87,7 +78,8 @@ class Agent(Agent):
             concept: concept speaker actually spoke about
             listener: agent to give feedback, which this agent has just spoken to
         '''
-        listener.receive_feedback(concept_listener != concept)
+        feedback = concept_listener == concept
+        listener.receive_feedback(feedback)
     
     ### Methods used when agent listens
 
@@ -102,37 +94,42 @@ class Agent(Agent):
             concept_closest: concept which listener thinks is closest to heard signal
         '''
         # (L1) Receive signal
-        # (L2) Perform inverse mapping, from sound to articulation that could have produced it
-        articulation_inferred = signal  # TODO: add inverse mapping NN here, now just identity function
-        articulation_inferred = articulation_inferred.reshape(1,articulation_inferred.shape[0])
-        # Save inferred articulation from speaker, used when updating
-        self.articulation_inferred_speaker = articulation_inferred
+        # Save signal from speaker, used when updating
+        self.signal_received = signal.reshape(1,signal.shape[0])
         # (L3) Find target closest to articulation
-        distances = cdist(self.language, articulation_inferred)
-        concept_closest = np.argmin(distances)
         # Save closest concept, used when updating later
-        self.concept_closest = concept_closest
+        distances = cdist(self.language, self.signal_received)
+        self.concept_closest = np.argmin(distances)
         # (L4) Point to object
         # TODO: Is it strange that this function returns a value, while all other functions call a function on the other agent?
         #       Communication is implemented speaker-centred.
-        return concept_closest
+        return self.concept_closest
     
     def receive_feedback(self, feedback):
         '''
         Agent receives feedback from speaking agent, on correctness of concept,
-        and updated its articulation table
+        and updated its language table
 
         Args:
             feedback: True if and only if the object pointed to was correct
         '''
-        # (L5) Update articulation table based on feedback
-        # Update becomes positive when feedback is True, negative when feedback is False
-        sign = 1 if feedback else -1
-        articulation_own = self.language[self.concept_closest]
-        difference = self.articulation_inferred_speaker - articulation_own
+        # (L5) Update language table based on feedback
+        # Update becomes positive when feedback is True, no update when feedback is False
+        sign = 1 if feedback else 0
+        if feedback:
+            self.model.correct_interactions +=1
+        print(f"Received signal: {self.signal_received}")
+        print("Own language table:")
+        print(self.language)
+        signal_own = self.language[self.concept_closest]
+        print(f"Closest own signal: {signal_own}")
+        print(f"Update direction: {sign}")
+        difference = self.signal_received - signal_own
+        print(f"Difference: {difference}")
         # Move own articulation towards or away from own articulation
-        self.language[self.concept_closest] = articulation_own + sign * LEARNING_RATE * difference
-
+        self.language[self.concept_closest] = signal_own + sign * LEARNING_RATE * difference
+        print(f"Own signal after update: {self.language[self.concept_closest]}")
+        print()
         # After update, compute aggregate of articulation model, to color dot
         self.language_agg = self.compute_language_agg(self.language)
 
@@ -156,10 +153,12 @@ class Model(Model):
         self.schedule = RandomActivation(self)
         self.grid = SingleGrid(width, height, torus=True)
         self.global_model_distance = 0.0
+        self.correct_interactions = 0.0
         self.steps = 0
 
         self.datacollector = DataCollector(
-            {"global_model_distance": "global_model_distance"})
+            {"global_model_distance": "global_model_distance",
+            "proportion_correct_interactions": "proportion_correct_interactions"})
 
         # Set up agents
         # We use a grid iterator that returns
@@ -181,7 +180,11 @@ class Model(Model):
         '''
         Run one step of the model.
         '''
+        # Set correct interactions to 0 before all interactions are performed
+        self.correct_interactions = 0.0
         self.schedule.step()
+        # Now compute proportion of correct interaction
+        self.proportion_correct_interactions = self.correct_interactions/float(N_AGENTS)
         if self.steps%10 == 0:
             self.global_model_distance = 0.0
             cumul_model_distance = 0
@@ -199,5 +202,4 @@ class Model(Model):
                     n_pairs +=1
             self.global_model_distance = float(cumul_model_distance)/float(n_pairs)
 
-            # Only collect data for graph every 10 steps
-            self.datacollector.collect(self)
+        self.datacollector.collect(self)

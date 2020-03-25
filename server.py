@@ -28,14 +28,15 @@ def draw(agent):
     color_str = f"rgb({c[0]},{c[1]},{c[2]})"
     portrayal = {"Shape": "circle", "r": 0.5, "Filled": "true", "Layer": 0}
     portrayal["Color"] = [color_str, color_str]
-    portrayal["stroke_color"] = color_str
+    portrayal["stroke_color"] = "rgb(0,0,0)"
 
     return portrayal
 
 
 canvas_element = CanvasGrid(draw, HEIGHT, WIDTH, 500, 500)
-stats_element = StatsElement()
-stats_chart = ChartModule([{"Label": "global_model_distance", "Color": "Black"}])
+#dist_element = StatsElement()
+dist_chart = ChartModule([{"Label": "global_model_distance", "Color": "Blue"}])
+corr_int_chart = ChartModule([{"Label": "proportion_correct_interactions", "Color": "Green"}])
 
 model_params = {
     "height": HEIGHT,
@@ -45,5 +46,5 @@ model_params = {
 }
 
 server = ModularServer(Model,
-                       [canvas_element, stats_chart, stats_element],
+                       [canvas_element, dist_chart, corr_int_chart],
                        "Agents of speech", model_params)
