@@ -95,10 +95,11 @@ class Agent(Agent):
         '''
         # (L1) Receive signal
         # Save signal from speaker, used when updating
-        self.signal_received = signal.reshape(1,signal.shape[0])
+        signal_arr = signal.reshape(1,signal.shape[0])
+        self.signal_received = signal
         # (L3) Find target closest to articulation
         # Save closest concept, used when updating later
-        distances = cdist(self.language, self.signal_received)
+        distances = cdist(self.language, signal_arr)
         self.concept_closest = np.argmin(distances)
         # (L4) Point to object
         # TODO: Is it strange that this function returns a value, while all other functions call a function on the other agent?
@@ -114,20 +115,24 @@ class Agent(Agent):
             feedback: True if and only if the object pointed to was correct
         '''
         # (L5) Update language table based on feedback
-        # Update becomes positive when feedback is True, no update when feedback is False
-        sign = 1 if feedback else 0
         if feedback:
             self.model.correct_interactions +=1
         print(f"Received signal: {self.signal_received}")
-        print("Own language table:")
-        print(self.language)
         signal_own = self.language[self.concept_closest]
         print(f"Closest own signal: {signal_own}")
-        print(f"Update direction: {sign}")
-        difference = self.signal_received - signal_own
-        print(f"Difference: {difference}")
-        # Move own articulation towards or away from own articulation
-        self.language[self.concept_closest] = signal_own + sign * LEARNING_RATE * difference
+        # Only if feedback positive, move own signal towards received
+        # Every position in our signal is replaced by with a prob LEARNING_RATE
+        # (implemented as boolean array)
+        replace_positions = np.random.choice([True,False], size=len(signal_own), p=[LEARNING_RATE,1-LEARNING_RATE])
+        print(f)
+        if feedback:
+            # If positive feedback: replace positions by received signal
+            #signal_own.put(replace_positions, self.signal_received)
+            signal_own.put(replace_positions, np.random.random(size=len(signal_own)))
+        else:
+            # If negative feedback: replace positions by random signal
+            signal_own.put(replace_positions, np.random.random(size=len(signal_own)))
+        self.language[self.concept_closest] = signal_own
         print(f"Own signal after update: {self.language[self.concept_closest]}")
         print()
         # After update, compute aggregate of articulation model, to color dot

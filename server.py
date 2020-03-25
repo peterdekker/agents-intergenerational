@@ -34,7 +34,7 @@ def draw(agent):
 
 
 canvas_element = CanvasGrid(draw, HEIGHT, WIDTH, 500, 500)
-#dist_element = StatsElement()
+dist_element = StatsElement()
 dist_chart = ChartModule([{"Label": "global_model_distance", "Color": "Blue"}])
 corr_int_chart = ChartModule([{"Label": "proportion_correct_interactions", "Color": "Green"}])
 
@@ -46,5 +46,5 @@ model_params = {
 }
 
 server = ModularServer(Model,
-                       [canvas_element, dist_chart, corr_int_chart],
+                       [canvas_element, dist_element, dist_chart, corr_int_chart],
                        "Agents of speech", model_params)
