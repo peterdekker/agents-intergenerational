@@ -123,15 +123,16 @@ class Agent(Agent):
         # Only if feedback positive, move own signal towards received
         # Every position in our signal is replaced by with a prob LEARNING_RATE
         # (implemented as boolean array)
-        replace_positions = np.random.choice([True,False], size=len(signal_own), p=[LEARNING_RATE,1-LEARNING_RATE])
-        print(f)
+        replace_positions = np.random.choice([True,False], size=N_FEATURES, p=[LEARNING_RATE,1-LEARNING_RATE])
         if feedback:
             # If positive feedback: replace positions by received signal
-            #signal_own.put(replace_positions, self.signal_received)
-            signal_own.put(replace_positions, np.random.random(size=len(signal_own)))
+            signal_own.put(replace_positions, self.signal_received)
+            #random_vector = np.random.randint(0,2, N_FEATURES)
+            #signal_own.put(replace_positions, random_vector)
         else:
             # If negative feedback: replace positions by random signal
-            signal_own.put(replace_positions, np.random.random(size=len(signal_own)))
+            random_vector = np.random.randint(0,2, N_FEATURES)
+            #signal_own.put(replace_positions, random_vector)
         self.language[self.concept_closest] = signal_own
         print(f"Own signal after update: {self.language[self.concept_closest]}")
         print()
