@@ -8,7 +8,7 @@ import numpy as np
 from scipy.spatial.distance import cdist
 from scipy.special import expit
 
-from constants import HEIGHT, WIDTH, MAX_RADIUS, N_CONCEPTS, N_FEATURES, NOISE_STD, LEARNING_RATE, SAMPLE, HSAMPLE, N_AGENTS
+from constants import HEIGHT, WIDTH, MAX_RADIUS, N_CONCEPTS, N_FEATURES, NOISE_RATE, LEARNING_RATE, SAMPLE, HSAMPLE, N_AGENTS
 import itertools
 
 
@@ -59,9 +59,14 @@ class Agent(Agent):
         '''
         concept = np.random.choice(self.concepts)
 
-        signal = self.language[concept]
-        noise = np.random.normal(loc=0.0, scale=NOISE_STD, size=signal.shape)
-        signal_noisy = signal #+noise
+        signal = np.copy(self.language[concept]) # create copy, so noise not applied to original
+        if NOISE_RATE > 0.0:
+            print("Apply noise")
+            # Apply noise by replacing some bits
+            replace_positions = np.random.choice([True,False], size=N_FEATURES, p=[NOISE_RATE,1-NOISE_RATE])
+            random_vector = np.random.randint(0,2,N_FEATURES)
+            signal.put(replace_positions, random_vector)
+
 
         # (S4) Send to listener, and receive concept listener points to
         concept_listener = listener.listen(signal_noisy)
@@ -124,16 +129,22 @@ class Agent(Agent):
         # Every position in our signal is replaced by with a prob LEARNING_RATE
         # (implemented as boolean array)
         replace_positions = np.random.choice([True,False], size=N_FEATURES, p=[LEARNING_RATE,1-LEARNING_RATE])
+        #random_vector = np.zeros(N_FEATURES)
+        #signal_own.put(replace_positions, random_vector)
         if feedback:
             # If positive feedback: replace positions by received signal
             signal_own.put(replace_positions, self.signal_received)
-            #random_vector = np.random.randint(0,2, N_FEATURES)
-            #signal_own.put(replace_positions, random_vector)
+
+            #zeros_vector = np.zeros(N_FEATURES)
+            #signal_own.put(replace_positions, zeros_vector)
         else:
             # If negative feedback: replace positions by random signal
-            random_vector = np.random.randint(0,2, N_FEATURES)
+            a = self.signal_received
+            signal_received_inv = np.where((a==0)|(a==1), a^1, a)
+            signal_own.put(replace_positions, signal_received_inv)
+            #random_vector = np.random.randint(0,2, N_FEATURES)
             #signal_own.put(replace_positions, random_vector)
-        self.language[self.concept_closest] = signal_own
+        # NIET NODIG? self.language[self.concept_closest] = signal_own
         print(f"Own signal after update: {self.language[self.concept_closest]}")
         print()
         # After update, compute aggregate of articulation model, to color dot
@@ -191,7 +202,7 @@ class Model(Model):
         self.schedule.step()
         # Now compute proportion of correct interaction
         self.proportion_correct_interactions = self.correct_interactions/float(N_AGENTS)
-        if self.steps%10 == 0:
+        if self.steps%1 == 0:
             self.global_model_distance = 0.0
             cumul_model_distance = 0
             n_pairs = 0
