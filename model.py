@@ -69,22 +69,11 @@ class Agent(Agent):
 
 
         # (S4) Send to listener, and receive concept listener points to
-        concept_listener = listener.listen(signal_noisy)
+        concept_listener = listener.listen(signal)
         # (S5) Send feedback to listener
-        self.send_feedback(concept_listener, concept, listener)
-    
-    def send_feedback(self, concept_listener, concept, listener):
-        '''
-         Agent sends feedback to listening agent just spoken to,
-         on correctness of concept
+        listener.receive_feedback(concept_listener == concept)
 
-         Args:
-            concept_listener: the concept the listener returns, which it thinks the speaker spoke about
-            concept: concept speaker actually spoke about
-            listener: agent to give feedback, which this agent has just spoken to
-        '''
-        feedback = concept_listener == concept
-        listener.receive_feedback(feedback)
+        
     
     ### Methods used when agent listens
 
