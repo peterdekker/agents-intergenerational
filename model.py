@@ -6,10 +6,11 @@ from mesa.datacollection import DataCollector
 import time
 import numpy as np
 from scipy.spatial.distance import cdist
-from scipy.special import expit
-
-from constants import HEIGHT, WIDTH, MAX_RADIUS, N_CONCEPTS, N_FEATURES, NOISE_RATE, LEARNING_RATE, SAMPLE, HSAMPLE, N_AGENTS
 import itertools
+
+from constants import HEIGHT, WIDTH, MAX_RADIUS, N_CONCEPTS, N_FEATURES, NOISE_RATE, LEARNING_RATE, N_AGENTS
+import stats
+import update
 
 
 class Agent(Agent):
@@ -28,15 +29,8 @@ class Agent(Agent):
         # Initialize array of concepts
         self.concepts = np.arange(0, N_CONCEPTS)
         # Initialize array of of language: draw binary features from uniform distribution
-        self.language = np.random.randint(0,2, (N_CONCEPTS, N_FEATURES))
-        self.language_agg = self.compute_language_agg(self.language)  
-
-    def compute_language_agg(self, language):
-        # Only look at first three concepts: every concept will be a channel
-        # Scale by total possible sum
-        color_scale = 255
-        return language[1,:3].clip(0).clip(max=1) * color_scale
-
+        self.language = np.random.randint(0, 2, (N_CONCEPTS, N_FEATURES))
+        self.language_agg = stats.compute_language_agg(self.language)  
 
     def step(self):
         '''
@@ -62,10 +56,9 @@ class Agent(Agent):
         signal = np.copy(self.language[concept]) # create copy, so noise not applied to original
         if NOISE_RATE > 0.0:
             print("Apply noise")
-            # Apply noise by replacing some bits
-            replace_positions = np.random.choice([True,False], size=N_FEATURES, p=[NOISE_RATE,1-NOISE_RATE])
-            random_vector = np.random.randint(0,2,N_FEATURES)
-            signal.put(replace_positions, random_vector)
+            print(f"Signal before: {signal}")
+            update.apply_noise(signal)
+            print(f"Signal after: {signal}")
 
 
         # (S4) Send to listener, and receive concept listener points to
@@ -108,36 +101,17 @@ class Agent(Agent):
         Args:
             feedback: True if and only if the object pointed to was correct
         '''
-        # (L5) Update language table based on feedback
         if feedback:
             self.model.correct_interactions +=1
         print(f"Received signal: {self.signal_received}")
         signal_own = self.language[self.concept_closest]
         print(f"Closest own signal: {signal_own}")
-        # Only if feedback positive, move own signal towards received
-        # Every position in our signal is replaced by with a prob LEARNING_RATE
-        # (implemented as boolean array)
-        replace_positions = np.random.choice([True,False], size=N_FEATURES, p=[LEARNING_RATE,1-LEARNING_RATE])
-        #random_vector = np.zeros(N_FEATURES)
-        #signal_own.put(replace_positions, random_vector)
-        if feedback:
-            # If positive feedback: replace positions by received signal
-            signal_own.put(replace_positions, self.signal_received)
-
-            #zeros_vector = np.zeros(N_FEATURES)
-            #signal_own.put(replace_positions, zeros_vector)
-        else:
-            # If negative feedback: replace positions by random signal
-            a = self.signal_received
-            signal_received_inv = np.where((a==0)|(a==1), a^1, a)
-            signal_own.put(replace_positions, signal_received_inv)
-            #random_vector = np.random.randint(0,2, N_FEATURES)
-            #signal_own.put(replace_positions, random_vector)
+        update.update_language(self.language, signal_own, self.signal_received, feedback)
         # NIET NODIG? self.language[self.concept_closest] = signal_own
         print(f"Own signal after update: {self.language[self.concept_closest]}")
         print()
         # After update, compute aggregate of articulation model, to color dot
-        self.language_agg = self.compute_language_agg(self.language)
+        self.language_agg = stats.compute_language_agg(self.language)
 
 
 
@@ -192,20 +166,7 @@ class Model(Model):
         # Now compute proportion of correct interaction
         self.proportion_correct_interactions = self.correct_interactions/float(N_AGENTS)
         if self.steps%1 == 0:
-            self.global_model_distance = 0.0
-            cumul_model_distance = 0
-            n_pairs = 0
-            # Compute test statistic by sampling some pairs
             agents = [a for a,x,y in self.grid.coord_iter()]
-            agents_sample = np.random.choice(agents, SAMPLE , replace=False)
-            agents1 = agents_sample[:HSAMPLE]
-            agents2 = agents_sample[HSAMPLE:]
-            for agent1 in agents1:
-                for agent2 in agents2:
-                    # Euclidean distance
-                    dist = np.linalg.norm(agent1.language - agent2.language)
-                    cumul_model_distance += dist
-                    n_pairs +=1
-            self.global_model_distance = float(cumul_model_distance)/float(n_pairs)
+            self.global_model_distance = stats.compute_global_dist(agents)
 
         self.datacollector.collect(self)
