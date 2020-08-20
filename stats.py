@@ -1,6 +1,7 @@
 from constants import SAMPLE, HSAMPLE
 import numpy as np
 
+
 def compute_global_dist(agents):
     cumul_model_distance = 0
     n_pairs = 0
@@ -13,9 +14,10 @@ def compute_global_dist(agents):
             # Euclidean distance
             dist = np.linalg.norm(agent1.language - agent2.language)
             cumul_model_distance += dist
-            n_pairs +=1
+            n_pairs += 1
     global_model_distance = float(cumul_model_distance)/float(n_pairs)
     return global_model_distance
+
 
 def compute_language_agg(language):
     # Only look at first three concepts: every concept will be a channel

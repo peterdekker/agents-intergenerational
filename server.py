@@ -6,6 +6,7 @@ from model import Model
 
 from constants import HEIGHT, WIDTH, MAX_RADIUS
 
+
 class StatsElement(TextElement):
     '''
     Display a text count of how many happy agents there are.
@@ -42,7 +43,7 @@ model_params = {
     "height": HEIGHT,
     "width": WIDTH,
     "density": UserSettableParameter("slider", "Agent density", 1.0, 0.1, 1.0, 0.1),
-    "radius": UserSettableParameter("slider", "Neighbourhood radius", MAX_RADIUS, 1, MAX_RADIUS,1),
+    "radius": UserSettableParameter("slider", "Neighbourhood radius", MAX_RADIUS, 1, MAX_RADIUS, 1),
 }
 
 server = ModularServer(Model,

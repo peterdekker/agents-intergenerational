@@ -30,7 +30,7 @@ class Agent(Agent):
         self.concepts = np.arange(0, N_CONCEPTS)
         # Initialize array of of language: draw binary features from uniform distribution
         self.language = np.random.randint(0, 2, (N_CONCEPTS, N_FEATURES))
-        self.language_agg = stats.compute_language_agg(self.language)  
+        self.language_agg = stats.compute_language_agg(self.language)
 
     def step(self):
         '''
@@ -41,9 +41,9 @@ class Agent(Agent):
         neighbors = self.model.grid.get_neighbors(self.pos, True, False, self.model.radius)
         listener = np.random.choice(neighbors)
         self.speak(listener)
-    
-    ### Methods used when agent speaks
-    
+
+    # Methods used when agent speaks
+
     def speak(self, listener):
         '''
          Speak to other agent
@@ -53,22 +53,19 @@ class Agent(Agent):
         '''
         concept = np.random.choice(self.concepts)
 
-        signal = np.copy(self.language[concept]) # create copy, so noise not applied to original
+        signal = np.copy(self.language[concept])  # create copy, so noise not applied to original
         if NOISE_RATE > 0.0:
             print("Apply noise")
             print(f"Signal before: {signal}")
             update.apply_noise(signal)
             print(f"Signal after: {signal}")
 
-
         # (S4) Send to listener, and receive concept listener points to
         concept_listener = listener.listen(signal)
         # (S5) Send feedback to listener
         listener.receive_feedback(concept_listener == concept)
 
-        
-    
-    ### Methods used when agent listens
+    # Methods used when agent listens
 
     def listen(self, signal):
         '''
@@ -76,23 +73,24 @@ class Agent(Agent):
 
          Args:
             signal: received signal
-         
+
          Returns:
             concept_closest: concept which listener thinks is closest to heard signal
         '''
         # (L1) Receive signal
         # Save signal from speaker, used when updating
-        signal_arr = signal.reshape(1,signal.shape[0])
+        signal_arr = signal.reshape(1, signal.shape[0])
         self.signal_received = signal
         # (L3) Find target closest to articulation
         # Save closest concept, used when updating later
         distances = cdist(self.language, signal_arr)
         self.concept_closest = np.argmin(distances)
         # (L4) Point to object
-        # TODO: Is it strange that this function returns a value, while all other functions call a function on the other agent?
+        # TODO: Is it strange that this function returns a value, while all other functions call a function
+        #       on the other agent?
         #       Communication is implemented speaker-centred.
         return self.concept_closest
-    
+
     def receive_feedback(self, feedback):
         '''
         Agent receives feedback from speaking agent, on correctness of concept,
@@ -102,7 +100,7 @@ class Agent(Agent):
             feedback: True if and only if the object pointed to was correct
         '''
         if feedback:
-            self.model.correct_interactions +=1
+            self.model.correct_interactions += 1
         print(f"Received signal: {self.signal_received}")
         signal_own = self.language[self.concept_closest]
         print(f"Closest own signal: {signal_own}")
@@ -112,7 +110,6 @@ class Agent(Agent):
         print()
         # After update, compute aggregate of articulation model, to color dot
         self.language_agg = stats.compute_language_agg(self.language)
-
 
 
 class Model(Model):
@@ -138,7 +135,7 @@ class Model(Model):
 
         self.datacollector = DataCollector(
             {"global_model_distance": "global_model_distance",
-            "proportion_correct_interactions": "proportion_correct_interactions"})
+             "proportion_correct_interactions": "proportion_correct_interactions"})
 
         # Set up agents
         # We use a grid iterator that returns
@@ -156,7 +153,7 @@ class Model(Model):
         self.datacollector.collect(self)
 
     def step(self):
-        self.steps+=1
+        self.steps += 1
         '''
         Run one step of the model.
         '''
@@ -165,8 +162,8 @@ class Model(Model):
         self.schedule.step()
         # Now compute proportion of correct interaction
         self.proportion_correct_interactions = self.correct_interactions/float(N_AGENTS)
-        if self.steps%1 == 0:
-            agents = [a for a,x,y in self.grid.coord_iter()]
+        if self.steps % 1 == 0:
+            agents = [a for a, x, y in self.grid.coord_iter()]
             self.global_model_distance = stats.compute_global_dist(agents)
 
         self.datacollector.collect(self)
