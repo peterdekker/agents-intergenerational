@@ -5,10 +5,11 @@ from mesa.datacollection import DataCollector
 
 import numpy as np
 
-from constants import HEIGHT, WIDTH, MAX_RADIUS, N_AGENTS
+from constants import HEIGHT, WIDTH, MAX_RADIUS, N_AGENTS, DATA_FILE
 import stats
 
 from Agent import Agent
+from Data import Data
 
 
 class Model(Model):
@@ -25,13 +26,15 @@ class Model(Model):
         self.width = width
         self.density = density
         self.radius = radius
-
         self.schedule = RandomActivation(self)
         self.grid = SingleGrid(width, height, torus=True)
-        self.global_model_distance = 0.0
-        self.correct_interactions = 0.0
         self.steps = 0
 
+        # Data is loaded from file, for every agent
+        self.data = Data(DATA_FILE)
+
+        self.global_model_distance = 0.0
+        self.correct_interactions = 0.0
         self.datacollector = DataCollector(
             {"global_model_distance": "global_model_distance",
              "proportion_correct_interactions": "proportion_correct_interactions"})
@@ -44,7 +47,7 @@ class Model(Model):
             x = cell[1]
             y = cell[2]
             if np.random.rand() < self.density:
-                agent = Agent((x, y), self)
+                agent = Agent((x, y), self, self.data)
                 self.grid.position_agent(agent, (x, y))
                 self.schedule.add(agent)
 
@@ -66,3 +69,4 @@ class Model(Model):
             self.global_model_distance = stats.compute_global_dist(agents)
 
         self.datacollector.collect(self)
+    

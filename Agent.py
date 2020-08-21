@@ -9,7 +9,7 @@ import update
 
 
 class Agent(Agent):
-    def __init__(self, pos, model):
+    def __init__(self, pos, model, data):
         '''
          Create a new speech agent.
 
