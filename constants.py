@@ -9,3 +9,4 @@ LEARNING_RATE = 0.5
 SAMPLE = N_AGENTS  # int(HEIGHT*WIDTH/2)
 HSAMPLE = int(SAMPLE/2)
 DATA_FILE = "data/data.csv"
+PERSONS = ['1sg', '2sg', '3sg', '1pl.incl', '1pl.excl', '2pl', '3pl']
