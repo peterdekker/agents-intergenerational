@@ -30,7 +30,7 @@ class Model(Model):
         self.grid = SingleGrid(width, height, torus=True)
         self.steps = 0
 
-        # Data is loaded from file, for every agent
+        # Global data object is created from data file
         self.data = Data(DATA_FILE)
 
         self.global_model_distance = 0.0

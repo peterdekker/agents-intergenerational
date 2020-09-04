@@ -11,7 +11,7 @@ class Data():
 
         # Create transitivity dict: concept -> {trans:0/1, instrans: 0/1}
         data_trans = self.data[["concept","trans","intrans"]].set_index("concept")
-        self.transitivity = data_trans.to_dict(orient="index")
+        self.transitivities = data_trans.to_dict(orient="index")
 
         # Create forms dict: concept -> {form_alorese: x, form_lmh, y}
         data_forms = self.data[["concept","form_alorese", "form_lmh"]].set_index("concept")

@@ -1,5 +1,6 @@
 from mesa import Agent
 
+import copy
 import numpy as np
 from scipy.spatial.distance import cdist
 
@@ -19,13 +20,25 @@ class Agent(Agent):
         '''
         super().__init__(pos, model)
         self.pos = pos
-        self.language_agg = [0, 0, 0]
 
-        # Initialize array of concepts
-        self.concepts = np.arange(0, N_CONCEPTS)
-        # Initialize array of of language: draw binary features from uniform distribution
-        self.language = np.random.randint(0, 2, (N_CONCEPTS, N_FEATURES))
-        self.language_agg = stats.compute_language_agg(self.language)
+        # These vars are not deep copies, because they will not be altered by agents(??)
+        self.concepts = data.concepts
+        self.persons = data.persons
+        self.transitivities = data.transitivities
+
+        # Vars are deep copies from vars in data obj, so agent can change them
+        # (deep copy because vars are nested dicts)
+        self.forms = copy.deepcopy(self.forms)
+        self.model = copy.deepcopy(self.affixes)
+
+
+        # self.language_agg = [0, 0, 0]
+
+        # # Initialize array of concepts
+        # self.concepts = np.arange(0, N_CONCEPTS)
+        # # Initialize array of of language: draw binary features from uniform distribution
+        # self.language = np.random.randint(0, 2, (N_CONCEPTS, N_FEATURES))
+        # self.language_agg = stats.compute_language_agg(self.language)
 
     def step(self):
         '''
@@ -46,19 +59,41 @@ class Agent(Agent):
          Args:
             listener: agent to speak to
         '''
+        # (1) Choose the meaning to be expressed, by picking a combination of:
+        # 1. Lexical concept (row) (e.g. ala)
+        # 2. Grammatical person (column) (e.g. 1SG)
+        # 3. Transitive or intransitive (depending on allowed modes for this verb)
         concept = np.random.choice(self.concepts)
+        person = np.random.choice(self.persons)
+        transitivities = [k for k,v in self.transitivities[concept].items() if v==1] #TODO: move this conversion to Data?
+        transitivity = np.random.choice(transitivities)
 
-        signal = np.copy(self.language[concept])  # create copy, so noise not applied to original
-        if NOISE_RATE > 0.0:
-            print("Apply noise")
-            print(f"Signal before: {signal}")
-            update.apply_noise(signal)
-            print(f"Signal after: {signal}")
+        # (2) The resulting cell will be used to generate a signal, by either:
+        # 1. adding a prefix: e.g. k+ala = kala
+        # 2. adding a suffix: e.g. ala+kən = alakən
+        # 3. adding nothing: e.g. ala
+        # If wordform is predictable enough (re-entrance),
+        # and phonetic features at boundaries have high distance, do not add the affix with probability p.
+        
+        # (3) Compose signal: separate prefix/concept/suffix
+        # + Add cues from sentence (Agent and Patient), based on transivitity. (pointers to objects)
 
-        # (S4) Send to listener, and receive concept listener points to
+        # (4) Send signal.
+        # 1. Adjust to listener? 
+        # Noise?
         concept_listener = listener.listen(signal)
-        # (S5) Send feedback to listener
-        listener.receive_feedback(concept_listener == concept)
+
+        # (5??) Send feedback to listener
+        # listener.receive_feedback(concept_listener == concept)
+
+
+        # signal = np.copy(self.language[concept])  # create copy, so noise not applied to original
+        # if NOISE_RATE > 0.0:
+        #     print("Apply noise")
+        #     print(f"Signal before: {signal}")
+        #     update.apply_noise(signal)
+        #     print(f"Signal after: {signal}")
+        
 
     # Methods used when agent listens
 
