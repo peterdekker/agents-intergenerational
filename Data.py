@@ -26,7 +26,14 @@ class Data():
         for concept in self.concepts:
             for person in self.persons:
                 for affix_type in ["prefix", "suffix"]:
-                    self.affixes[concept][person][affix_type] = data_affixes_dict[concept][f"{person}_{affix_type}"]
+                    affix = data_affixes_dict[concept][f"{person}_{affix_type}"]
+                    # Preprocessing steps, just take first form and remove -dash.
+                    # TODO: Make this more finegrained
+                    affix = affix.split("/")[0]
+                    affix = affix.split(",")[0]
+                    affix = affix.strip(" ")
+                    affix = affix.strip("-")
+                    self.affixes[concept][person][affix_type] = affix
         print(self.affixes)
         print(self.affixes["to eat"]["1pl.excl"]["suffix"])
             

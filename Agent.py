@@ -65,8 +65,14 @@ class Agent(Agent):
         # 3. Transitive or intransitive (depending on allowed modes for this verb)
         concept = np.random.choice(self.concepts)
         person = np.random.choice(self.persons)
-        transitivities = [k for k,v in self.transitivities[concept].items() if v==1] #TODO: move this conversion to Data?
+        # TODO: move this conversion to Data?
+        transitivities = [k for k,v in self.transitivities[concept].items() if v==1]
         transitivity = np.random.choice(transitivities)
+
+        # Use Lamaholot form, fall back to Alorese form
+        form = self.forms["concept"]["form_lmh"]
+        if len(form)==0:
+            form = self.forms["concept"]["form_alorese"]
 
         # (2) The resulting cell will be used to generate a signal, by either:
         # 1. adding a prefix: e.g. k+ala = kala
