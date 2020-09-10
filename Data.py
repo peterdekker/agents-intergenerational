@@ -27,13 +27,13 @@ class Data():
             for person in self.persons:
                 for affix_type in ["prefix", "suffix"]:
                     affix = data_affixes_dict[concept][f"{person}_{affix_type}"]
-                    # Preprocessing steps, just take first form and remove -dash.
-                    # TODO: Make this more finegrained
-                    affix = affix.split("/")[0]
-                    affix = affix.split(",")[0]
-                    affix = affix.strip(" ")
-                    affix = affix.strip("-")
-                    self.affixes[concept][person][affix_type] = affix
+                    # Preprocessing steps: there can be multiple affixes, split by ,
+                    affixes_processed = [a.strip(" ").strip("-") for a in affix.split(",")]
+                    # Build dict of possible affixes for this type, with uniform distribution
+                    prob = 1.0/len(affixes_processed)
+                    prob_dict = {aff: prob for aff in affixes_processed}
+
+                    self.affixes[concept][person][affix_type] = prob_dict
         print(self.affixes)
         print(self.affixes["to eat"]["1pl.excl"]["suffix"])
             
