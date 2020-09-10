@@ -74,12 +74,14 @@ class Agent(Agent):
         if len(form)==0:
             form = self.forms["concept"]["form_alorese"]
 
-        # (2) The resulting cell will be used to generate a signal, by either:
-        # 1. adding a prefix: e.g. k+ala = kala
-        # 2. adding a suffix: e.g. ala+kən = alakən
-        # 3. adding nothing: e.g. ala
+        # (2) Based on transitivity, add prefix or suffix:
+        # intransitive: always prefix
+        # intra
+
+
         # If wordform is predictable enough (re-entrance),
         # and phonetic features at boundaries have high distance, do not add the affix with probability p.
+        # TODO: to be implemented
         
         # (3) Compose signal: separate prefix/concept/suffix
         # + Add cues from sentence (Agent and Patient), based on transivitity. (pointers to objects)
