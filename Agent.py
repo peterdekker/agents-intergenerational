@@ -70,9 +70,10 @@ class Agent(Agent):
         transitivity = np.random.choice(transitivities)
 
         # Use Lamaholot form, fall back to Alorese form
-        form = self.forms["concept"]["form_lmh"]
-        if len(form)==0:
-            form = self.forms["concept"]["form_alorese"]
+        if "lewoingu" in self.forms[concept]:
+            form = self.forms[concept]["lewoingu"]
+        else:
+            form = self.forms[concept]["alorese"]
 
         # (2) Based on transitivity, add prefix or suffix:
         # intransitive: always prefix

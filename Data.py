@@ -13,8 +13,8 @@ class Data():
         data_trans = self.data[["concept","trans","intrans"]].set_index("concept")
         self.transitivities = data_trans.to_dict(orient="index")
 
-        # Create forms dict: concept -> {form_alorese: x, form_lmh, y}
-        data_forms = self.data[["concept","form_alorese", "form_lmh"]].set_index("concept")
+        # Create forms dict: concept -> {form_alorese: x, form_lewoingu, y}
+        data_forms = self.data[["concept","form_alorese", "form_lewoingu"]].set_index("concept")
         data_forms_dict = data_forms.to_dict(orient="index")
         self.forms = defaultdict(dict)
 
@@ -29,8 +29,11 @@ class Data():
             # Form processing: split multiple forms on , or /
             # strip * and -
             # TODO: Find out where variation in verb forms comes from
-            for lang in ["alorese", "lmh"]:
+            for lang in ["alorese", "lewoingu"]:
                 form = data_forms_dict[concept][f"form_{lang}"]
+                # If no form for this language, dont add key
+                if form == "":
+                    continue
                 forms_processed = [f.strip("*-") for f in re.split(",|/", form)]
                 # Build dict of possible affixes for this type, with uniform distribution
                 form_prob = 1.0/len(forms_processed)
