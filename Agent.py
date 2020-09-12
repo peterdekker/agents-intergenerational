@@ -71,13 +71,21 @@ class Agent(Agent):
 
         # Use Lamaholot form, fall back to Alorese form
         if "lewoingu" in self.forms[concept]:
-            form = self.forms[concept]["lewoingu"]
+            forms = self.forms[concept]["lewoingu"]
         else:
-            form = self.forms[concept]["alorese"]
+            forms = self.forms[concept]["alorese"]
+        form = np.random.choice(forms.keys(), p=forms.values())
+        
+
 
         # (2) Based on transitivity, add prefix or suffix:
-        # intransitive: always prefix
-        # intra
+        # TODO: find out real rule
+        #  - For transitive verb, use mandatory A/S prefix
+        #  - For intransitive verb, use optinal S suffix, or use free pronoun.
+        if transitivity == "trans":
+            affixes = self.affixes[concept][person][transitivity][prefix]
+            # Now pick from prob dist
+            affix = np.random.choice(affixes.keys(), p=affixes.values())
 
 
         # If wordform is predictable enough (re-entrance),
