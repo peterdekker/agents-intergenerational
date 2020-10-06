@@ -78,14 +78,28 @@ class Agent(Agent):
         
 
 
-        # (2) Based on transitivity, add prefix or suffix:
-        # TODO: find out real rule
+        # (2) Based on verb and transitivity, add prefix or suffix:
+        # ### what I thought first
         #  - For transitive verb, use mandatory A/S prefix
         #  - For intransitive verb, use optinal S suffix, or use free pronoun.
-        if transitivity == "trans":
-            affixes = self.affixes[concept][person][transitivity][prefix]
-            # Now pick from prob dist
-            affix = np.random.choice(affixes.keys(), p=affixes.values())
+        ######
+        
+        #  - suffixing verb:
+        #     -- transitive: do not use prefix
+        #     -- intransitive: use suffix with probability, because it is not obligatory
+        prefixes = self.affixes[concept][person]["prefix"]
+        suffixes = self.affixes[concept][person]["suffix"]
+
+        #  - prefixing verb:
+        #     -- regardless of transitive or intransitive: use prefix
+        if '' not in prefixes: # TODO: only minimal check, what with more affixes?
+            signal.add_prefix()
+
+
+        # if transitivity == "trans":
+        #     affixes = self.affixes[concept][person][transitivity][prefix]
+        #     # Now pick from prob dist
+        #     affix = np.random.choice(affixes.keys(), p=affixes.values())
 
 
         # If wordform is predictable enough (re-entrance),

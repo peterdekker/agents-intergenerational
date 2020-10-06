@@ -50,8 +50,8 @@ class Data():
 
                     self.affixes[concept][person][affix_type] = aff_prob_dict
         print(self.affixes)
-        print(self.forms)
-        print(self.transitivities)
+        #print(self.forms)
+        #print(self.transitivities)
             
 
         # check double items: print([item for item, count in collections.Counter(self.concepts).items() if count > 1])
