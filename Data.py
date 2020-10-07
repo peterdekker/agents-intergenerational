@@ -1,7 +1,7 @@
 import pandas as pd
 import re
 from collections import defaultdict
-from constants import PERSONS
+from constants import PERSONS, DATA_FILE
 
 class Data():
     def __init__(self, data_file):
@@ -12,6 +12,8 @@ class Data():
         # Create transitivity dict: concept -> {trans:0/1, instrans: 0/1}
         data_trans = self.data[["concept","trans","intrans"]].set_index("concept")
         self.transitivities = data_trans.to_dict(orient="index")
+        for concept in self.concepts:
+            self.transitivities[concept] = [k for k,v in self.transitivities[concept].items() if v==1]
 
         # Create forms dict: concept -> {form_alorese: x, form_lewoingu, y}
         data_forms = self.data[["concept","form_alorese", "form_lewoingu"]].set_index("concept")
@@ -49,14 +51,14 @@ class Data():
                     aff_prob_dict = {aff: aff_prob for aff in affixes_processed}
 
                     self.affixes[concept][person][affix_type] = aff_prob_dict
-        print(self.affixes)
+        #print(self.affixes)
         #print(self.forms)
-        #print(self.transitivities)
+        print(self.transitivities)
             
 
         # check double items: print([item for item, count in collections.Counter(self.concepts).items() if count > 1])
 
 
 if __name__ == "__main__":
-    d = Data("data/data.csv")
+    d = Data(DATA_FILE)
 

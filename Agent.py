@@ -4,9 +4,9 @@ import copy
 import numpy as np
 from scipy.spatial.distance import cdist
 
-from constants import N_CONCEPTS, N_FEATURES, NOISE_RATE
 import stats
 import update
+from Signal import Signal
 
 
 class Agent(Agent):
@@ -59,15 +59,16 @@ class Agent(Agent):
          Args:
             listener: agent to speak to
         '''
+
+        signal = Signal()
+
         # (1) Choose the meaning to be expressed, by picking a combination of:
         # 1. Lexical concept (row) (e.g. ala)
         # 2. Grammatical person (column) (e.g. 1SG)
         # 3. Transitive or intransitive (depending on allowed modes for this verb)
         concept = np.random.choice(self.concepts)
         person = np.random.choice(self.persons)
-        # TODO: move this conversion to Data?
-        transitivities = [k for k,v in self.transitivities[concept].items() if v==1]
-        transitivity = np.random.choice(transitivities)
+        transitivity = np.random.choice(self.transitivities)
 
         # Use Lamaholot form, fall back to Alorese form
         if "lewoingu" in self.forms[concept]:
@@ -75,7 +76,7 @@ class Agent(Agent):
         else:
             forms = self.forms[concept]["alorese"]
         form = np.random.choice(forms.keys(), p=forms.values())
-        
+        signal.set_form(form)
 
 
         # (2) Based on verb and transitivity, add prefix or suffix:
@@ -92,8 +93,9 @@ class Agent(Agent):
 
         #  - prefixing verb:
         #     -- regardless of transitive or intransitive: use prefix
-        if '' not in prefixes: # TODO: only minimal check, what with more affixes?
-            signal.add_prefix()
+        if update.is_prefixing_verb(prefixes):
+            prefix = np.random.choice(prefixes.keys(), p=prefixes.values())
+            signal.set_prefix(prefix)
 
 
         # if transitivity == "trans":
