@@ -7,6 +7,7 @@ from scipy.spatial.distance import cdist
 import stats
 import update
 from Signal import Signal
+from constants import RG
 
 
 class Agent(Agent):
@@ -37,8 +38,9 @@ class Agent(Agent):
         # # Initialize array of concepts
         # self.concepts = np.arange(0, N_CONCEPTS)
         # # Initialize array of of language: draw binary features from uniform distribution
-        # self.language = np.random.randint(0, 2, (N_CONCEPTS, N_FEATURES))
+        # self.language = RG.randint(0, 2, (N_CONCEPTS, N_FEATURES))
         # self.language_agg = stats.compute_language_agg(self.language)
+
 
     def step(self):
         '''
@@ -47,7 +49,7 @@ class Agent(Agent):
         # Choose an agent to speak to
         # If density==1 and radius==MAX_RADIUS, every agent speaks with every other, so random mixing
         neighbors = self.model.grid.get_neighbors(self.pos, True, False, self.model.radius)
-        listener = np.random.choice(neighbors)
+        listener = RG.choice(neighbors)
         self.speak(listener)
 
     # Methods used when agent speaks
@@ -66,50 +68,49 @@ class Agent(Agent):
         # 1. Lexical concept (row) (e.g. ala)
         # 2. Grammatical person (column) (e.g. 1SG)
         # 3. Transitive or intransitive (depending on allowed modes for this verb)
-        concept = np.random.choice(self.concepts)
-        person = np.random.choice(self.persons)
-        transitivity = np.random.choice(self.transitivities)
+        concept = RG.choice(self.concepts)
+        person = RG.choice(self.persons)
+        transitivity = RG.choice(self.transitivities)
 
         # Use Lamaholot form, fall back to Alorese form
         if "lewoingu" in self.forms[concept]:
             forms = self.forms[concept]["lewoingu"]
         else:
             forms = self.forms[concept]["alorese"]
-        form = np.random.choice(forms.keys(), p=forms.values())
+        form = RG.choice(forms.keys(), p=forms.values())
         signal.set_form(form)
 
 
         # (2) Based on verb and transitivity, add prefix or suffix:
-        # ### what I thought first
-        #  - For transitive verb, use mandatory A/S prefix
-        #  - For intransitive verb, use optinal S suffix, or use free pronoun.
-        ######
+        #  - prefixing verb:
+        #     -- regardless of transitive or intransitive: use prefix
+        prefixes = self.affixes[concept][person]["prefix"]
+        if update.is_prefixing_verb(prefixes):
+            prefix = RG.choice(prefixes.keys(), p=prefixes.values())
+            signal.set_prefix(prefix)
         
         #  - suffixing verb:
         #     -- transitive: do not use prefix
         #     -- intransitive: use suffix with probability, because it is not obligatory
-        prefixes = self.affixes[concept][person]["prefix"]
         suffixes = self.affixes[concept][person]["suffix"]
+        if update.is_suffixing_verb(suffixes)):
+            if transitivity == "intrans":
+                if RG.random() < SUFFIX_PROB:
+                    prefix = RG.choice(prefixes.keys(), p=prefixes.values())
+                    signal.set_suffix(suffix)
 
-        #  - prefixing verb:
-        #     -- regardless of transitive or intransitive: use prefix
-        if update.is_prefixing_verb(prefixes):
-            prefix = np.random.choice(prefixes.keys(), p=prefixes.values())
-            signal.set_prefix(prefix)
-
-
-        # if transitivity == "trans":
-        #     affixes = self.affixes[concept][person][transitivity][prefix]
-        #     # Now pick from prob dist
-        #     affix = np.random.choice(affixes.keys(), p=affixes.values())
 
 
         # If wordform is predictable enough (re-entrance),
         # and phonetic features at boundaries have high distance, do not add the affix with probability p.
         # TODO: to be implemented
         
-        # (3) Compose signal: separate prefix/concept/suffix
-        # + Add cues from sentence (Agent and Patient), based on transivitity. (pointers to objects)
+        # (3) Add cues from sentence (Agent and Patient), based on transivitity. (pointers to objects)
+        # TODO: Add possibility to drop pronoun probabilistically
+        signal.set_context_subject(person)
+        if transitivity == "trans":
+            # TODO: Make this more finegrained?
+            signal.set_context_object("OBJECT")
 
         # (4) Send signal.
         # 1. Adjust to listener? 
