@@ -1,10 +1,10 @@
 class Signal:
-    def __init__(self):
-        self.form = None
-        self.prefix = None
-        self.suffix = None
-        self.context_subject = None
-        self.context_object = None
+    def __init__(self, form=None, prefix=None, suffix=None, context_subject=None, context_object=None):
+        self.form = form
+        self.prefix = prefix
+        self.suffix = suffix
+        self.context_subject = context_subject
+        self.context_object = context_object
 
     # Getters
 
