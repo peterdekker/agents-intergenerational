@@ -6,6 +6,7 @@ from constants import PERSONS, DATA_FILE
 
 class Data():
     def __init__(self, data_file):
+        print("load data")
         self.data = pd.read_csv(data_file, sep="\t").fillna(value="")
         # Filter on only entries which have Lewoingu form (1 is not. TODO: fix data)
         self.data = self.data[self.data["form_lewoingu"] != ""]
@@ -53,12 +54,9 @@ class Data():
                     aff_prob_dict = {aff: aff_prob for aff in affixes_processed}
 
                     self.affixes[lex_concept][person][affix_type] = aff_prob_dict
-        # print(self.affixes)
-        # print(self.forms)
-        print(self.transitivities)
 
         # check double items: print([item for item, count in collections.Counter(self.concepts).items() if count > 1])
 
 
-if __name__ == "__main__":
-    d = Data(DATA_FILE)
+# if __name__ == "__main__":
+#     d = Data(DATA_FILE)

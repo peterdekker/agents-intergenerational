@@ -33,13 +33,13 @@ class Agent(Agent):
         self.forms = copy.deepcopy(data.forms)
         self.affixes = copy.deepcopy(data.affixes)
 
-        # self.language_agg = [0, 0, 0]
+        self.language_agg = [0, 0, 0]
 
         # # Initialize array of concepts
         # self.concepts = np.arange(0, N_CONCEPTS)
         # # Initialize array of of language: draw binary features from uniform distribution
         # self.language = RG.randint(0, 2, (N_CONCEPTS, N_FEATURES))
-        # self.language_agg = stats.compute_language_agg(self.language)
+        self.language_agg = stats.compute_language_agg(self.affixes)
 
     def step(self):
         '''
@@ -180,4 +180,4 @@ class Agent(Agent):
         #update.update_language(self.language, signal_own, self.signal_received, feedback)
         # NIET NODIG? self.language[self.concept_closest] = signal_own
         # After update, compute aggregate of articulation model, to color dot
-        self.language_agg=stats.compute_language_agg(self.language)
+        self.language_agg=stats.compute_language_agg(self.affixes)

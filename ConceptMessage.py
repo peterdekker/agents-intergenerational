@@ -34,9 +34,3 @@ class ConceptMessage:
         transitivity_loss = (self.transitivity != other_message.transitivity)
         N_LOSSES = 3
         return (lex_concept_loss+person_loss+transitivity_loss)/3
-
-
-if __name__ == "__main__":
-    message1 = ConceptMessage(lex_concept="to go", person="1SG", transitivity=r'trans')
-    message2 = ConceptMessage(lex_concept="to go", person='1SG', transitivity="trans")
-    print(message1.compute_loss(message2))

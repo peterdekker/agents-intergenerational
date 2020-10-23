@@ -1,5 +1,6 @@
 from constants import SAMPLE, HSAMPLE
 import numpy as np
+from scipy.stats import entropy
 
 
 def compute_global_dist(agents):
@@ -19,8 +20,17 @@ def compute_global_dist(agents):
     return global_model_distance
 
 
-def compute_language_agg(language):
+def compute_language_agg(affixes):
     # Only look at first three concepts: every concept will be a channel
     # Scale by total possible sum
     color_scale = 255
-    return language[1, :3].clip(0).clip(max=1) * color_scale
+    entropies = []
+    print(affixes)
+    for lex_concept in affixes:
+        for person in affixes[lex_concept]:
+            for affix in affixes[lex_concept][person]:
+                values = affixes[lex_concept][person].values()
+                print(values)
+                entropies.append(entropy(values))
+    mean_entropy = np.mean(entropies)
+    return [mean_entropy*color_scale, 100, 100]
