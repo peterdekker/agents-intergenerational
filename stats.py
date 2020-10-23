@@ -21,16 +21,15 @@ def compute_global_dist(agents):
 
 
 def compute_language_agg(affixes):
-    # Only look at first three concepts: every concept will be a channel
     # Scale by total possible sum
+    # TODO: optimize, get rid of loops
     color_scale = 255
     entropies = []
-    print(affixes)
     for lex_concept in affixes:
         for person in affixes[lex_concept]:
             for affix in affixes[lex_concept][person]:
-                values = affixes[lex_concept][person].values()
-                print(values)
-                entropies.append(entropy(values))
+                values = list(affixes[lex_concept][person][affix].values())
+                ent = entropy(values, base=2)
+                entropies.append(ent)
     mean_entropy = np.mean(entropies)
     return [mean_entropy*color_scale, 100, 100]
