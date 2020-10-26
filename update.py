@@ -1,12 +1,6 @@
 import numpy as np
 from constants import N_FEATURES, LEARNING_RATE, NOISE_RATE
 
-def is_prefixing_verb(prefixes):
-    return '' not in prefixes # TODO: only minimal check, what with more affixes?
-
-def is_suffixing_verb(suffixes):
-    return '' not in suffixes # TODO: only minimal check, what with more affixes?
-
 
 # def update_language(language, signal_own, signal_received, feedback):
 #     replace_positions = np.random.choice([True, False], size=N_FEATURES, p=[LEARNING_RATE, 1-LEARNING_RATE])

@@ -29,7 +29,7 @@ def compute_language_agg(affixes):
         for person in affixes[lex_concept]:
             for affix in affixes[lex_concept][person]:
                 values = list(affixes[lex_concept][person][affix].values())
-                ent = entropy(values, base=2)
+                ent = len(values) #entropy(values, base=2)
                 entropies.append(ent)
     mean_entropy = np.mean(entropies)
     return [mean_entropy*color_scale, 100, 100]

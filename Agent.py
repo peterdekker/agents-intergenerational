@@ -6,6 +6,7 @@ from scipy.spatial.distance import cdist
 
 import stats
 import update
+import util
 from Signal import Signal
 from ConceptMessage import ConceptMessage
 from constants import RG
@@ -69,30 +70,30 @@ class Agent(Agent):
         # 3. Transitive or intransitive (depending on allowed modes for this verb)
         lex_concept = RG.choice(self.lex_concepts)
         person = RG.choice(self.persons)
-        transitivity = RG.choice(self.transitivities)
+        transitivity = RG.choice(self.transitivities[lex_concept])
         concept_speaker = ConceptMessage(lex_concept=lex_concept, person=person, transitivity=transitivity)
 
         # Use Lewoingu Lamaholot form, fall back to Alorese form
         forms = self.forms[lex_concept]["lewoingu"]
-        form = RG.choice(forms.keys(), p=forms.values())
+        form = util.random_choice_weighted_dict(forms)
         signal.set_form(form)
 
         # (2) Based on verb and transitivity, add prefix or suffix:
         #  - prefixing verb:
         #     -- regardless of transitive or intransitive: use prefix
         prefixes = self.affixes[lex_concept][person]["prefix"]
-        if update.is_prefixing_verb(prefixes):
-            prefix = RG.choice(prefixes.keys(), p=prefixes.values())
+        if util.is_prefixing_verb(prefixes):
+            prefix = util.random_choice_weighted_dict(prefixes)
             signal.set_prefix(prefix)
 
         #  - suffixing verb:
         #     -- transitive: do not use prefix
         #     -- intransitive: use suffix with probability, because it is not obligatory
         suffixes = self.affixes[lex_concept][person]["suffix"]
-        if update.is_suffixing_verb(suffixes):
+        if util.is_suffixing_verb(suffixes):
             if transitivity == "intrans":
                 if RG.random() < SUFFIX_PROB:
-                    prefix=RG.choice(prefixes.keys(), p = prefixes.values())
+                    suffix = util.random_choice_weighted_dict(suffixes)
                     signal.set_suffix(suffix)
 
 
