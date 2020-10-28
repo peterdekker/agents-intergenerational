@@ -6,7 +6,6 @@ from constants import PERSONS, DATA_FILE
 
 class Data():
     def __init__(self, data_file):
-        print("load data")
         self.data = pd.read_csv(data_file, sep="\t").fillna(value="")
         # Filter on only entries which have Lewoingu form (1 is not. TODO: fix data)
         self.data = self.data[self.data["form_lewoingu"] != ""]

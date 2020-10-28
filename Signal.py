@@ -5,6 +5,9 @@ class Signal:
         self.suffix = suffix
         self.context_subject = context_subject
         self.context_object = context_object
+    
+    def __str__(self):
+        return f"Form: {self.form} Prefix: {self.prefix} Suffix: {self.suffix} Subject: {self.context_subject} Object: {self.context_object}"
 
     # Getters
 

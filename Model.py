@@ -64,7 +64,7 @@ class Model(Model):
         self.schedule.step()
         # Now compute proportion of correct interaction
         self.proportion_correct_interactions = self.correct_interactions/float(N_AGENTS)
-        if self.steps % 1 == 0:
+        if self.steps % 10 == 0:
             agents = [a for a, x, y in self.grid.coord_iter()]
             self.global_model_distance = stats.compute_global_dist(agents)
 

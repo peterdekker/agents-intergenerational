@@ -25,7 +25,7 @@ def draw(agent):
     '''
     if agent is None:
         return
-    c = agent.language_agg
+    c = agent.colour
     color_str = f"rgb({c[0]},{c[1]},{c[2]})"
     portrayal = {"Shape": "circle", "r": 0.5, "Filled": "true", "Layer": 0}
     portrayal["Color"] = [color_str, color_str]

@@ -3,6 +3,10 @@ class ConceptMessage:
         self.lex_concept = lex_concept
         self.person = person
         self.transitivity = transitivity
+    
+
+    def __str__(self):
+        return f"{self.lex_concept}-{self.person}-{self.transitivity}"
 
     # Getters
 

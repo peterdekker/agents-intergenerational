@@ -2,14 +2,14 @@ from mesa import Agent
 
 import copy
 import numpy as np
-from scipy.spatial.distance import cdist
 
 import stats
 import update
 import util
+import time
 from Signal import Signal
 from ConceptMessage import ConceptMessage
-from constants import RG
+from constants import RG, SUFFIX_PROB, logging
 
 
 class Agent(Agent):
@@ -34,13 +34,11 @@ class Agent(Agent):
         self.forms = copy.deepcopy(data.forms)
         self.affixes = copy.deepcopy(data.affixes)
 
-        self.language_agg = [0, 0, 0]
-
         # # Initialize array of concepts
         # self.concepts = np.arange(0, N_CONCEPTS)
         # # Initialize array of of language: draw binary features from uniform distribution
         # self.language = RG.randint(0, 2, (N_CONCEPTS, N_FEATURES))
-        self.language_agg = stats.compute_language_agg(self.affixes)
+        self.colour = stats.compute_agent_colour(self.affixes)
 
     def step(self):
         '''
@@ -50,7 +48,10 @@ class Agent(Agent):
         # If density==1 and radius==MAX_RADIUS, every agent speaks with every other, so random mixing
         neighbors = self.model.grid.get_neighbors(self.pos, True, False, self.model.radius)
         listener = RG.choice(neighbors)
+        #start_speak = time.time()
         self.speak(listener)
+        #end_speak = time.time()
+        #print(f"speak:{end_speak-start_speak}")
 
     # Methods used when agent speaks
 
@@ -72,9 +73,11 @@ class Agent(Agent):
         person = RG.choice(self.persons)
         transitivity = RG.choice(self.transitivities[lex_concept])
         concept_speaker = ConceptMessage(lex_concept=lex_concept, person=person, transitivity=transitivity)
+        logging.debug(f"Speaker chose concept: {concept_speaker!s}")
 
         # Use Lewoingu Lamaholot form, fall back to Alorese form
         forms = self.forms[lex_concept]["lewoingu"]
+        # TODO: Choosing between forms has not much effect, form probabilities are not yet updated
         form = util.random_choice_weighted_dict(forms)
         signal.set_form(form)
 
@@ -112,6 +115,7 @@ class Agent(Agent):
 
         # Send signal.
         # TODO: noise? 
+        logging.debug(f"Speaker sends signal: {signal!s}")
         concept_listener=listener.listen(signal)
 
         # Send real concept as feedback to listener
@@ -134,13 +138,13 @@ class Agent(Agent):
             message: concept which listener thinks is closest to heard signal
         '''
         
-        form = signal.get_form()
+        signal_form = signal.get_form()
         # Do reverse lookup in forms dict to find accompanying concept
         # TODO: Maybe create reverse dict beforehand to speed up
         # TODO: noisy comparison
         inferred_lex_concept = None
         for lex_concept in self.forms:
-            if self.forms[lex_concept]==form:
+            if signal_form in self.forms[lex_concept]['lewoingu']:
                 inferred_lex_concept = lex_concept
                 break
 
@@ -150,13 +154,13 @@ class Agent(Agent):
         person = signal.get_context_subject()
 
         # We use directly existence/non-existence of object as criterion for transitivity
-        if context_object:
+        if signal.get_context_object():
             transitivity = "trans"
         else:
             transitivity = "intrans"
         
         self.concept_listener = ConceptMessage(lex_concept=inferred_lex_concept, person=person, transitivity=transitivity)
-
+        logging.debug(f"Listener decodes concept: {self.concept_listener!s}")
         # Point to object
         # TODO: Is it strange that this function returns a value, while all other functions call a function
         #       on the other agent? Communication is implemented speaker-centred.
@@ -172,13 +176,14 @@ class Agent(Agent):
         '''
 
         loss = self.concept_listener.compute_loss(concept_speaker)
-        print(loss)
+        logging.debug(f"Loss: {loss}\n")
         # TODO: perform update
 
-        #if feedback:
-        #    self.model.correct_interactions += 1
+        if loss==0:
+            self.model.correct_interactions += 1
         #signal_own=self.language[self.concept_closest]
         #update.update_language(self.language, signal_own, self.signal_received, feedback)
         # NIET NODIG? self.language[self.concept_closest] = signal_own
+
         # After update, compute aggregate of articulation model, to color dot
-        self.language_agg=stats.compute_language_agg(self.affixes)
+        #self.colour=stats.compute_agent_colour(self.affixes)
