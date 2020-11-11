@@ -9,7 +9,7 @@ import util
 import time
 from Signal import Signal
 from ConceptMessage import ConceptMessage
-from constants import RG, SUFFIX_PROB, logging
+from constants import RG, SUFFIX_PROB, UPDATE_AMOUNT, logging
 
 
 class Agent(Agent):
@@ -137,8 +137,9 @@ class Agent(Agent):
          Returns:
             message: concept which listener thinks is closest to heard signal
         '''
+        self.signal_recv = signal
         
-        signal_form = signal.get_form()
+        signal_form = self.signal_recv.get_form()
         # Do reverse lookup in forms dict to find accompanying concept
         # TODO: Maybe create reverse dict beforehand to speed up
         # TODO: noisy comparison
@@ -151,13 +152,10 @@ class Agent(Agent):
         # TODO: take also prefix and suffix into consideration
 
         # We take directly person. TODO: do noisy comparison
-        person = signal.get_context_subject()
+        person = self.signal_recv.get_context_subject()
 
         # We use directly existence/non-existence of object as criterion for transitivity
-        if signal.get_context_object():
-            transitivity = "trans"
-        else:
-            transitivity = "intrans"
+        transitivity = "trans" if self.signal_recv.get_context_object() else "intrans"
         
         self.concept_listener = ConceptMessage(lex_concept=inferred_lex_concept, person=person, transitivity=transitivity)
         logging.debug(f"Listener decodes concept: {self.concept_listener!s}")
@@ -177,13 +175,24 @@ class Agent(Agent):
 
         loss = self.concept_listener.compute_loss(concept_speaker)
         logging.debug(f"Loss: {loss}\n")
-        # TODO: perform update
-
-        if loss==0:
+        # TODO: Also perform positive update if loss==0? And when loss>0, perform negative update on wrong prefix as well
+        # If loss > 0, perform update
+        if (loss > 0.0):
+            # Update by target concept: the concept that was designated by the speaker
+            lex_concept_speaker = concept_speaker.get_lex_concept()
+            person_speaker = concept_speaker.get_person()
+            affixes = self.affixes[lex_concept_speaker][person_speaker]
+            # Increase probability of right affix
+            prefix_recv = self.signal_recv.get_prefix()
+            # TODO: Currently no option to have both prefix and suffix
+            if prefix_recv:
+                affixes[prefix_recv] = affixes[prefix_recv] + UPDATE_AMOUNT
+            suffix_recv = self.signal_recv.get_suffix()
+            if suffix_recv:
+                affix_increased = affixes[suffix_recv] + UPDATE_AMOUNT
+            # TODO: Normalize rest
+        else:
             self.model.correct_interactions += 1
-        #signal_own=self.language[self.concept_closest]
-        #update.update_language(self.language, signal_own, self.signal_received, feedback)
-        # NIET NODIG? self.language[self.concept_closest] = signal_own
 
         # After update, compute aggregate of articulation model, to color dot
-        #self.colour=stats.compute_agent_colour(self.affixes)
+        self.colour=stats.compute_agent_colour(self.affixes)

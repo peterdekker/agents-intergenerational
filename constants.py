@@ -18,3 +18,4 @@ DATA_FILE = "data/data.csv"
 PERSONS = ['1sg', '2sg', '3sg', '1pl.incl', '1pl.excl', '2pl', '3pl']
 RG = np.random.default_rng()
 SUFFIX_PROB= 0.5
+UPDATE_AMOUNT = 0.01

@@ -12,7 +12,7 @@ class Data():
         self.lex_concepts = list(self.data["concept"])
         self.persons = PERSONS
 
-        # Create transitivity dict: concept -> {trans:0/1, instrans: 0/1}
+        # Create transitivity dict: lex_concept -> {trans:0/1, instrans: 0/1}
         data_trans = self.data[["concept", "trans", "intrans"]].set_index("concept")
         self.transitivities = data_trans.to_dict(orient="index")
         for lex_concept in self.lex_concepts:
