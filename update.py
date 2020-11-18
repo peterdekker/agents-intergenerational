@@ -1,5 +1,5 @@
 import numpy as np
-from constants import N_FEATURES, LEARNING_RATE, NOISE_RATE
+from constants import LEARNING_RATE, NOISE_RATE
 
 
 # def update_language(language, signal_own, signal_received, feedback):

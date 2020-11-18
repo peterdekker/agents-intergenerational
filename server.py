@@ -42,10 +42,10 @@ corr_int_chart = ChartModule([{"Label": "proportion_correct_interactions", "Colo
 model_params = {
     "height": HEIGHT,
     "width": WIDTH,
-    "density": UserSettableParameter("slider", "Agent density", 1.0, 0.1, 1.0, 0.1),
+    "proportion_l2": UserSettableParameter("slider", "Proportion L2", 0.0, 0.1, 1.0, 0.1),
     "radius": UserSettableParameter("slider", "Neighbourhood radius", MAX_RADIUS, 1, MAX_RADIUS, 1),
 }
 
 server = ModularServer(Model,
                        [canvas_element, dist_element, dist_chart, corr_int_chart],
-                       "Agents of speech", model_params)
+                       "Contact-induced morphological simplification in Alorese", model_params)

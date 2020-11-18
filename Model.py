@@ -17,14 +17,14 @@ class Model(Model):
     Model class
     '''
 
-    def __init__(self, height=HEIGHT, width=WIDTH, density=1.0, radius=MAX_RADIUS):
+    def __init__(self, height=HEIGHT, width=WIDTH, proportion_l2=0.0, radius=MAX_RADIUS):
         '''
         Initialize field
         '''
 
         self.height = height
         self.width = width
-        self.density = density
+        self.proportion_l2 = proportion_l2
         self.radius = radius
         self.schedule = RandomActivation(self)
         self.grid = SingleGrid(width, height, torus=True)
@@ -46,10 +46,14 @@ class Model(Model):
         for cell in self.grid.coord_iter():
             x = cell[1]
             y = cell[2]
-            if np.random.rand() < self.density:
-                agent = Agent((x, y), self, self.data)
-                self.grid.position_agent(agent, (x, y))
-                self.schedule.add(agent)
+            if np.random.rand() < self.proportion_l2:
+                # L2 agents initialized randomly
+                agent = Agent((x, y), self, init="empty" data=self.data)
+            else:
+                # L1 agents initialized using data sheet
+                agent = Agent((x, y), self, init="data", data=self.data)
+            self.grid.position_agent(agent, (x, y))
+            self.schedule.add(agent)
 
         self.running = True
         self.datacollector.collect(self)

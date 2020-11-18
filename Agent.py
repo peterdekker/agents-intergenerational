@@ -4,7 +4,6 @@ import copy
 import numpy as np
 
 import stats
-import update
 import util
 import time
 from Signal import Signal
@@ -13,31 +12,35 @@ from constants import RG, SUFFIX_PROB, UPDATE_AMOUNT, logging
 
 
 class Agent(Agent):
-    def __init__(self, pos, model, data):
+    def __init__(self, pos, model, init, data):
         '''
          Create a new speech agent.
 
          Args:
             pos: Agent initial location.
             model: Model in which agent is located.
+            init: Initialization mode of forms and affixes: random or data
         '''
         super().__init__(pos, model)
         self.pos = pos
 
         # These vars are not deep copies, because they will not be altered by agents(??)
+        # Always initialized from data, whatever init is.
         self.lex_concepts = data.lex_concepts
         self.persons = data.persons
         self.transitivities = data.transitivities
 
-        # Vars are deep copies from vars in data obj, so agent can change them
-        # (deep copy because vars are nested dicts)
-        self.forms = copy.deepcopy(data.forms)
-        self.affixes = copy.deepcopy(data.affixes)
+        # Only initialize forms and affixes from data if init==data
+        if init=="data":
+            # Vars are deep copies from vars in data obj, so agent can change them
+            # (deep copy because vars are nested dicts)
+            self.forms = copy.deepcopy(data.forms)
+            self.affixes = copy.deepcopy(data.affixes)
+        elif init=="empty":
+            self.forms = defaultdict(dict)
+            self.affixes = defaultdict(lambda: defaultdict(dict))
 
-        # # Initialize array of concepts
-        # self.concepts = np.arange(0, N_CONCEPTS)
-        # # Initialize array of of language: draw binary features from uniform distribution
-        # self.language = RG.randint(0, 2, (N_CONCEPTS, N_FEATURES))
+
         self.colour = stats.compute_agent_colour(self.affixes)
 
     def step(self):
@@ -45,7 +48,7 @@ class Agent(Agent):
          Perform one interaction for this agent, with this agent as speaker
         '''
         # Choose an agent to speak to
-        # If density==1 and radius==MAX_RADIUS, every agent speaks with every other, so random mixing
+        # If radius==MAX_RADIUS, every agent speaks with every other, so random mixing
         neighbors = self.model.grid.get_neighbors(self.pos, True, False, self.model.radius)
         listener = RG.choice(neighbors)
         #start_speak = time.time()
@@ -77,8 +80,8 @@ class Agent(Agent):
 
         # Use Lewoingu Lamaholot form, fall back to Alorese form
         forms = self.forms[lex_concept]["lewoingu"]
-        # TODO: Choosing between forms has not much effect, form probabilities are not yet updated
-        form = util.random_choice_weighted_dict(forms)
+        form = RG.choice(forms)
+        #form = util.random_choice_weighted_dict(forms)
         signal.set_form(form)
 
         # (2) Based on verb and transitivity, add prefix or suffix:
@@ -86,7 +89,8 @@ class Agent(Agent):
         #     -- regardless of transitive or intransitive: use prefix
         prefixes = self.affixes[lex_concept][person]["prefix"]
         if util.is_prefixing_verb(prefixes):
-            prefix = util.random_choice_weighted_dict(prefixes)
+            prefix = RG.choice(prefixes)
+            #prefix = util.random_choice_weighted_dict(prefixes)
             signal.set_prefix(prefix)
 
         #  - suffixing verb:
@@ -96,7 +100,8 @@ class Agent(Agent):
         if util.is_suffixing_verb(suffixes):
             if transitivity == "intrans":
                 if RG.random() < SUFFIX_PROB:
-                    suffix = util.random_choice_weighted_dict(suffixes)
+                    suffix = RG.choice(suffixes)
+                    #suffix = util.random_choice_weighted_dict(suffixes)
                     signal.set_suffix(suffix)
 
 
@@ -104,6 +109,7 @@ class Agent(Agent):
         # If wordform is predictable enough (re-entrance),
         # and phonetic features at boundaries have high distance, do not add the affix with probability p.
         # TODO: to be implemented
+        # TODO: implement phonetic conversion
 
         # (3) Add context from sentence (subject and object), based on transivitity.
         # TODO: Add possibility to drop pronoun probabilistically
@@ -174,25 +180,27 @@ class Agent(Agent):
         '''
 
         loss = self.concept_listener.compute_loss(concept_speaker)
-        logging.debug(f"Loss: {loss}\n")
-        # TODO: Also perform positive update if loss==0? And when loss>0, perform negative update on wrong prefix as well
-        # If loss > 0, perform update
-        if (loss > 0.0):
-            # Update by target concept: the concept that was designated by the speaker
-            lex_concept_speaker = concept_speaker.get_lex_concept()
-            person_speaker = concept_speaker.get_person()
-            affixes = self.affixes[lex_concept_speaker][person_speaker]
-            # Increase probability of right affix
-            prefix_recv = self.signal_recv.get_prefix()
-            # TODO: Currently no option to have both prefix and suffix
-            if prefix_recv:
-                affixes[prefix_recv] = affixes[prefix_recv] + UPDATE_AMOUNT
-            suffix_recv = self.signal_recv.get_suffix()
-            if suffix_recv:
-                affix_increased = affixes[suffix_recv] + UPDATE_AMOUNT
-            # TODO: Normalize rest
-        else:
+        logging.debug(f"Loss: {loss}")
+        if loss==0.0:
             self.model.correct_interactions += 1
+        
+        # TODO: perform negative update on wrong prefix as well?
+        # Update by target concept: the concept that was designated by the speaker
+        lex_concept_speaker = concept_speaker.get_lex_concept()
+        person_speaker = concept_speaker.get_person()
+        # Add current prefix to right concept
+        prefix_recv = self.signal_recv.get_prefix()
+        suffix_recv = self.signal_recv.get_suffix()
+        for affix_recv, affix_type in [(prefix_recv,"prefix"), (suffix_recv,"suffix")]:
+            if affix_recv:
+                self.affixes[lex_concept_speaker][person_speaker][affix_type].append(affix_recv)
+                #affixes[affix_recv] += UPDATE_AMOUNT
+                # Normalize probabilities
+                #probs_sum = sum(affixes.values())
+                #affixes = dict([(k,v/probs_sum) for k,v in affixes.items()])
+
+        form_recv = self.signal_recv.get_form()
+        self.forms[lex_concept_speaker]["form_lewoingu"].append(form_recv)
 
         # After update, compute aggregate of articulation model, to color dot
         self.colour=stats.compute_agent_colour(self.affixes)

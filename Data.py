@@ -39,20 +39,17 @@ class Data():
                 if form == "":
                     continue
                 forms_processed = [f.strip("*-") for f in re.split(",|/", form)]
-                # Build dict of possible affixes for this type, with uniform distribution
-                form_prob = 1.0/len(forms_processed)
-                form_prob_dict = {f: form_prob for f in forms_processed}
-                self.forms[lex_concept][lang] = form_prob_dict
+                #form_prob = 1.0/len(forms_processed)
+                #form_prob_dict = {f: form_prob for f in forms_processed}
+                self.forms[lex_concept][lang] = forms_processed
             for person in self.persons:
                 for affix_type in ["prefix", "suffix"]:
                     affix = data_affixes_dict[lex_concept][f"{person}_{affix_type}"]
                     # Affix preprocessing: there can be multiple affixes, split by ,
                     affixes_processed = [a.strip(" -") for a in affix.split(",")]
-                    # Build dict of possible affixes for this type, with uniform distribution
-                    aff_prob = 1.0/len(affixes_processed)
-                    aff_prob_dict = {aff: aff_prob for aff in affixes_processed}
-
-                    self.affixes[lex_concept][person][affix_type] = aff_prob_dict
+                    #aff_prob = 1.0/len(affixes_processed)
+                    #aff_prob_dict = {aff: aff_prob for aff in affixes_processed}
+                    self.affixes[lex_concept][person][affix_type] = affixes_processed
 
         # check double items: print([item for item, count in collections.Counter(self.concepts).items() if count > 1])
 
