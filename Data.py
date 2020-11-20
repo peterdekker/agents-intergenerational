@@ -19,29 +19,28 @@ class Data():
             self.transitivities[lex_concept] = [k for k, v in self.transitivities[lex_concept].items() if v == 1]
 
         # Create forms dict: lex_concept -> {form_alorese: x, form_lewoingu, y}
-        data_forms = self.data[["concept", "form_alorese", "form_lewoingu"]].set_index("concept")
+        data_forms = self.data[["concept", "form_lewoingu"]].set_index("concept")
         data_forms_dict = data_forms.to_dict(orient="index")
-        self.forms = defaultdict(dict)
+        self.forms = defaultdict(list)
 
         # Create affixes dict: concept -> (person -> affix)
         # This will be used as basis for the mental models of the agents
         person_affix_cols = [col for col in self.data if re.match("[0-9]", col)]
         data_affixes = self.data[["concept"]+person_affix_cols].set_index("concept")
         data_affixes_dict = data_affixes.to_dict(orient="index")
-        self.affixes = defaultdict(lambda: defaultdict(dict))
+        self.affixes = defaultdict(lambda: defaultdict(lambda: defaultdict(list)))
 
         for lex_concept in self.lex_concepts:
             # Form processing: split multiple forms on , or /
             # strip * and -
-            for lang in ["alorese", "lewoingu"]:
-                form = data_forms_dict[lex_concept][f"form_{lang}"]
-                # If no form for this language, dont add key
-                if form == "":
-                    continue
-                forms_processed = [f.strip("*-") for f in re.split(",|/", form)]
-                #form_prob = 1.0/len(forms_processed)
-                #form_prob_dict = {f: form_prob for f in forms_processed}
-                self.forms[lex_concept][lang] = forms_processed
+            form = data_forms_dict[lex_concept]["form_lewoingu"]
+            # If no form for this language, dont add key
+            if form == "":
+                continue
+            forms_processed = [f.strip("*-") for f in re.split(",|/", form)]
+            #form_prob = 1.0/len(forms_processed)
+            #form_prob_dict = {f: form_prob for f in forms_processed}
+            self.forms[lex_concept] = forms_processed
             for person in self.persons:
                 for affix_type in ["prefix", "suffix"]:
                     affix = data_affixes_dict[lex_concept][f"{person}_{affix_type}"]

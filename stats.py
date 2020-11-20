@@ -30,7 +30,8 @@ def compute_agent_agg(affixes):
     for lex_concept,persons_dict in affixes.items():
         for person, affixes_dict in persons_dict.items():
             for affix, prob_dict in affixes_dict.items():
-                ent = len(prob_dict) #entropy(values, base=2)
+                # Length is also calculated for empty affixes list (in L2 agents)
+                ent = len(prob_dict)
                 entropies.append(ent)
     mean_entropy = np.mean(entropies)
     #end=time.time()
