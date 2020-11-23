@@ -1,14 +1,15 @@
 from mesa import Agent
 
 import copy
-import numpy as np
-
 import stats
 import util
-import time
+
+import numpy as np
+
 from Signal import Signal
 from ConceptMessage import ConceptMessage
-from constants import RG, SUFFIX_PROB, UPDATE_AMOUNT, logging
+from constants import RG, SUFFIX_PROB,  logging
+from collections import defaultdict
 
 
 class Agent(Agent):
@@ -37,11 +38,11 @@ class Agent(Agent):
             self.forms = copy.deepcopy(data.forms)
             self.affixes = copy.deepcopy(data.affixes)
         elif init=="empty":
-            self.forms = defaultdict(dict)
-            self.affixes = defaultdict(lambda: defaultdict(dict))
+            self.forms = defaultdict(list)
+            self.affixes = defaultdict(lambda: defaultdict(lambda: defaultdict(list)))
 
 
-        self.colour = stats.compute_agent_colour(self.affixes)
+        self.colour = self.compute_colour()
 
     def step(self):
         '''
@@ -51,10 +52,7 @@ class Agent(Agent):
         # If radius==MAX_RADIUS, every agent speaks with every other, so random mixing
         neighbors = self.model.grid.get_neighbors(self.pos, True, False, self.model.radius)
         listener = RG.choice(neighbors)
-        #start_speak = time.time()
         self.speak(listener)
-        #end_speak = time.time()
-        #print(f"speak:{end_speak-start_speak}")
 
     # Methods used when agent speaks
 
@@ -78,8 +76,11 @@ class Agent(Agent):
         concept_speaker = ConceptMessage(lex_concept=lex_concept, person=person, transitivity=transitivity)
         logging.debug(f"Speaker chose concept: {concept_speaker!s}")
 
-        # Use Lewoingu Lamaholot form, fall back to Alorese form
-        forms = self.forms[lex_concept]["lewoingu"]
+        forms = self.forms[lex_concept]
+        # TODO: Do something smarter than not speaking this iteration when there is no form
+        if len(forms) == 0:
+            logging.debug("(L2) agent without forms for this concept, do not speak this interaction.")
+            return
         form = RG.choice(forms)
         #form = util.random_choice_weighted_dict(forms)
         signal.set_form(form)
@@ -151,7 +152,7 @@ class Agent(Agent):
         # TODO: noisy comparison
         inferred_lex_concept = None
         for lex_concept in self.forms:
-            if signal_form in self.forms[lex_concept]['lewoingu']:
+            if signal_form in self.forms[lex_concept]:
                 inferred_lex_concept = lex_concept
                 break
 
@@ -194,13 +195,33 @@ class Agent(Agent):
         for affix_recv, affix_type in [(prefix_recv,"prefix"), (suffix_recv,"suffix")]:
             if affix_recv:
                 self.affixes[lex_concept_speaker][person_speaker][affix_type].append(affix_recv)
-                #affixes[affix_recv] += UPDATE_AMOUNT
-                # Normalize probabilities
-                #probs_sum = sum(affixes.values())
-                #affixes = dict([(k,v/probs_sum) for k,v in affixes.items()])
+                logging.debug(f"Affixes after update: {self.affixes[lex_concept_speaker][person_speaker][affix_type]}")
+                # affixes[affix_recv] += UPDATE_AMOUNT
+                # probs_sum = sum(affixes.values())
+                # affixes = dict([(k,v/probs_sum) for k,v in affixes.items()])
 
         form_recv = self.signal_recv.get_form()
-        self.forms[lex_concept_speaker]["form_lewoingu"].append(form_recv)
+        self.forms[lex_concept_speaker].append(form_recv)
+        # if lex_concept_speaker=="to pass":
+        logging.debug(f"Forms after update: {self.forms[lex_concept_speaker]}")
+
 
         # After update, compute aggregate of articulation model, to color dot
-        self.colour=stats.compute_agent_colour(self.affixes)
+        self.colour=self.compute_colour()
+
+    def compute_agg(self):
+        # TODO: optimize, get rid of loops
+        lengths = []
+        for lex_concept in self.lex_concepts:
+            for person in self.persons:
+                for affix_position in ["prefix","suffix"]:
+                    # Length is also calculated for empty affixes list (in L2 agents)
+                    n_affixes = len(self.affixes[lex_concept][person][affix_position])
+                    lengths.append(n_affixes)
+        mean_length = np.mean(lengths) # if len(lengths)>0 else 0
+        return mean_length, lengths
+
+    def compute_colour(self):
+        color_scale = 255
+        agg, _ = self.compute_agg()
+        return [agg*color_scale, 100, 100]

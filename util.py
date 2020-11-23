@@ -8,7 +8,7 @@ from constants import RG
 #     return chosen_item
 
 def is_prefixing_verb(prefixes):
-    return '' not in prefixes # TODO: only minimal check, what with more affixes?
+    return len(prefixes) > 0 # TODO: only minimal check, what with more affixes?
 
 def is_suffixing_verb(suffixes):
-    return '' not in suffixes # TODO: only minimal check, what with more affixes?
+    return len(suffixes) > 0 

@@ -18,7 +18,7 @@ class Data():
         for lex_concept in self.lex_concepts:
             self.transitivities[lex_concept] = [k for k, v in self.transitivities[lex_concept].items() if v == 1]
 
-        # Create forms dict: lex_concept -> {form_alorese: x, form_lewoingu, y}
+        # Create forms dict: lex_concept -> form
         data_forms = self.data[["concept", "form_lewoingu"]].set_index("concept")
         data_forms_dict = data_forms.to_dict(orient="index")
         self.forms = defaultdict(list)
@@ -37,7 +37,7 @@ class Data():
             # If no form for this language, dont add key
             if form == "":
                 continue
-            forms_processed = [f.strip("*-") for f in re.split(",|/", form)]
+            forms_processed = [f.strip("* -") for f in re.split(",|/", form)]
             #form_prob = 1.0/len(forms_processed)
             #form_prob_dict = {f: form_prob for f in forms_processed}
             self.forms[lex_concept] = forms_processed
@@ -46,6 +46,8 @@ class Data():
                     affix = data_affixes_dict[lex_concept][f"{person}_{affix_type}"]
                     # Affix preprocessing: there can be multiple affixes, split by ,
                     affixes_processed = [a.strip(" -") for a in affix.split(",")]
+                    if "" in affixes_processed:
+                        affixes_processed.remove("")
                     #aff_prob = 1.0/len(affixes_processed)
                     #aff_prob_dict = {aff: aff_prob for aff in affixes_processed}
                     self.affixes[lex_concept][person][affix_type] = affixes_processed

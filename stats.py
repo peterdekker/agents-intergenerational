@@ -1,6 +1,6 @@
 from constants import SAMPLE, HSAMPLE
 import numpy as np
-from scipy.stats import entropy
+from scipy.spatial.distance import euclidean
 import time
 
 def compute_global_dist(agents):
@@ -13,32 +13,10 @@ def compute_global_dist(agents):
     for agent1 in agents1:
         for agent2 in agents2:
             # Euclidean distance
-            agg_agent1 = compute_agent_agg(agent1.affixes)
-            agg_agent2 = compute_agent_agg(agent2.affixes)
-            dist = np.abs(agg_agent1-agg_agent2)
+            _, agg_agent1 = agent1.compute_agg()
+            _, agg_agent2 = agent2.compute_agg()
+            dist = euclidean(agg_agent1, agg_agent2)
             cumul_model_distance += dist
             n_pairs += 1
     global_model_distance = float(cumul_model_distance)/float(n_pairs)
     return global_model_distance
-
-
-def compute_agent_agg(affixes):
-    # TODO: optimize, get rid of loops
-    entropies = []
-    #start = time.time()
-    #affixes_sample = np.random.choice(list(affixes.keys()), SAMPLE, replace=False)
-    for lex_concept,persons_dict in affixes.items():
-        for person, affixes_dict in persons_dict.items():
-            for affix, prob_dict in affixes_dict.items():
-                # Length is also calculated for empty affixes list (in L2 agents)
-                ent = len(prob_dict)
-                entropies.append(ent)
-    mean_entropy = np.mean(entropies)
-    #end=time.time()
-    #print(f"colour:{end-start}")
-    return mean_entropy
-
-def compute_agent_colour(affixes):
-    color_scale = 255
-    agg = compute_agent_agg(affixes)
-    return [agg*color_scale, 100, 100]

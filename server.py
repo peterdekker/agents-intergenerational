@@ -4,7 +4,7 @@ from mesa.visualization.UserParam import UserSettableParameter
 
 from Model import Model
 
-from constants import HEIGHT, WIDTH, MAX_RADIUS
+from constants import HEIGHT, WIDTH, MAX_RADIUS, PROPORTION_L2
 
 
 class StatsElement(TextElement):
@@ -42,7 +42,7 @@ corr_int_chart = ChartModule([{"Label": "proportion_correct_interactions", "Colo
 model_params = {
     "height": HEIGHT,
     "width": WIDTH,
-    "proportion_l2": UserSettableParameter("slider", "Proportion L2", 0.0, 0.1, 1.0, 0.1),
+    "proportion_l2": UserSettableParameter("slider", "Proportion L2", PROPORTION_L2, 0.0, 1.0, 0.1),
     "radius": UserSettableParameter("slider", "Neighbourhood radius", MAX_RADIUS, 1, MAX_RADIUS, 1),
 }
 

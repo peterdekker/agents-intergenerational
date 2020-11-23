@@ -5,7 +5,7 @@ from mesa.datacollection import DataCollector
 
 import numpy as np
 
-from constants import HEIGHT, WIDTH, MAX_RADIUS, N_AGENTS, DATA_FILE
+from constants import N_AGENTS, DATA_FILE
 import stats
 
 from Agent import Agent
@@ -17,7 +17,7 @@ class Model(Model):
     Model class
     '''
 
-    def __init__(self, height=HEIGHT, width=WIDTH, proportion_l2=0.0, radius=MAX_RADIUS):
+    def __init__(self, height, width, proportion_l2, radius):
         '''
         Initialize field
         '''
@@ -48,7 +48,7 @@ class Model(Model):
             y = cell[2]
             if np.random.rand() < self.proportion_l2:
                 # L2 agents initialized randomly
-                agent = Agent((x, y), self, init="empty" data=self.data)
+                agent = Agent((x, y), self, init="empty", data=self.data)
             else:
                 # L1 agents initialized using data sheet
                 agent = Agent((x, y), self, init="data", data=self.data)
