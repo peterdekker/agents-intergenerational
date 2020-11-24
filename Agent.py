@@ -39,7 +39,7 @@ class Agent(Agent):
             self.affixes = copy.deepcopy(data.affixes)
         elif init=="empty":
             self.forms = defaultdict(list)
-            self.affixes = defaultdict(lambda: defaultdict(lambda: defaultdict(list)))
+            self.affixes = defaultdict(list)
 
 
         self.colour = self.compute_colour()
@@ -88,7 +88,7 @@ class Agent(Agent):
         # (2) Based on verb and transitivity, add prefix or suffix:
         #  - prefixing verb:
         #     -- regardless of transitive or intransitive: use prefix
-        prefixes = self.affixes[lex_concept][person]["prefix"]
+        prefixes = self.affixes[(lex_concept,person,"prefix")]
         if util.is_prefixing_verb(prefixes):
             prefix = RG.choice(prefixes)
             #prefix = util.random_choice_weighted_dict(prefixes)
@@ -97,7 +97,7 @@ class Agent(Agent):
         #  - suffixing verb:
         #     -- transitive: do not use prefix
         #     -- intransitive: use suffix with probability, because it is not obligatory
-        suffixes = self.affixes[lex_concept][person]["suffix"]
+        suffixes = self.affixes[(lex_concept,person,"suffix")]
         if util.is_suffixing_verb(suffixes):
             if transitivity == "intrans":
                 if RG.random() < SUFFIX_PROB:
@@ -194,8 +194,8 @@ class Agent(Agent):
         suffix_recv = self.signal_recv.get_suffix()
         for affix_recv, affix_type in [(prefix_recv,"prefix"), (suffix_recv,"suffix")]:
             if affix_recv:
-                self.affixes[lex_concept_speaker][person_speaker][affix_type].append(affix_recv)
-                logging.debug(f"Affixes after update: {self.affixes[lex_concept_speaker][person_speaker][affix_type]}")
+                self.affixes[(lex_concept_speaker,person_speaker,affix_type)].append(affix_recv)
+                logging.debug(f"Affixes after update: {self.affixes[(lex_concept_speaker,person_speaker,affix_type)]}")
                 # affixes[affix_recv] += UPDATE_AMOUNT
                 # probs_sum = sum(affixes.values())
                 # affixes = dict([(k,v/probs_sum) for k,v in affixes.items()])
@@ -216,7 +216,7 @@ class Agent(Agent):
             for person in self.persons:
                 for affix_position in ["prefix","suffix"]:
                     # Length is also calculated for empty affixes list (in L2 agents)
-                    n_affixes = len(self.affixes[lex_concept][person][affix_position])
+                    n_affixes = len(self.affixes[(lex_concept,person,affix_position)])
                     lengths.append(n_affixes)
         mean_length = np.mean(lengths) # if len(lengths)>0 else 0
         return mean_length, lengths

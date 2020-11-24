@@ -23,12 +23,12 @@ class Data():
         data_forms_dict = data_forms.to_dict(orient="index")
         self.forms = defaultdict(list)
 
-        # Create affixes dict: concept -> (person -> affix)
+        # Create affixes dict: (concept,person,affix_type)->list of affixes
         # This will be used as basis for the mental models of the agents
         person_affix_cols = [col for col in self.data if re.match("[0-9]", col)]
         data_affixes = self.data[["concept"]+person_affix_cols].set_index("concept")
         data_affixes_dict = data_affixes.to_dict(orient="index")
-        self.affixes = defaultdict(lambda: defaultdict(lambda: defaultdict(list)))
+        self.affixes = defaultdict(list)
 
         for lex_concept in self.lex_concepts:
             # Form processing: split multiple forms on , or /
@@ -50,7 +50,7 @@ class Data():
                         affixes_processed.remove("")
                     #aff_prob = 1.0/len(affixes_processed)
                     #aff_prob_dict = {aff: aff_prob for aff in affixes_processed}
-                    self.affixes[lex_concept][person][affix_type] = affixes_processed
+                    self.affixes[(lex_concept,person,affix_type)] = affixes_processed
 
         # check double items: print([item for item, count in collections.Counter(self.concepts).items() if count > 1])
 
