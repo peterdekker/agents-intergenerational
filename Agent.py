@@ -1,19 +1,18 @@
 from mesa import Agent
 
 import copy
-import stats
 import util
 
 import numpy as np
 
 from Signal import Signal
 from ConceptMessage import ConceptMessage
-from constants import RG, SUFFIX_PROB,  logging
+from constants import RG, SUFFIX_PROB, logging
 from collections import defaultdict
 
 
 class Agent(Agent):
-    def __init__(self, pos, model, init, data):
+    def __init__(self, pos, model, data, init, capacity):
         '''
          Create a new speech agent.
 
@@ -24,6 +23,7 @@ class Agent(Agent):
         '''
         super().__init__(pos, model)
         self.pos = pos
+        self.capacity = capacity
 
         # These vars are not deep copies, because they will not be altered by agents(??)
         # Always initialized from data, whatever init is.
@@ -32,15 +32,14 @@ class Agent(Agent):
         self.transitivities = data.transitivities
 
         # Only initialize forms and affixes from data if init==data
-        if init=="data":
+        if init == "data":
             # Vars are deep copies from vars in data obj, so agent can change them
             # (deep copy because vars are nested dicts)
             self.forms = copy.deepcopy(data.forms)
             self.affixes = copy.deepcopy(data.affixes)
-        elif init=="empty":
+        elif init == "empty":
             self.forms = defaultdict(list)
             self.affixes = defaultdict(list)
-
 
         self.colour = self.compute_colour()
 
@@ -88,7 +87,7 @@ class Agent(Agent):
         # (2) Based on verb and transitivity, add prefix or suffix:
         #  - prefixing verb:
         #     -- regardless of transitive or intransitive: use prefix
-        prefixes = self.affixes[(lex_concept,person,"prefix")]
+        prefixes = self.affixes[(lex_concept, person, "prefix")]
         if util.is_prefixing_verb(prefixes):
             prefix = RG.choice(prefixes)
             #prefix = util.random_choice_weighted_dict(prefixes)
@@ -97,15 +96,13 @@ class Agent(Agent):
         #  - suffixing verb:
         #     -- transitive: do not use prefix
         #     -- intransitive: use suffix with probability, because it is not obligatory
-        suffixes = self.affixes[(lex_concept,person,"suffix")]
+        suffixes = self.affixes[(lex_concept, person, "suffix")]
         if util.is_suffixing_verb(suffixes):
             if transitivity == "intrans":
                 if RG.random() < SUFFIX_PROB:
                     suffix = RG.choice(suffixes)
                     #suffix = util.random_choice_weighted_dict(suffixes)
                     signal.set_suffix(suffix)
-
-
 
         # If wordform is predictable enough (re-entrance),
         # and phonetic features at boundaries have high distance, do not add the affix with probability p.
@@ -119,18 +116,16 @@ class Agent(Agent):
             # TODO: Make this more finegrained?
             signal.set_context_object("OBJECT")
 
-
         # Send signal.
-        # TODO: noise? 
+        # TODO: noise?
         logging.debug(f"Speaker sends signal: {signal!s}")
-        concept_listener=listener.listen(signal)
+        listener.listen(signal)
 
         # Send real concept as feedback to listener
         # TODO: experiment with only sending correct/incorrect
         listener.receive_feedback(concept_speaker)
 
         # Only listener updates TODO: also experiment with speaker updating
-
 
     # Methods used when agent listens
 
@@ -145,7 +140,7 @@ class Agent(Agent):
             message: concept which listener thinks is closest to heard signal
         '''
         self.signal_recv = signal
-        
+
         signal_form = self.signal_recv.get_form()
         # Do reverse lookup in forms dict to find accompanying concept
         # TODO: Maybe create reverse dict beforehand to speed up
@@ -163,8 +158,9 @@ class Agent(Agent):
 
         # We use directly existence/non-existence of object as criterion for transitivity
         transitivity = "trans" if self.signal_recv.get_context_object() else "intrans"
-        
-        self.concept_listener = ConceptMessage(lex_concept=inferred_lex_concept, person=person, transitivity=transitivity)
+
+        self.concept_listener = ConceptMessage(
+            lex_concept=inferred_lex_concept, person=person, transitivity=transitivity)
         logging.debug(f"Listener decodes concept: {self.concept_listener!s}")
         # Point to object
         # TODO: Is it strange that this function returns a value, while all other functions call a function
@@ -182,9 +178,9 @@ class Agent(Agent):
 
         loss = self.concept_listener.compute_loss(concept_speaker)
         logging.debug(f"Loss: {loss}")
-        if loss==0.0:
+        if loss == 0.0:
             self.model.correct_interactions += 1
-        
+
         # TODO: perform negative update on wrong prefix as well?
         # Update by target concept: the concept that was designated by the speaker
         lex_concept_speaker = concept_speaker.get_lex_concept()
@@ -192,36 +188,40 @@ class Agent(Agent):
         # Add current prefix to right concept
         prefix_recv = self.signal_recv.get_prefix()
         suffix_recv = self.signal_recv.get_suffix()
-        for affix_recv, affix_type in [(prefix_recv,"prefix"), (suffix_recv,"suffix")]:
+        for affix_recv, affix_type in [(prefix_recv, "prefix"), (suffix_recv, "suffix")]:
             if affix_recv:
-                self.affixes[(lex_concept_speaker,person_speaker,affix_type)].append(affix_recv)
-                logging.debug(f"Affixes after update: {self.affixes[(lex_concept_speaker,person_speaker,affix_type)]}")
-                # affixes[affix_recv] += UPDATE_AMOUNT
-                # probs_sum = sum(affixes.values())
-                # affixes = dict([(k,v/probs_sum) for k,v in affixes.items()])
+                affix_list = self.affixes[(lex_concept_speaker, person_speaker, affix_type)]
+                affix_list.append(affix_recv)
+                logging.debug(
+                    f"{affix_type.capitalize()}es after update: {affix_list}")
+                if len(affix_list) > self.capacity:
+                    affix_list.pop(0)
+                    logging.debug(f"{affix_type.capitalize()}es longer than MAX, after drop: {affix_list}")
 
         form_recv = self.signal_recv.get_form()
-        self.forms[lex_concept_speaker].append(form_recv)
-        # if lex_concept_speaker=="to pass":
-        logging.debug(f"Forms after update: {self.forms[lex_concept_speaker]}")
-
+        forms_list = self.forms[lex_concept_speaker]
+        forms_list.append(form_recv)
+        logging.debug(f"Forms after update: {forms_list}")
+        if len(forms_list) > self.capacity:
+            forms_list.pop(0)
+            logging.debug(f"Forms longer than MAX, after drop: {forms_list}")
 
         # After update, compute aggregate of articulation model, to color dot
-        self.colour=self.compute_colour()
+        self.colour = self.compute_colour()
 
-    def compute_agg(self):
+    def morph_complexity(self):
         # TODO: optimize, get rid of loops
         lengths = []
         for lex_concept in self.lex_concepts:
             for person in self.persons:
-                for affix_position in ["prefix","suffix"]:
+                for affix_position in ["prefix", "suffix"]:
                     # Length is also calculated for empty affixes list (in L2 agents)
-                    n_affixes = len(self.affixes[(lex_concept,person,affix_position)])
+                    n_affixes = len(set(self.affixes[(lex_concept, person, affix_position)]))
                     lengths.append(n_affixes)
-        mean_length = np.mean(lengths) # if len(lengths)>0 else 0
-        return mean_length, lengths
+        mean_length = np.mean(lengths)  # if len(lengths)>0 else 0
+        return mean_length
 
     def compute_colour(self):
         color_scale = 255
-        agg, _ = self.compute_agg()
-        return [agg*color_scale, 100, 100]
+        agg = self.morph_complexity()
+        return [min(agg*color_scale,255), min(agg*color_scale,255), min(agg*color_scale,255)]

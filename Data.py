@@ -1,7 +1,7 @@
 import pandas as pd
 import re
 from collections import defaultdict
-from constants import PERSONS, DATA_FILE
+from constants import PERSONS
 
 
 class Data():
@@ -16,7 +16,8 @@ class Data():
         data_trans = self.data[["concept", "trans", "intrans"]].set_index("concept")
         self.transitivities = data_trans.to_dict(orient="index")
         for lex_concept in self.lex_concepts:
-            self.transitivities[lex_concept] = [k for k, v in self.transitivities[lex_concept].items() if v == 1]
+            self.transitivities[lex_concept] = [
+                k for k, v in self.transitivities[lex_concept].items() if v == 1]
 
         # Create forms dict: lex_concept -> form
         data_forms = self.data[["concept", "form_lewoingu"]].set_index("concept")
@@ -50,7 +51,7 @@ class Data():
                         affixes_processed.remove("")
                     #aff_prob = 1.0/len(affixes_processed)
                     #aff_prob_dict = {aff: aff_prob for aff in affixes_processed}
-                    self.affixes[(lex_concept,person,affix_type)] = affixes_processed
+                    self.affixes[(lex_concept, person, affix_type)] = affixes_processed
 
         # check double items: print([item for item, count in collections.Counter(self.concepts).items() if count > 1])
 

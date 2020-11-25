@@ -4,7 +4,7 @@ from mesa.visualization.UserParam import UserSettableParameter
 
 from Model import Model
 
-from constants import HEIGHT, WIDTH, MAX_RADIUS, PROPORTION_L2
+from constants import HEIGHT, WIDTH, MAX_RADIUS, PROPORTION_L2, CAPACITY_L1, CAPACITY_L2
 
 
 class StatsElement(TextElement):
@@ -43,7 +43,8 @@ model_params = {
     "height": HEIGHT,
     "width": WIDTH,
     "proportion_l2": UserSettableParameter("slider", "Proportion L2", PROPORTION_L2, 0.0, 1.0, 0.1),
-    "radius": UserSettableParameter("slider", "Neighbourhood radius", MAX_RADIUS, 1, MAX_RADIUS, 1),
+    "capacity_l1": UserSettableParameter("slider", "Exemplar capacity L1", CAPACITY_L1, 0, 100, 1),
+    "capacity_l2": UserSettableParameter("slider", "Exemplar capacity L2", CAPACITY_L2, 0, 100, 1)
 }
 
 server = ModularServer(Model,

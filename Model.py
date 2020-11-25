@@ -5,7 +5,7 @@ from mesa.datacollection import DataCollector
 
 import numpy as np
 
-from constants import N_AGENTS, DATA_FILE
+from constants import N_AGENTS, DATA_FILE, MAX_RADIUS
 import stats
 
 from Agent import Agent
@@ -17,7 +17,7 @@ class Model(Model):
     Model class
     '''
 
-    def __init__(self, height, width, proportion_l2, radius):
+    def __init__(self, height, width, proportion_l2, capacity_l1, capacity_l2):
         '''
         Initialize field
         '''
@@ -25,7 +25,9 @@ class Model(Model):
         self.height = height
         self.width = width
         self.proportion_l2 = proportion_l2
-        self.radius = radius
+        self.radius = MAX_RADIUS
+        self.capacity_l1 = capacity_l1
+        self.capacity_l2 = capacity_l2
         self.schedule = RandomActivation(self)
         self.grid = SingleGrid(width, height, torus=True)
         self.steps = 0
@@ -48,10 +50,10 @@ class Model(Model):
             y = cell[2]
             if np.random.rand() < self.proportion_l2:
                 # L2 agents initialized randomly
-                agent = Agent((x, y), self, init="empty", data=self.data)
+                agent = Agent((x, y), self, self.data, init="empty", capacity=self.capacity_l2)
             else:
                 # L1 agents initialized using data sheet
-                agent = Agent((x, y), self, init="data", data=self.data)
+                agent = Agent((x, y), self, self.data, init="data", capacity=self.capacity_l1)
             self.grid.position_agent(agent, (x, y))
             self.schedule.add(agent)
 
@@ -70,7 +72,6 @@ class Model(Model):
         self.proportion_correct_interactions = self.correct_interactions/float(N_AGENTS)
         if self.steps % 10 == 0:
             agents = [a for a, x, y in self.grid.coord_iter()]
-            self.global_model_distance = stats.compute_global_dist(agents)
+            self.global_model_distance = stats.compute_global_dist(agents, self.data.lex_concepts, self.data.persons)
 
         self.datacollector.collect(self)
-    
