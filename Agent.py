@@ -222,6 +222,6 @@ class Agent(Agent):
         return mean_length
 
     def compute_colour(self):
-        color_scale = 255
-        agg = self.morph_complexity()
-        return [min(agg*color_scale,255), min(agg*color_scale,255), min(agg*color_scale,255)]
+        max_possible_aff = 5
+        agg = self.morph_complexity() * 100
+        return [250, 80, agg]
