@@ -119,11 +119,11 @@ class Agent(Agent):
         # Send signal.
         # TODO: noise?
         logging.debug(f"Speaker sends signal: {signal!s}")
-        listener.listen(signal)
+        concept_listener = listener.listen(signal)
 
-        # Send real concept as feedback to listener
-        # TODO: experiment with only sending correct/incorrect
-        listener.receive_feedback(concept_speaker)
+        # Send feedback about correctness of concept to listener
+        feedback = concept_speaker.compute_success(concept_listener)
+        listener.receive_feedback(feedback)
 
         # Only listener updates TODO: also experiment with speaker updating
 
@@ -167,44 +167,41 @@ class Agent(Agent):
         #       on the other agent? Communication is implemented speaker-centred.
         return self.concept_listener
 
-    def receive_feedback(self, concept_speaker):
+    def receive_feedback(self, feedback_speaker):
         '''
         Listening agent receives concept meant by speaking agent, 
         and updates its language table
 
         Args:
-            concept_speaker: concept intended by speaker
+            feedback_speaker: feedback from the speaker
         '''
 
-        loss = self.concept_listener.compute_loss(concept_speaker)
-        logging.debug(f"Loss: {loss}")
-        if loss == 0.0:
+        if feedback_speaker:
             self.model.correct_interactions += 1
+            # TODO: perform negative update on wrong prefix as well?
+            # Update by target concept: the concept that was designated by the speaker
+            lex_concept_listener = self.concept_listener.get_lex_concept()
+            person_listener = self.concept_listener.get_person()
+            # Add current prefix to right concept
+            prefix_recv = self.signal_recv.get_prefix()
+            suffix_recv = self.signal_recv.get_suffix()
+            for affix_recv, affix_type in [(prefix_recv, "prefix"), (suffix_recv, "suffix")]:
+                if affix_recv:
+                    affix_list = self.affixes[(lex_concept_listener, person_listener, affix_type)]
+                    affix_list.append(affix_recv)
+                    logging.debug(
+                        f"{affix_type.capitalize()}es after update: {affix_list}")
+                    if len(affix_list) > self.capacity:
+                        affix_list.pop(0)
+                        logging.debug(f"{affix_type.capitalize()}es longer than MAX, after drop: {affix_list}")
 
-        # TODO: perform negative update on wrong prefix as well?
-        # Update by target concept: the concept that was designated by the speaker
-        lex_concept_speaker = concept_speaker.get_lex_concept()
-        person_speaker = concept_speaker.get_person()
-        # Add current prefix to right concept
-        prefix_recv = self.signal_recv.get_prefix()
-        suffix_recv = self.signal_recv.get_suffix()
-        for affix_recv, affix_type in [(prefix_recv, "prefix"), (suffix_recv, "suffix")]:
-            if affix_recv:
-                affix_list = self.affixes[(lex_concept_speaker, person_speaker, affix_type)]
-                affix_list.append(affix_recv)
-                logging.debug(
-                    f"{affix_type.capitalize()}es after update: {affix_list}")
-                if len(affix_list) > self.capacity:
-                    affix_list.pop(0)
-                    logging.debug(f"{affix_type.capitalize()}es longer than MAX, after drop: {affix_list}")
-
-        form_recv = self.signal_recv.get_form()
-        forms_list = self.forms[lex_concept_speaker]
-        forms_list.append(form_recv)
-        logging.debug(f"Forms after update: {forms_list}")
-        if len(forms_list) > self.capacity:
-            forms_list.pop(0)
-            logging.debug(f"Forms longer than MAX, after drop: {forms_list}")
+            form_recv = self.signal_recv.get_form()
+            forms_list = self.forms[lex_concept_listener]
+            forms_list.append(form_recv)
+            logging.debug(f"Forms after update: {forms_list}")
+            if len(forms_list) > self.capacity:
+                forms_list.pop(0)
+                logging.debug(f"Forms longer than MAX, after drop: {forms_list}")
 
         # After update, compute aggregate of articulation model, to color dot
         self.colour = self.compute_colour()

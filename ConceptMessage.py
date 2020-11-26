@@ -32,9 +32,8 @@ class ConceptMessage:
 
     # Compute loss, compared to other message
 
-    def compute_loss(self, other_message):
-        lex_concept_loss = (self.lex_concept != other_message.lex_concept)
-        person_loss = (self.person != other_message.person)
-        transitivity_loss = (self.transitivity != other_message.transitivity)
-        N_LOSSES = 3
-        return (lex_concept_loss+person_loss+transitivity_loss)/3
+    def compute_success(self, other_message):
+        lex_concept_sim = (self.lex_concept == other_message.lex_concept)
+        person_sim = (self.person == other_message.person)
+        transitivity_sim = (self.transitivity == other_message.transitivity)
+        return lex_concept_sim and person_sim and transitivity_sim
