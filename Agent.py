@@ -7,8 +7,9 @@ import numpy as np
 
 from Signal import Signal
 from ConceptMessage import ConceptMessage
-from constants import RG, SUFFIX_PROB, logging
+from constants import RG, logging
 from collections import defaultdict
+import editdistance
 
 
 class Agent(Agent):
@@ -30,15 +31,14 @@ class Agent(Agent):
         self.lex_concepts = data.lex_concepts
         self.persons = data.persons
         self.transitivities = data.transitivities
+        self.forms = data.forms
 
-        # Only initialize forms and affixes from data if init==data
+        # Only initialize affixes from data if init==data
         if init == "data":
             # Vars are deep copies from vars in data obj, so agent can change them
             # (deep copy because vars are nested dicts)
-            self.forms = copy.deepcopy(data.forms)
             self.affixes = copy.deepcopy(data.affixes)
         elif init == "empty":
-            self.forms = defaultdict(list)
             self.affixes = defaultdict(list)
 
         self.colour = self.compute_colour()
@@ -75,13 +75,11 @@ class Agent(Agent):
         concept_speaker = ConceptMessage(lex_concept=lex_concept, person=person, transitivity=transitivity)
         logging.debug(f"Speaker chose concept: {concept_speaker!s}")
 
-        forms = self.forms[lex_concept]
+        form = self.forms[lex_concept]
         # TODO: Do something smarter than not speaking this iteration when there is no form
-        if len(forms) == 0:
-            logging.debug("(L2) agent without forms for this concept, do not speak this interaction.")
-            return
-        form = RG.choice(forms)
-        #form = util.random_choice_weighted_dict(forms)
+        # if len(forms) == 0:
+        #     logging.debug("(L2) agent without forms for this concept, do not speak this interaction.")
+        #     return
         signal.set_form(form)
 
         # (2) Based on verb and transitivity, add prefix or suffix:
@@ -99,7 +97,7 @@ class Agent(Agent):
         suffixes = self.affixes[(lex_concept, person, "suffix")]
         if util.is_suffixing_verb(suffixes):
             if transitivity == "intrans":
-                if RG.random() < SUFFIX_PROB:
+                if RG.random() < self.model.suffix_prob:
                     suffix = RG.choice(suffixes)
                     #suffix = util.random_choice_weighted_dict(suffixes)
                     signal.set_suffix(suffix)
@@ -110,11 +108,11 @@ class Agent(Agent):
         # TODO: implement phonetic conversion
 
         # (3) Add context from sentence (subject and object), based on transivitity.
-        # TODO: Add possibility to drop pronoun probabilistically
-        signal.set_context_subject(person)
+        if RG.random() > self.model.drop_subject_prob:
+            signal.set_subject(person)
         if transitivity == "trans":
-            # TODO: Make this more finegrained?
-            signal.set_context_object("OBJECT")
+            if RG.random() > self.model.drop_object_prob:
+                signal.set_object("OBJECT")
 
         # Send signal.
         # TODO: noise?
@@ -123,6 +121,8 @@ class Agent(Agent):
 
         # Send feedback about correctness of concept to listener
         feedback = concept_speaker.compute_success(concept_listener)
+        if not feedback:
+            print("FALSEE")
         listener.receive_feedback(feedback)
 
         # Only listener updates TODO: also experiment with speaker updating
@@ -143,21 +143,31 @@ class Agent(Agent):
 
         signal_form = self.signal_recv.get_form()
         # Do reverse lookup in forms dict to find accompanying concept
-        # TODO: Maybe create reverse dict beforehand to speed up
-        # TODO: noisy comparison
         inferred_lex_concept = None
         for lex_concept in self.forms:
-            if signal_form in self.forms[lex_concept]:
+            if self.forms[lex_concept] == signal_form:
                 inferred_lex_concept = lex_concept
                 break
 
         # TODO: take also prefix and suffix into consideration
+        #possible_lex_concepts = []
+        #lowest_dist = 1000
+        # for lex_concept in self.forms:
+        #     for internal_form in self.forms[lex_concept]:
+        #         dist = editdistance.eval(signal_form, internal_form)
+        #         if dist <= lowest_dist:
+        #             if dist < lowest_dist:
+        #                 lowest_dist = dist
+        #                 # When dist of this form is strictly lower, empty list
+        #                 possible_lex_concepts = []
+        #             possible_lex_concepts.append(lex_concept)
+        # RG.choice
 
         # We take directly person. TODO: do noisy comparison
-        person = self.signal_recv.get_context_subject()
+        person = self.signal_recv.get_subject()
 
         # We use directly existence/non-existence of object as criterion for transitivity
-        transitivity = "trans" if self.signal_recv.get_context_object() else "intrans"
+        transitivity = "trans" if self.signal_recv.get_object() else "intrans"
 
         self.concept_listener = ConceptMessage(
             lex_concept=inferred_lex_concept, person=person, transitivity=transitivity)
@@ -169,7 +179,7 @@ class Agent(Agent):
 
     def receive_feedback(self, feedback_speaker):
         '''
-        Listening agent receives concept meant by speaking agent, 
+        Listening agent receives concept meant by speaking agent,
         and updates its language table
 
         Args:
@@ -193,15 +203,8 @@ class Agent(Agent):
                         f"{affix_type.capitalize()}es after update: {affix_list}")
                     if len(affix_list) > self.capacity:
                         affix_list.pop(0)
-                        logging.debug(f"{affix_type.capitalize()}es longer than MAX, after drop: {affix_list}")
-
-            form_recv = self.signal_recv.get_form()
-            forms_list = self.forms[lex_concept_listener]
-            forms_list.append(form_recv)
-            logging.debug(f"Forms after update: {forms_list}")
-            if len(forms_list) > self.capacity:
-                forms_list.pop(0)
-                logging.debug(f"Forms longer than MAX, after drop: {forms_list}")
+                        logging.debug(
+                            f"{affix_type.capitalize()}es longer than MAX, after drop: {affix_list}")
 
         # After update, compute aggregate of articulation model, to color dot
         self.colour = self.compute_colour()
@@ -219,6 +222,5 @@ class Agent(Agent):
         return mean_length
 
     def compute_colour(self):
-        max_possible_aff = 5
         agg = self.morph_complexity() * 100
         return [250, 80, agg]

@@ -5,7 +5,7 @@ class Signal:
         self.suffix = suffix
         self.context_subject = context_subject
         self.context_object = context_object
-    
+
     def __str__(self):
         return f"Form: {self.form} Prefix: {self.prefix} Suffix: {self.suffix} Subject: {self.context_subject} Object: {self.context_object}"
 
@@ -19,13 +19,13 @@ class Signal:
 
     def get_suffix(self):
         return self.suffix
-    
-    def get_context_subject(self):
+
+    def get_subject(self):
         return self.context_subject
-    
-    def get_context_object(self):
+
+    def get_object(self):
         return self.context_object
-    
+
     # Setters
 
     def set_form(self, form):
@@ -33,14 +33,12 @@ class Signal:
 
     def set_prefix(self, prefix):
         self.prefix = prefix
-    
+
     def set_suffix(self, suffix):
         self.suffix = suffix
 
-    def set_context_subject(self, context_subject):
+    def set_subject(self, context_subject):
         self.context_subject = context_subject
-    
-    def set_context_object(self, context_object):
-        self.context_object = context_object
-    
 
+    def set_object(self, context_object):
+        self.context_object = context_object

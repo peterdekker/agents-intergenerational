@@ -5,7 +5,7 @@ from mesa.datacollection import DataCollector
 
 import numpy as np
 
-from constants import N_AGENTS, DATA_FILE, MAX_RADIUS
+from constants import N_AGENTS, DATA_FILE, MAX_RADIUS, RG
 import stats
 
 from Agent import Agent
@@ -17,7 +17,7 @@ class Model(Model):
     Model class
     '''
 
-    def __init__(self, height, width, proportion_l2, capacity_l1, capacity_l2):
+    def __init__(self, height, width, proportion_l2, suffix_prob, capacity_l1, capacity_l2, drop_subject_prob, drop_object_prob):
         '''
         Initialize field
         '''
@@ -28,6 +28,9 @@ class Model(Model):
         self.radius = MAX_RADIUS
         self.capacity_l1 = capacity_l1
         self.capacity_l2 = capacity_l2
+        self.suffix_prob = suffix_prob
+        self.drop_subject_prob = drop_subject_prob
+        self.drop_object_prob = drop_object_prob
         self.schedule = RandomActivation(self)
         self.grid = SingleGrid(width, height, torus=True)
         self.steps = 0
@@ -48,7 +51,7 @@ class Model(Model):
         for cell in self.grid.coord_iter():
             x = cell[1]
             y = cell[2]
-            if np.random.rand() < self.proportion_l2:
+            if RG.random() < self.proportion_l2:
                 # L2 agents initialized randomly
                 agent = Agent((x, y), self, self.data, init="empty", capacity=self.capacity_l2)
             else:

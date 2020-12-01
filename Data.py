@@ -22,7 +22,7 @@ class Data():
         # Create forms dict: lex_concept -> form
         data_forms = self.data[["concept", "form_lewoingu"]].set_index("concept")
         data_forms_dict = data_forms.to_dict(orient="index")
-        self.forms = defaultdict(list)
+        self.forms = defaultdict(str)
 
         # Create affixes dict: (concept,person,affix_type)->list of affixes
         # This will be used as basis for the mental models of the agents
@@ -39,9 +39,8 @@ class Data():
             if form == "":
                 continue
             forms_processed = [f.strip("* -") for f in re.split(",|/", form)]
-            #form_prob = 1.0/len(forms_processed)
-            #form_prob_dict = {f: form_prob for f in forms_processed}
-            self.forms[lex_concept] = forms_processed
+            # Just use the first form
+            self.forms[lex_concept] = forms_processed[0]
             for person in self.persons:
                 for affix_type in ["prefix", "suffix"]:
                     affix = data_affixes_dict[lex_concept][f"{person}_{affix_type}"]
