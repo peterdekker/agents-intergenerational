@@ -1,6 +1,10 @@
 class Signal:
     def __init__(self, form=None, prefix=None, suffix=None, context_subject=None, context_object=None):
         self.form = form
+        # Prefix and suffix are set to None by default
+        # When a verb is prefixing/suffixing, prefix/suffix will get a string value
+        # This string value can be "", which means empty affix. Difference with NOne
+        # is that this will be added to listeners stack.
         self.prefix = prefix
         self.suffix = suffix
         self.context_subject = context_subject
@@ -42,3 +46,9 @@ class Signal:
 
     def set_object(self, context_object):
         self.context_object = context_object
+    
+    # Other
+
+    def drop_affix(self):
+        self.prefix = None
+        self.suffix = None

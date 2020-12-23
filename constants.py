@@ -1,6 +1,7 @@
 import numpy as np
 import logging
 import sys
+from panphon.distance import Distance                                                                                                                 
 
 logging.basicConfig(stream=sys.stderr, level=logging.DEBUG)
 
@@ -13,12 +14,16 @@ SAMPLE = HEIGHT
 HSAMPLE = int(SAMPLE/2)
 DATA_FILE = "data/data.csv"
 PERSONS = ['1sg', '2sg', '3sg', '1pl.incl', '1pl.excl', '2pl', '3pl']
+                                                                                                                   
+dst = Distance() 
 RG = np.random.default_rng()
-SUFFIX_PROB = 0.5
+
+MIN_BOUNDARY_FEATURE_DIST = 2.0
 
 # Defaults for UserSettableParameters
+SUFFIX_PROB = 0.5
 PROPORTION_L2 = 0.2
-CAPACITY_L1 = 100
-CAPACITY_L2 = 100
-DROP_SUBJECT_PROB = 0.5
-DROP_OBJECT_PROB = 0.1
+CAPACITY_L1 = 5#100
+CAPACITY_L2 = 5#100
+DROP_SUBJECT_PROB = 0.2
+DROP_OBJECT_PROB = 0.0

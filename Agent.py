@@ -1,13 +1,12 @@
 from mesa import Agent
 
 import copy
-import util
 
 import numpy as np
 
 from Signal import Signal
 from ConceptMessage import ConceptMessage
-from constants import RG, logging
+from constants import RG, dst, logging, MIN_BOUNDARY_FEATURE_DIST
 from collections import defaultdict
 import editdistance
 
@@ -30,8 +29,7 @@ class Agent(Agent):
         # Always initialized from data, whatever init is.
         self.lex_concepts = data.lex_concepts
         self.persons = data.persons
-        self.transitivities = data.transitivities
-        self.forms = data.forms
+        self.lex_concept_data = data.lex_concept_data
 
         # Only initialize affixes from data if init==data
         if init == "data":
@@ -71,41 +69,47 @@ class Agent(Agent):
         # 3. Transitive or intransitive (depending on allowed modes for this verb)
         lex_concept = RG.choice(self.lex_concepts)
         person = RG.choice(self.persons)
-        transitivity = RG.choice(self.transitivities[lex_concept])
+        transitivity = RG.choice(self.lex_concept_data[lex_concept]["transitivities"])
         concept_speaker = ConceptMessage(lex_concept=lex_concept, person=person, transitivity=transitivity)
         logging.debug(f"Speaker chose concept: {concept_speaker!s}")
 
-        form = self.forms[lex_concept]
-        # TODO: Do something smarter than not speaking this iteration when there is no form
-        # if len(forms) == 0:
-        #     logging.debug("(L2) agent without forms for this concept, do not speak this interaction.")
-        #     return
+        form = self.lex_concept_data[lex_concept]["form"]
         signal.set_form(form)
 
+        prefixing = self.lex_concept_data[lex_concept]["prefixing"]
+        suffixing = self.lex_concept_data[lex_concept]["suffixing"]
         # (2) Based on verb and transitivity, add prefix or suffix:
         #  - prefixing verb:
         #     -- regardless of transitive or intransitive: use prefix
-        prefixes = self.affixes[(lex_concept, person, "prefix")]
-        if util.is_prefixing_verb(prefixes):
-            prefix = RG.choice(prefixes)
-            #prefix = util.random_choice_weighted_dict(prefixes)
+        if prefixing:
+            prefix = RG.choice(self.affixes[(lex_concept, person, "prefix")])
             signal.set_prefix(prefix)
 
         #  - suffixing verb:
-        #     -- transitive: do not use prefix
+        #     -- transitive: do not use suffix
         #     -- intransitive: use suffix with probability, because it is not obligatory
-        suffixes = self.affixes[(lex_concept, person, "suffix")]
-        if util.is_suffixing_verb(suffixes):
+        if suffixing:
+            # In all cases where suffix will not be set, use empty suffix
+            # (different from None, because listener will add empty suffix to its stack)
+            suffix = ""
             if transitivity == "intrans":
                 if RG.random() < self.model.suffix_prob:
-                    suffix = RG.choice(suffixes)
-                    #suffix = util.random_choice_weighted_dict(suffixes)
-                    signal.set_suffix(suffix)
+                    suffix = RG.choice(self.affixes[(lex_concept, person, "suffix")])
+            signal.set_suffix(suffix)
 
-        # If wordform is predictable enough (re-entrance),
-        # and phonetic features at boundaries have high distance, do not add the affix with probability p.
-        # TODO: to be implemented
-        # TODO: implement phonetic conversion
+        # TODO: Drop affix based on re-entrance (how understandable is it)
+        # Drop affix based on phonetic distance between stem/affix boundary phonemes
+        for verb_type, enabled in [("prefixing",prefixing), ("suffixing",suffixing)]:
+            # If prefixing/suffixing (can be both)
+            if enabled:
+                form_border_phoneme = 0 if verb_type=="prefixing" else -1
+                affix_border_phoneme = -1 if verb_type=="prefixing" else 0
+                affix = prefix if verb_type=="prefixing" else suffix
+                feature_dist = dst.weighted_feature_edit_distance(form[form_border_phoneme], affix[affix_border_phoneme])
+                # Sounds have to be different enough
+                if feature_dist < MIN_BOUNDARY_FEATURE_DIST:
+                    signal.drop_affix()
+                    # TODO: drop probabilistically
 
         # (3) Add context from sentence (subject and object), based on transivitity.
         if RG.random() > self.model.drop_subject_prob:
@@ -121,10 +125,7 @@ class Agent(Agent):
 
         # Send feedback about correctness of concept to listener
         feedback = concept_speaker.compute_success(concept_listener)
-        if not feedback:
-            print("FALSEE")
         listener.receive_feedback(feedback)
-
         # Only listener updates TODO: also experiment with speaker updating
 
     # Methods used when agent listens
@@ -144,33 +145,54 @@ class Agent(Agent):
         signal_form = self.signal_recv.get_form()
         # Do reverse lookup in forms dict to find accompanying concept
         inferred_lex_concept = None
-        for lex_concept in self.forms:
-            if self.forms[lex_concept] == signal_form:
+        for lex_concept in self.lex_concepts:
+            if self.lex_concept_data[lex_concept]["form"] == signal_form:
                 inferred_lex_concept = lex_concept
                 break
 
-        # TODO: take also prefix and suffix into consideration
-        #possible_lex_concepts = []
-        #lowest_dist = 1000
-        # for lex_concept in self.forms:
-        #     for internal_form in self.forms[lex_concept]:
-        #         dist = editdistance.eval(signal_form, internal_form)
-        #         if dist <= lowest_dist:
-        #             if dist < lowest_dist:
-        #                 lowest_dist = dist
-        #                 # When dist of this form is strictly lower, empty list
-        #                 possible_lex_concepts = []
-        #             possible_lex_concepts.append(lex_concept)
-        # RG.choice
+        # Infer person from subject
+        inferred_person = self.signal_recv.get_subject()
+        if not inferred_person:
+            # If person not inferred from context, try using affix
+            logging.debug("Person not given via context, inferring from affix.")
+            # TODO: This assumes listener has same concept matrix, and knows which
+            # verbs are prefixing/suffixing
+            possible_persons = []
+            
+            prefixing = self.lex_concept_data[inferred_lex_concept]["prefixing"]
+            suffixing = self.lex_concept_data[inferred_lex_concept]["suffixing"]
+            for verb_type, enabled in [("prefixing",prefixing), ("suffixing",suffixing)]:
+                # If prefixing/suffixing (can be both)
+                if enabled:
+                    # Calculate distances of internal affixes to received affix,
+                    # to find candidate persons
+                    affix_type = "prefix" if verb_type == "prefixing" else "suffix"
+                    affix_signal = signal.get_prefix() if verb_type == "prefixing" else signal.get_suffix()
+                    lowest_dist = 1000
+                    for p in self.persons:
+                        affixes_person = self.affixes[(inferred_lex_concept, p, affix_type)]
+                        for affix_internal in affixes_person:
+                            dist = editdistance.eval(affix_signal, affix_internal)
+                            if dist <= lowest_dist:
+                                if dist < lowest_dist:
+                                    lowest_dist = dist
+                                    possible_persons = []
+                                possible_persons.append(p)
+            
+            # If no possible persons (because no affix, or empty internal suffixes=L2),
+            # pick person randomly from all persons
+            if len(possible_persons) == 0:
+                possible_persons = self.persons
+            # Choose person, weighted by how many affixes are closest to received affix
+            # (can be one possible person, so choice is trivial)
+            inferred_person = RG.choice(possible_persons)
 
-        # We take directly person. TODO: do noisy comparison
-        person = self.signal_recv.get_subject()
 
         # We use directly existence/non-existence of object as criterion for transitivity
         transitivity = "trans" if self.signal_recv.get_object() else "intrans"
 
         self.concept_listener = ConceptMessage(
-            lex_concept=inferred_lex_concept, person=person, transitivity=transitivity)
+            lex_concept=inferred_lex_concept, person=inferred_person, transitivity=transitivity)
         logging.debug(f"Listener decodes concept: {self.concept_listener!s}")
         # Point to object
         # TODO: Is it strange that this function returns a value, while all other functions call a function
@@ -189,22 +211,20 @@ class Agent(Agent):
         if feedback_speaker:
             self.model.correct_interactions += 1
             # TODO: perform negative update on wrong prefix as well?
-            # Update by target concept: the concept that was designated by the speaker
             lex_concept_listener = self.concept_listener.get_lex_concept()
             person_listener = self.concept_listener.get_person()
             # Add current prefix to right concept
             prefix_recv = self.signal_recv.get_prefix()
             suffix_recv = self.signal_recv.get_suffix()
-            for affix_recv, affix_type in [(prefix_recv, "prefix"), (suffix_recv, "suffix")]:
-                if affix_recv:
-                    affix_list = self.affixes[(lex_concept_listener, person_listener, affix_type)]
-                    affix_list.append(affix_recv)
+            for affix_type, affix_recv in [("prefix", prefix_recv), ("suffix", suffix_recv)]:
+                affix_list = self.affixes[(lex_concept_listener, person_listener, affix_type)]
+                affix_list.append(affix_recv)
+                logging.debug(
+                    f"{affix_type.capitalize()}es after update: {affix_list}")
+                if len(affix_list) > self.capacity:
+                    affix_list.pop(0)
                     logging.debug(
-                        f"{affix_type.capitalize()}es after update: {affix_list}")
-                    if len(affix_list) > self.capacity:
-                        affix_list.pop(0)
-                        logging.debug(
-                            f"{affix_type.capitalize()}es longer than MAX, after drop: {affix_list}")
+                        f"{affix_type.capitalize()}es longer than MAX, after drop: {affix_list}")
 
         # After update, compute aggregate of articulation model, to color dot
         self.colour = self.compute_colour()

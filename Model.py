@@ -2,12 +2,11 @@ from mesa import Model
 from mesa.time import RandomActivation
 from mesa.space import SingleGrid
 from mesa.datacollection import DataCollector
-
+import math
 import numpy as np
 
 from constants import N_AGENTS, DATA_FILE, MAX_RADIUS, RG
 import stats
-
 from Agent import Agent
 from Data import Data
 
@@ -44,14 +43,20 @@ class Model(Model):
             {"global_model_distance": "global_model_distance",
              "proportion_correct_interactions": "proportion_correct_interactions"})
 
+        # Always use same # L2 agents, but randomly divide them
+        n_l2_agents = math.floor(self.proportion_l2 * N_AGENTS)
+        is_l2 = np.zeros(N_AGENTS)
+        is_l2[0:n_l2_agents] = 1
+        RG.shuffle(is_l2)
+
         # Set up agents
         # We use a grid iterator that returns
         # the coordinates of a cell as well as
         # its contents. (coord_iter)
-        for cell in self.grid.coord_iter():
+        for i,cell in enumerate(self.grid.coord_iter()):
             x = cell[1]
             y = cell[2]
-            if RG.random() < self.proportion_l2:
+            if is_l2[i]:
                 # L2 agents initialized randomly
                 agent = Agent((x, y), self, self.data, init="empty", capacity=self.capacity_l2)
             else:
