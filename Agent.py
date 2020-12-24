@@ -105,7 +105,8 @@ class Agent(Agent):
                 form_border_phoneme = 0 if verb_type=="prefixing" else -1
                 affix_border_phoneme = -1 if verb_type=="prefixing" else 0
                 affix = prefix if verb_type=="prefixing" else suffix
-                feature_dist = dst.weighted_feature_edit_distance(form[form_border_phoneme], affix[affix_border_phoneme])
+                affix_slice = affix[affix_border_phoneme] if len(affix)>0 else affix
+                feature_dist = dst.weighted_feature_edit_distance(form[form_border_phoneme], affix_slice)
                 # Sounds have to be different enough
                 if feature_dist < MIN_BOUNDARY_FEATURE_DIST:
                     signal.drop_affix()

@@ -31,8 +31,9 @@ class Data():
         # data_affixes_dict = data_affixes.to_dict(orient="index")
         # self.affixes = defaultdict(list)
 
-        person_affix_cols = [col for col in self.data if re.match("[0-9]", col)] #TODO: replace by PERSONS
-        data_reindexed = self.data[["concept","form_lewoingu","trans", "intrans"]+person_affix_cols].set_index("concept")
+        general_cols = ["concept", "form_lewoingu", "trans", "intrans","prefixing","suffixing"]
+        person_affix_cols = [col for col in self.data if col.startswith(tuple(PERSONS))] 
+        data_reindexed = self.data[general_cols+person_affix_cols].set_index("concept")
         data_dict = data_reindexed.to_dict(orient="index")
         self.lex_concept_data = {}
         self.affixes = {} # defaultdict(list) 
@@ -49,7 +50,7 @@ class Data():
             prefixing = bool(data_dict[lex_concept]["prefixing"])
             suffixing = bool(data_dict[lex_concept]["suffixing"])
             self.lex_concept_data[lex_concept] = {"form": form,
-                                                  "transititivites": transitivities,
+                                                  "transitivities": transitivities,
                                                   "prefixing": prefixing,
                                                   "suffixing": suffixing}
 
