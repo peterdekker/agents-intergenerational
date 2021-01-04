@@ -47,8 +47,3 @@ class Signal:
     def set_object(self, context_object):
         self.context_object = context_object
     
-    # Other
-
-    def drop_affix(self):
-        self.prefix = None
-        self.suffix = None
