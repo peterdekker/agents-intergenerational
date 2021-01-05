@@ -3,6 +3,7 @@ from mesa.visualization.modules import CanvasGrid, ChartModule, TextElement
 from mesa.visualization.UserParam import UserSettableParameter
 
 from Model import Model
+import stats
 
 from constants import HEIGHT, WIDTH, MAX_RADIUS, PROPORTION_L2, SUFFIX_PROB, CAPACITY_L1, CAPACITY_L2, DROP_SUBJECT_PROB, DROP_OBJECT_PROB
 
@@ -13,7 +14,7 @@ def draw(agent):
     '''
     if agent is None:
         return
-    c = agent.colour
+    c = stats.compute_colour(agent)
     color_str = f"hsl({c[0]},{c[1]}%,{c[2]}%)"
     portrayal = {"Shape": "circle", "r": 0.5, "Filled": "true", "Layer": 0}
     portrayal["Color"] = [color_str, color_str]
