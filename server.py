@@ -14,10 +14,9 @@ def draw(agent):
     '''
     if agent is None:
         return
-    c = stats.compute_colour(agent)
-    color_str = f"hsl({c[0]},{c[1]}%,{c[2]}%)"
+    colours = stats.compute_colour(agent)
     portrayal = {"Shape": "circle", "r": 0.5, "Filled": "true", "Layer": 0}
-    portrayal["Color"] = [color_str, color_str]
+    portrayal["Color"] = [colours["suffix"], colours["prefix"]]
     portrayal["stroke_color"] = "rgb(0,0,0)"
 
     return portrayal

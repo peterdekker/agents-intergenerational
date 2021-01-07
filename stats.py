@@ -15,11 +15,34 @@ def morph_complexity(agent):
     mean_length = np.mean(lengths)  # if len(lengths)>0 else 0
     return mean_length
 
+# TODO: possibly parametrize for affix position
+def proportion_filled_entries(agent):
+    total = {"prefix": 0, "suffix": 0}
+    filled = {"prefix": 0, "suffix": 0}
+    for lex_concept in agent.lex_concepts:
+        for person in agent.persons:
+            for aff_pos in ["prefix", "suffix"]:
+                if agent.lex_concept_data[lex_concept][f"{aff_pos}ing"]:
+                    total[aff_pos] +=1
+                    affix_set = set(agent.affixes[(lex_concept, person, aff_pos)])
+                    affix_set.discard("")
+                    if len(affix_set) > 0:
+                        filled[aff_pos]+=1
+
+    proportion_prefix = filled["prefix"]/total["prefix"]
+    proportion_suffix = filled["suffix"]/total["suffix"]
+    return {"prefix": proportion_prefix, "suffix": proportion_suffix}
+
 
 def compute_colour(agent):
-    agg = morph_complexity(agent) * 100
-    return [250, 80, agg]
+    agg = proportion_filled_entries(agent)
+    agg_prefix = agg["prefix"] * 50
+    agg_suffix = agg["suffix"] * 50
+    #HSL: H->0-360,  S->0-100%, L->100% L50% is maximum color, 100% is white
+    return {"prefix": colour_str([250, 80, agg_prefix]), "suffix": colour_str([250, 80, agg_suffix])}
 
+def colour_str(c):
+    return f"hsl({c[0]},{c[1]}%,{c[2]}%)"
 
 def compute_global_dist(agents, lex_concepts, persons):
     dists = []

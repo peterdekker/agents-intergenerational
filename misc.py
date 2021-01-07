@@ -11,7 +11,6 @@ def lookup_lex_concept(signal_form, lex_concepts, lex_concept_data):
         raise Exception("Inferred lex concept cannot be None!")
     return retrieved_lex_concept
 
-
 def infer_person_from_signal(lex_concept, lex_concept_data, affixes, persons, signal):
     logging.debug("Person not given via context, inferring from affix.")
     # TODO: This assumes listener has same concept matrix, and knows which
@@ -23,7 +22,8 @@ def infer_person_from_signal(lex_concept, lex_concept_data, affixes, persons, si
                                                    signal.get_prefix(), persons, affixes, lex_concept)
     if lex_concept_data[lex_concept]["suffixing"]:
         possible_persons += infer_possible_persons("suffix",
-                                                   signal.get_suffix(), persons, affixes, lex_concept)
+                                                  signal.get_suffix(), persons, affixes,
+                                                   lex_concept)
 
     # If no possible persons (because no affix, or empty internal suffixes=L2),
     # pick person randomly from all persons
