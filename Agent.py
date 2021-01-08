@@ -12,7 +12,7 @@ import misc
 
 
 class Agent(Agent):
-    def __init__(self, pos, model, data, init, capacity):
+    def __init__(self, pos, model, data, init, capacity, l2):
         '''
          Create a new speech agent.
 
@@ -24,6 +24,7 @@ class Agent(Agent):
         super().__init__(pos, model)
         self.pos = pos
         self.capacity = capacity
+        self.l2 = l2
 
         # These vars are not deep copies, because they will not be altered by agents
         # Always initialized from data, whatever init is.
@@ -185,10 +186,11 @@ class Agent(Agent):
                     affix_list.append(affix_recv)
                     logging.debug(
                         f"{affix_type.capitalize()}es after update: {affix_list}")
-                    if len(affix_list) > self.capacity:
+                    while len(affix_list) > self.capacity:
                         affix_list.pop(0)
                         logging.debug(
                             f"{affix_type.capitalize()}es longer than MAX, after drop: {affix_list}")
 
-
+    def is_l2(self):
+        return self.l2
 

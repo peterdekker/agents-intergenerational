@@ -24,6 +24,10 @@ def draw(agent):
 
 canvas_element = CanvasGrid(draw, HEIGHT, WIDTH, 500, 500)
 dist_chart = ChartModule([{"Label": "global_model_distance", "Color": "Blue"}])
+filled_chart = ChartModule([{"Label": "global_filled_prefix_l1", "Color": "Blue"},
+                            {"Label": "global_filled_suffix_l1", "Color": "Purple"},
+                            {"Label": "global_filled_prefix_l2", "Color": "Orange"},
+                            {"Label": "global_filled_suffix_l2", "Color": "Brown"}])
 corr_int_chart = ChartModule([{"Label": "proportion_correct_interactions", "Color": "Green"}])
 
 model_params = {
@@ -38,5 +42,5 @@ model_params = {
 }
 
 server = ModularServer(Model,
-                       [canvas_element, dist_chart, corr_int_chart],
+                       [canvas_element, dist_chart, filled_chart, corr_int_chart],
                        "Contact-induced morphological simplification in Alorese", model_params)

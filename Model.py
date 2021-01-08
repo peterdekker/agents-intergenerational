@@ -41,27 +41,27 @@ class Model(Model):
         self.correct_interactions = 0.0
         self.datacollector = DataCollector(
             {"global_model_distance": "global_model_distance",
+             "global_filled_prefix_l1": "global_filled_prefix_l1",
+             "global_filled_suffix_l1": "global_filled_suffix_l1",
+             "global_filled_prefix_l2": "global_filled_prefix_l2",
+             "global_filled_suffix_l2": "global_filled_suffix_l2",
              "proportion_correct_interactions": "proportion_correct_interactions"})
 
         # Always use same # L2 agents, but randomly divide them
         n_l2_agents = math.floor(self.proportion_l2 * N_AGENTS)
-        is_l2 = np.zeros(N_AGENTS)
-        is_l2[0:n_l2_agents] = 1
-        RG.shuffle(is_l2)
+        l2 = np.zeros(N_AGENTS)
+        l2[0:n_l2_agents] = 1
+        RG.shuffle(l2)
 
         # Set up agents
         # We use a grid iterator that returns
         # the coordinates of a cell as well as
         # its contents. (coord_iter)
-        for i,cell in enumerate(self.grid.coord_iter()):
+        for i, cell in enumerate(self.grid.coord_iter()):
             x = cell[1]
             y = cell[2]
-            if is_l2[i]:
-                # L2 agents initialized randomly
-                agent = Agent((x, y), self, self.data, init="empty", capacity=self.capacity_l2)
-            else:
-                # L1 agents initialized using data sheet
-                agent = Agent((x, y), self, self.data, init="data", capacity=self.capacity_l1)
+            agent = Agent((x, y), self, self.data, init="empty" if l2[i] else "data",
+                          capacity=self.capacity_l2 if l2[i] else self.capacity_l1, l2=l2[i])
             self.grid.position_agent(agent, (x, y))
             self.schedule.add(agent)
 
@@ -80,6 +80,12 @@ class Model(Model):
         self.proportion_correct_interactions = self.correct_interactions/float(N_AGENTS)
         if self.steps % 10 == 0:
             agents = [a for a, x, y in self.grid.coord_iter()]
-            self.global_model_distance = stats.compute_global_dist(agents, self.data.lex_concepts, self.data.persons)
+            agents_l1 = [a for a in agents if not a.is_l2()]
+            agents_l2 = [a for a in agents if a.is_l2()]
+            self.global_model_distance = stats.global_dist(agents, self.data.lex_concepts, self.data.persons)
+            self.global_filled_prefix_l1 = stats.global_filled(agents_l1, "prefix")
+            self.global_filled_suffix_l1 = stats.global_filled(agents_l1, "suffix")
+            self.global_filled_prefix_l2 = stats.global_filled(agents_l2, "prefix", )
+            self.global_filled_suffix_l2 = stats.global_filled(agents_l2, "suffix")
 
         self.datacollector.collect(self)
