@@ -61,3 +61,9 @@ def reduce_affix_phonetic(verb_type, affix, form):
         affix = ""
         # TODO: drop probabilistically
     return affix
+
+def enforce_capacity(affix_list, capacity):
+    while len(affix_list) > capacity:
+        affix_list.pop(0)
+        logging.debug(
+            f"Affix list longer than MAX, after drop: {affix_list}")

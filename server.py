@@ -5,7 +5,7 @@ from mesa.visualization.UserParam import UserSettableParameter
 from Model import Model
 import stats
 
-from constants import HEIGHT, WIDTH, MAX_RADIUS, PROPORTION_L2, SUFFIX_PROB, CAPACITY_L1, CAPACITY_L2, DROP_SUBJECT_PROB, DROP_OBJECT_PROB
+from constants import HEIGHT, WIDTH, MAX_RADIUS, PROPORTION_L2, SUFFIX_PROB, CAPACITY_L1, CAPACITY_L2, DROP_SUBJECT_PROB, DROP_OBJECT_PROB, MIN_BOUNDARY_FEATURE_DIST
 
 
 def draw(agent):
@@ -35,8 +35,8 @@ model_params = {
     "width": WIDTH,
     "proportion_l2": UserSettableParameter("slider", "Proportion L2", PROPORTION_L2, 0.0, 1.0, 0.1),
     "suffix_prob": UserSettableParameter("slider", "Suffix prob (intrans)", SUFFIX_PROB, 0.0, 1.0, 0.1),
-    "capacity_l1": UserSettableParameter("slider", "Exemplar capacity L1", CAPACITY_L1, 0, 100, 1),
-    "capacity_l2": UserSettableParameter("slider", "Exemplar capacity L2", CAPACITY_L2, 0, 100, 1),
+    "capacity_l1": UserSettableParameter("slider", "Exemplar capacity L1", CAPACITY_L1, 0, 50, 1),
+    "capacity_l2": UserSettableParameter("slider", "Exemplar capacity L2", CAPACITY_L2, 0, 50, 1),
     "drop_subject_prob": UserSettableParameter("slider", "Drop subject prob", DROP_SUBJECT_PROB, 0, 1, 0.1),
     "drop_object_prob": UserSettableParameter("slider", "Drop object prob", DROP_OBJECT_PROB, 0, 1, 0.1)
 }

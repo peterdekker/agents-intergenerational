@@ -81,6 +81,7 @@ class Agent(Agent):
         #     -- regardless of transitive or intransitive: use prefix
         prefixes = self.affixes[(lex_concept, person, "prefix")]
         if prefixing:
+            misc.enforce_capacity(prefixes, self.capacity)
             prefix = ""
             # TODO: More elegant if len is always non-zero because there is always ""?
             if len(prefixes) > 0:
@@ -95,6 +96,7 @@ class Agent(Agent):
         #     -- intransitive: use suffix with probability, because it is not obligatory
         suffixes = self.affixes[(lex_concept, person, "suffix")]
         if suffixing:
+            misc.enforce_capacity(suffixes, self.capacity)
             # In all cases where suffix will not be set, use empty suffix
             # (different from None, because listener will add empty suffix to its stack)
             suffix = ""
@@ -186,10 +188,10 @@ class Agent(Agent):
                     affix_list.append(affix_recv)
                     logging.debug(
                         f"{affix_type.capitalize()}es after update: {affix_list}")
-                    while len(affix_list) > self.capacity:
-                        affix_list.pop(0)
-                        logging.debug(
-                            f"{affix_type.capitalize()}es longer than MAX, after drop: {affix_list}")
+                    # while len(affix_list) > self.capacity:
+                    #     affix_list.pop(0)
+                    #     logging.debug(
+                    #         f"{affix_type.capitalize()}es longer than MAX, after drop: {affix_list}")
 
     def is_l2(self):
         return self.l2

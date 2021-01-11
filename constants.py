@@ -18,12 +18,12 @@ PERSONS = ['1sg', '2sg', '3sg', '1pl.incl', '1pl.excl', '2pl', '3pl']
 dst = Distance() 
 RG = np.random.default_rng()
 
-MIN_BOUNDARY_FEATURE_DIST = 2.0
 
 # Defaults for UserSettableParameters
 SUFFIX_PROB = 0.5
 PROPORTION_L2 = 0.2
-CAPACITY_L1 = 5#100
-CAPACITY_L2 = 5#100
+CAPACITY_L1 = 50
+CAPACITY_L2 = 50
 DROP_SUBJECT_PROB = 0.0
 DROP_OBJECT_PROB = 0.0
+MIN_BOUNDARY_FEATURE_DIST = 2.0
