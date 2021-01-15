@@ -38,7 +38,9 @@ model_params = {
     "capacity_l1": UserSettableParameter("slider", "Exemplar capacity L1", CAPACITY_L1, 0, 50, 1),
     "capacity_l2": UserSettableParameter("slider", "Exemplar capacity L2", CAPACITY_L2, 0, 50, 1),
     "drop_subject_prob": UserSettableParameter("slider", "Drop subject prob", DROP_SUBJECT_PROB, 0, 1, 0.1),
-    "drop_object_prob": UserSettableParameter("slider", "Drop object prob", DROP_OBJECT_PROB, 0, 1, 0.1)
+    "drop_object_prob": UserSettableParameter("slider", "Drop object prob", DROP_OBJECT_PROB, 0, 1, 0.1),
+    "min_boundary_feature_dist": UserSettableParameter("slider", "Min boundary feature dist",
+                                                        MIN_BOUNDARY_FEATURE_DIST, 0, 10, 0.1)
 }
 
 server = ModularServer(Model,

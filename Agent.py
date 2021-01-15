@@ -88,7 +88,8 @@ class Agent(Agent):
                 prefix = RG.choice(prefixes)
                 # TODO: Drop affix based on re-entrance (how understandable is it)
                 # Drop affix based on phonetic distance between stem/affix boundary phonemes
-                prefix = misc.reduce_affix_phonetic("prefixing", prefix, form)
+                prefix = misc.reduce_affix_phonetic("prefixing", prefix, form,
+                                                    self.model.min_boundary_feature_dist)
             signal.set_prefix(prefix)
 
         #  - suffixing verb:
@@ -105,7 +106,8 @@ class Agent(Agent):
                 if transitivity == "intrans":
                     if RG.random() < self.model.suffix_prob:
                         suffix = RG.choice(suffixes)
-                suffix = misc.reduce_affix_phonetic("suffixing", suffix, form)
+                suffix = misc.reduce_affix_phonetic("suffixing", suffix, form,
+                                                    self.model.min_boundary_feature_dist)
             signal.set_suffix(suffix)
 
         # (3) Add context from sentence (subject and object), based on transivitity.
@@ -176,22 +178,17 @@ class Agent(Agent):
 
         if feedback_speaker:
             self.model.correct_interactions += 1
-            # TODO: perform negative update on wrong prefix as well?
+            # TODO: perform negative update on wrong affix as well?
             lex_concept_listener = self.concept_listener.get_lex_concept()
             person_listener = self.concept_listener.get_person()
-            # Add current prefix to right concept
+            # Add current affix to right concept
             prefix_recv = self.signal_recv.get_prefix()
             suffix_recv = self.signal_recv.get_suffix()
-            for affix_type, affix_recv in [("prefix", prefix_recv), ("suffix", suffix_recv)]:
-                affix_list = self.affixes[(lex_concept_listener, person_listener, affix_type)]
-                if affix_recv: # if not None (=when verb is not of prefixing/suffixing type)
-                    affix_list.append(affix_recv)
-                    logging.debug(
-                        f"{affix_type.capitalize()}es after update: {affix_list}")
-                    # while len(affix_list) > self.capacity:
-                    #     affix_list.pop(0)
-                    #     logging.debug(
-                    #         f"{affix_type.capitalize()}es longer than MAX, after drop: {affix_list}")
+            misc.update_affix_list("prefix", prefix_recv, self.affixes,
+                                   self.lex_concept_data, lex_concept_listener, person_listener)
+            misc.update_affix_list("suffix", suffix_recv, self.affixes,
+                                   self.lex_concept_data, lex_concept_listener, person_listener)
+                    
 
     def is_l2(self):
         return self.l2

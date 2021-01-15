@@ -16,7 +16,9 @@ class Model(Model):
     Model class
     '''
 
-    def __init__(self, height, width, proportion_l2, suffix_prob, capacity_l1, capacity_l2, drop_subject_prob, drop_object_prob):
+    def __init__(self, height, width, proportion_l2, suffix_prob,
+                 capacity_l1, capacity_l2, drop_subject_prob, drop_object_prob,
+                 min_boundary_feature_dist):
         '''
         Initialize field
         '''
@@ -30,6 +32,8 @@ class Model(Model):
         self.suffix_prob = suffix_prob
         self.drop_subject_prob = drop_subject_prob
         self.drop_object_prob = drop_object_prob
+        self.min_boundary_feature_dist = min_boundary_feature_dist
+
         self.schedule = RandomActivation(self)
         self.grid = SingleGrid(width, height, torus=True)
         self.steps = 0
