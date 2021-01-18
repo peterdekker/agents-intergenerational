@@ -5,7 +5,7 @@ from mesa.datacollection import DataCollector
 import math
 import numpy as np
 
-from constants import N_AGENTS, DATA_FILE, MAX_RADIUS, RG
+from constants import N_AGENTS, DATA_FILE, MAX_RADIUS, RG, STATS_AFTER_ITERATIONS
 import stats
 from Agent import Agent
 from Data import Data
@@ -82,14 +82,14 @@ class Model(Model):
         self.schedule.step()
         # Now compute proportion of correct interaction
         self.proportion_correct_interactions = self.correct_interactions/float(N_AGENTS)
-        if self.steps % 10 == 0:
+        if self.steps % STATS_AFTER_ITERATIONS == 0:
             agents = [a for a, x, y in self.grid.coord_iter()]
             agents_l1 = [a for a in agents if not a.is_l2()]
             agents_l2 = [a for a in agents if a.is_l2()]
             self.global_model_distance = stats.global_dist(agents, self.data.lex_concepts, self.data.persons)
             self.global_filled_prefix_l1 = stats.global_filled(agents_l1, "prefix")
             self.global_filled_suffix_l1 = stats.global_filled(agents_l1, "suffix")
-            self.global_filled_prefix_l2 = stats.global_filled(agents_l2, "prefix", )
+            self.global_filled_prefix_l2 = stats.global_filled(agents_l2, "prefix")
             self.global_filled_suffix_l2 = stats.global_filled(agents_l2, "suffix")
 
         self.datacollector.collect(self)

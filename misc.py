@@ -67,7 +67,7 @@ def enforce_capacity(affix_list, capacity):
         logging.debug(
             f"Affix list longer than MAX, after drop: {affix_list}")
 
-def update_affix_list(affix_type, affix_recv, affixes, lex_concept_data, lex_concept_listener, person_listener):
+def update_affix_list(affix_type, affix_recv, affixes, lex_concept_data, lex_concept_listener, person_listener, capacity):
     affix_list = affixes[(lex_concept_listener, person_listener, affix_type)]
     if lex_concept_data[lex_concept_listener][f"{affix_type}ing"]:
         if affix_recv is None:
@@ -75,4 +75,5 @@ def update_affix_list(affix_type, affix_recv, affixes, lex_concept_data, lex_con
             raise Exception("Affix cannot be None, if this affix type is enabled for this verb!")
         affix_list.append(affix_recv)
         logging.debug(
-            f"{affix_type.capitalize()}es after update: {affix_list}")  
+            f"{affix_type.capitalize()}es after update: {affix_list}") 
+        enforce_capacity(affix_list, capacity)

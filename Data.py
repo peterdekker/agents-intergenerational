@@ -7,7 +7,7 @@ from constants import PERSONS
 class Data():
     def __init__(self, data_file):
         self.data = pd.read_csv(data_file, sep="\t").fillna(value="")
-        # Filter on only entries which have Lewoingu form (1 is not. TODO: fix data)
+        # Filter on only entries which have Lewoingu form
         self.data = self.data[self.data["form_lewoingu"] != ""]
         self.lex_concepts = list(self.data["concept"])
         self.persons = PERSONS
@@ -49,6 +49,9 @@ class Data():
             transitivities = [k for k, v in data_dict[lex_concept].items() if (k=="trans" or k=="intrans") and v == 1]
             prefixing = bool(data_dict[lex_concept]["prefixing"])
             suffixing = bool(data_dict[lex_concept]["suffixing"])
+            # For now, make it not possible for prefixing verbs to be also suffixing
+            if prefixing:
+                suffixing = False
             self.lex_concept_data[lex_concept] = {"form": form,
                                                   "transitivities": transitivities,
                                                   "prefixing": prefixing,

@@ -3,7 +3,7 @@ import logging
 import sys
 from panphon.distance import Distance                                                                                                                 
 
-logging.basicConfig(stream=sys.stderr, level=logging.DEBUG)
+logging.basicConfig(stream=sys.stderr, level=logging.ERROR)
 
 HEIGHT = 6
 WIDTH = 6
@@ -18,6 +18,7 @@ PERSONS = ['1sg', '2sg', '3sg', '1pl.incl', '1pl.excl', '2pl', '3pl']
 dst = Distance() 
 RG = np.random.default_rng()
 
+STATS_AFTER_ITERATIONS = 20
 
 # Defaults for UserSettableParameters
 SUFFIX_PROB = 0.5
@@ -26,4 +27,4 @@ CAPACITY_L1 = 50
 CAPACITY_L2 = 50
 DROP_SUBJECT_PROB = 0.0
 DROP_OBJECT_PROB = 0.0
-MIN_BOUNDARY_FEATURE_DIST = 0.0 # 2.0
+MIN_BOUNDARY_FEATURE_DIST = 3.0 # 2.0

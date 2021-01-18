@@ -44,7 +44,6 @@ class Agent(Agent):
         '''
          Perform one interaction for this agent, with this agent as speaker
         '''
-        # Choose an agent to speak to
         # If radius==MAX_RADIUS, every agent speaks with every other, so random mixing
         neighbors = self.model.grid.get_neighbors(self.pos, True, False, self.model.radius)
         listener = RG.choice(neighbors)
@@ -81,7 +80,7 @@ class Agent(Agent):
         #     -- regardless of transitive or intransitive: use prefix
         prefixes = self.affixes[(lex_concept, person, "prefix")]
         if prefixing:
-            misc.enforce_capacity(prefixes, self.capacity)
+            #misc.enforce_capacity(prefixes, self.capacity)
             prefix = ""
             # TODO: More elegant if len is always non-zero because there is always ""?
             if len(prefixes) > 0:
@@ -97,7 +96,7 @@ class Agent(Agent):
         #     -- intransitive: use suffix with probability, because it is not obligatory
         suffixes = self.affixes[(lex_concept, person, "suffix")]
         if suffixing:
-            misc.enforce_capacity(suffixes, self.capacity)
+            #misc.enforce_capacity(suffixes, self.capacity)
             # In all cases where suffix will not be set, use empty suffix
             # (different from None, because listener will add empty suffix to its stack)
             suffix = ""
@@ -185,9 +184,11 @@ class Agent(Agent):
             prefix_recv = self.signal_recv.get_prefix()
             suffix_recv = self.signal_recv.get_suffix()
             misc.update_affix_list("prefix", prefix_recv, self.affixes,
-                                   self.lex_concept_data, lex_concept_listener, person_listener)
+                                   self.lex_concept_data, lex_concept_listener, person_listener,
+                                   self.capacity)
             misc.update_affix_list("suffix", suffix_recv, self.affixes,
-                                   self.lex_concept_data, lex_concept_listener, person_listener)
+                                   self.lex_concept_data, lex_concept_listener, person_listener,
+                                   self.capacity)
                     
 
     def is_l2(self):

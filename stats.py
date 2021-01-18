@@ -3,19 +3,6 @@ from itertools import combinations
 from distance import jaccard
 
 
-def morph_complexity(agent):
-    # TODO: optimize, get rid of loops
-    lengths = []
-    for lex_concept in agent.lex_concepts:
-        for person in agent.persons:
-            for affix_position in ["prefix", "suffix"]:
-                # Length is also calculated for empty affixes list (in L2 agents)
-                n_affixes = len(set(agent.affixes[(lex_concept, person, affix_position)]))
-                lengths.append(n_affixes)
-    mean_length = np.mean(lengths)  # if len(lengths)>0 else 0
-    return mean_length
-
-
 # TODO: optimize this by making fixed list of affixing and suffixing verbs
 def proportion_filled_entries(agent, aff_pos):
     total = 0
@@ -57,9 +44,8 @@ def global_dist(agents, lex_concepts, persons):
                         continue
                     jaccard_dist = jaccard(aff1, aff2)
                     dists.append(jaccard_dist)
-    global_model_distance = np.mean(dists)
-    return global_model_distance
+    return np.mean(dists) if len(dists) > 0 else 0
 
 def global_filled(agents, aff_pos):
-    filled_proportions = [proportion_filled_entries(a, aff_pos) for a in agents]
-    return np.mean(filled_proportions)
+    filled_props = [proportion_filled_entries(a, aff_pos) for a in agents]
+    return np.mean(filled_props) if len(filled_props) > 0 else 0
