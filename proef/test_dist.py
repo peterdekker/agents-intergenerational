@@ -1,10 +1,14 @@
 import panphon.distance
+import panphon.sonority
 import numpy as np
 
 np.set_printoptions(precision=3)
 
-dst = panphon.distance.Distance() 
+dst = panphon.distance.Distance()
+son = panphon.sonority.Sonority()
 
+def sonority_distance(a,b):
+    return np.abs(son.sonority(a) - son.sonority(b))
 
 def evaluate_dist(verb_type, distance_func, form, affix):
     form_border_phoneme = 0 if verb_type == "prefixing" else -1
@@ -26,6 +30,7 @@ distance_funcs = [("Levenshtein", dst.fast_levenshtein_distance),
                   ("Feature edit distance", dst.feature_edit_distance),
                   ("Hamming feature edit distance", dst.hamming_feature_edit_distance),
                   ("Weighted feature edit distance", dst.weighted_feature_edit_distance),
+                  ("Sonority distance", sonority_distance)
                  ]
 
 for label, func in distance_funcs:
