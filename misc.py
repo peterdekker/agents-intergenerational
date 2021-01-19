@@ -1,4 +1,4 @@
-from constants import MIN_BOUNDARY_FEATURE_DIST, dst, logging, RG
+from constants import dst, logging, RG
 import editdistance
 
 def lookup_lex_concept(signal_form, lex_concepts, lex_concept_data):
