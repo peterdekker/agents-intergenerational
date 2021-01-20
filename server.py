@@ -1,11 +1,12 @@
 from mesa.visualization.ModularVisualization import ModularServer
-from mesa.visualization.modules import CanvasGrid, ChartModule, TextElement
+from mesa.visualization.modules import CanvasGrid, ChartModule
 from mesa.visualization.UserParam import UserSettableParameter
 
 from Model import Model
 import stats
 
-from constants import HEIGHT, WIDTH, MAX_RADIUS, PROPORTION_L2, SUFFIX_PROB, CAPACITY_L1, CAPACITY_L2, DROP_SUBJECT_PROB, DROP_OBJECT_PROB, MIN_BOUNDARY_FEATURE_DIST
+from constants import HEIGHT, WIDTH, PROPORTION_L2, SUFFIX_PROB, CAPACITY_L1, CAPACITY_L2, \
+                        DROP_SUBJECT_PROB, DROP_OBJECT_PROB, MIN_BOUNDARY_FEATURE_DIST
 
 
 def draw(agent):

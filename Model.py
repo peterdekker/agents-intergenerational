@@ -43,6 +43,10 @@ class Model(Model):
 
         self.global_model_distance = 0.0
         self.correct_interactions = 0.0
+        self.global_filled_prefix_l1 = 0.0
+        self.global_filled_suffix_l1 = 0.0
+        self.global_filled_prefix_l2 = 0.0
+        self.global_filled_suffix_l2 = 0.0
         self.datacollector = DataCollector(
             {"global_model_distance": "global_model_distance",
              "global_filled_prefix_l1": "global_filled_prefix_l1",
@@ -86,6 +90,9 @@ class Model(Model):
             agents = [a for a, x, y in self.grid.coord_iter()]
             agents_l1 = [a for a in agents if not a.is_l2()]
             agents_l2 = [a for a in agents if a.is_l2()]
+            # TODO: these vars can be calculated upon callig .collect(), by
+            # registering methods in datacollector. But then
+            # no differentiation between stats calculation intervals is possible
             self.global_model_distance = stats.global_dist(agents, self.data.lex_concepts, self.data.persons)
             self.global_filled_prefix_l1 = stats.global_filled(agents_l1, "prefix")
             self.global_filled_suffix_l1 = stats.global_filled(agents_l1, "suffix")
