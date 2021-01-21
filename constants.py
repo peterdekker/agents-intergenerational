@@ -28,3 +28,7 @@ CAPACITY_L2 = 50
 DROP_SUBJECT_PROB = 0.0
 DROP_OBJECT_PROB = 0.0
 MIN_BOUNDARY_FEATURE_DIST = 3.0 # 2.0
+
+# For evaluation script (not browser visualization)
+ITERATIONS = [3]
+STEPS = [5000]
