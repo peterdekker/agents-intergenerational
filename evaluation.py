@@ -16,6 +16,8 @@ fixed_params = {
 }
 
 variable_params = {"capacity_l1": [0,1,2,5,10], "capacity_l2": [0,1,2,5,10], "proportion_l2":[0.0, 0.2, 0.5]}
+for k in variable_params:
+    del fixed_params[k]
 
 stats = {"global_filled_prefix_l1": lambda m: m.global_filled_prefix_l1,
          "global_filled_suffix_l1": lambda m: m.global_filled_suffix_l1,
@@ -32,7 +34,7 @@ batch_run = BatchRunner(
 )
 
 batch_run.run_all()
-cols=list(variable_params.keys()) + list(stats.keys())
+cols = list(variable_params.keys()) + list(stats.keys())
 run_data = batch_run.get_model_vars_dataframe()[cols]
 print(run_data)
 run_data.to_csv("evaluation.tsv", sep="\t")
