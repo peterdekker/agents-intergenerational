@@ -1,6 +1,9 @@
 from constants import dst, logging, RG
 import editdistance
 
+import math
+import numpy as np
+
 def lookup_lex_concept(signal_form, lex_concepts, lex_concept_data):
     retrieved_lex_concept = None
     for lex_concept in lex_concepts:
@@ -77,3 +80,11 @@ def update_affix_list(affix_type, affix_recv, affixes, lex_concept_data, lex_con
         logging.debug(
             f"{affix_type.capitalize()}es after update: {affix_list}") 
         enforce_capacity(affix_list, capacity)
+
+
+def spread_l2_agents(proportion_l2, n_agents):
+    n_l2_agents = math.floor(proportion_l2 * n_agents)
+    l2 = np.zeros(n_agents)
+    l2[0:n_l2_agents] = 1
+    RG.shuffle(l2)
+    return l2

@@ -2,11 +2,11 @@ from mesa import Model
 from mesa.time import RandomActivation
 from mesa.space import SingleGrid
 from mesa.datacollection import DataCollector
-import math
-import numpy as np
 
-from constants import N_AGENTS, DATA_FILE, MAX_RADIUS, RG, STATS_AFTER_ITERATIONS
+from constants import N_AGENTS, DATA_FILE, MAX_RADIUS, STATS_AFTER_ITERATIONS
 import stats
+import misc
+
 from Agent import Agent
 from Data import Data
 
@@ -56,10 +56,7 @@ class Model(Model):
              "proportion_correct_interactions": "proportion_correct_interactions"})
 
         # Always use same # L2 agents, but randomly divide them
-        n_l2_agents = math.floor(self.proportion_l2 * N_AGENTS)
-        l2 = np.zeros(N_AGENTS)
-        l2[0:n_l2_agents] = 1
-        RG.shuffle(l2)
+        l2 = misc.spread_l2_agents(self.proportion_l2, N_AGENTS)
 
         # Set up agents
         # We use a grid iterator that returns

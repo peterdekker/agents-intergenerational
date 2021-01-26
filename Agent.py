@@ -80,7 +80,6 @@ class Agent(Agent):
         #     -- regardless of transitive or intransitive: use prefix
         prefixes = self.affixes[(lex_concept, person, "prefix")]
         if prefixing:
-            #misc.enforce_capacity(prefixes, self.capacity)
             prefix = ""
             # TODO: More elegant if len is always non-zero because there is always ""?
             if len(prefixes) > 0:
@@ -96,7 +95,6 @@ class Agent(Agent):
         #     -- intransitive: use suffix with probability, because it is not obligatory
         suffixes = self.affixes[(lex_concept, person, "suffix")]
         if suffixing:
-            #misc.enforce_capacity(suffixes, self.capacity)
             # In all cases where suffix will not be set, use empty suffix
             # (different from None, because listener will add empty suffix to its stack)
             suffix = ""
@@ -160,9 +158,8 @@ class Agent(Agent):
         self.concept_listener = ConceptMessage(
             lex_concept=lex_concept, person=inferred_person, transitivity=transitivity)
         logging.debug(f"Listener decodes concept: {self.concept_listener!s}")
+        
         # Point to object
-        # TODO: Is it strange that this function returns a value, while all other functions call a function
-        #       on the other agent? Communication is implemented speaker-centred.
         return self.concept_listener
 
 
