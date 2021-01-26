@@ -1,5 +1,5 @@
 jupyter
 matplotlib
-mesa==8.0.6
+mesa==0.8.6
 panphon
 argparse
