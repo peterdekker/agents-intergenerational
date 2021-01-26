@@ -1,8 +1,8 @@
-from constants import dst, logging, RG
 import editdistance
-
 import math
 import numpy as np
+
+from agents.config import dst, logging, RG
 
 def lookup_lex_concept(signal_form, lex_concepts, lex_concept_data):
     retrieved_lex_concept = None

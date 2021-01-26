@@ -1,14 +1,12 @@
 from mesa import Agent
-
 import copy
-
+from collections import defaultdict
 import numpy as np
 
-from Signal import Signal
-from ConceptMessage import ConceptMessage
-from constants import RG, logging
-from collections import defaultdict
-import misc
+from agents.signal import Signal
+from agents.conceptmessage import ConceptMessage
+from agents.config import RG, logging
+from agents import misc
 
 
 class Agent(Agent):

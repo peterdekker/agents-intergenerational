@@ -3,12 +3,12 @@ from mesa.time import RandomActivation
 from mesa.space import SingleGrid
 from mesa.datacollection import DataCollector
 
-from constants import N_AGENTS, DATA_FILE, MAX_RADIUS, STATS_AFTER_ITERATIONS
-import stats
-import misc
+from agents.config import N_AGENTS, DATA_FILE, MAX_RADIUS, STATS_AFTER_STEPS
+from agents import stats
+from agents import misc
 
-from Agent import Agent
-from Data import Data
+from agents.agent import Agent
+from agents.data import Data
 
 
 class Model(Model):
@@ -83,7 +83,7 @@ class Model(Model):
         self.schedule.step()
         # Now compute proportion of correct interaction
         self.proportion_correct_interactions = self.correct_interactions/float(N_AGENTS)
-        if self.steps % STATS_AFTER_ITERATIONS == 0:
+        if self.steps % STATS_AFTER_STEPS == 0:
             agents = [a for a, x, y in self.grid.coord_iter()]
             agents_l1 = [a for a in agents if not a.is_l2()]
             agents_l2 = [a for a in agents if a.is_l2()]

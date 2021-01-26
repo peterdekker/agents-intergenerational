@@ -1,3 +1,3 @@
-from server import server
+from agents.server import server
 
 server.launch()

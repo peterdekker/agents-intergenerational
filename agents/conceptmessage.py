@@ -1,4 +1,4 @@
-from constants import RG
+from agents.config import RG
 
 
 class ConceptMessage:

@@ -1,25 +1,9 @@
 import argparse
 from mesa.batchrunner import BatchRunner
-from constants import HEIGHT, WIDTH, PROPORTION_L2, SUFFIX_PROB, CAPACITY_L1, CAPACITY_L2, \
-                        DROP_SUBJECT_PROB, DROP_OBJECT_PROB, MIN_BOUNDARY_FEATURE_DIST, STEPS, ITERATIONS
-from Model import Model
 
-model_params = {
-    "height": HEIGHT,
-    "width": WIDTH,
-    "proportion_l2": PROPORTION_L2,
-    "suffix_prob": SUFFIX_PROB,
-    "capacity_l1": CAPACITY_L1,
-    "capacity_l2": CAPACITY_L2,
-    "drop_subject_prob": DROP_SUBJECT_PROB,
-    "drop_object_prob": DROP_OBJECT_PROB,
-    "min_boundary_feature_dist": MIN_BOUNDARY_FEATURE_DIST
-}
+from agents.model import Model
+from agents.config import model_params, evaluation_params
 
-evaluation_params = {
-    "iterations": ITERATIONS,
-    "steps": STEPS
-}
 
 stats = {"global_filled_prefix_l1": lambda m: m.global_filled_prefix_l1,
          "global_filled_suffix_l1": lambda m: m.global_filled_suffix_l1,
