@@ -17,8 +17,7 @@ cache:
 
 before_script:
   - python -V  # Print out python version for debugging
-  - pip3 install virtualenv
-  - virtualenv venv
+  - python3 -m venv
   - source venv/bin/activate
   - pip3 install -r requirements.txt
 
