@@ -1,4 +1,3 @@
-wheel
 distance
 jupyter
 matplotlib
