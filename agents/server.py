@@ -6,7 +6,7 @@ from agents.model import Model
 from agents import stats
 
 from agents.config import HEIGHT, WIDTH, PROPORTION_L2, SUFFIX_PROB, CAPACITY_L1, CAPACITY_L2, \
-                        DROP_SUBJECT_PROB, DROP_OBJECT_PROB, MIN_BOUNDARY_FEATURE_DIST
+                        DROP_SUBJECT_PROB, DROP_OBJECT_PROB, MIN_BOUNDARY_FEATURE_DIST, REDUCTION_HH
 
 
 def draw(agent):
@@ -41,7 +41,8 @@ model_params = {
     "drop_subject_prob": UserSettableParameter("slider", "Drop subject prob", DROP_SUBJECT_PROB, 0, 1, 0.1),
     "drop_object_prob": UserSettableParameter("slider", "Drop object prob", DROP_OBJECT_PROB, 0, 1, 0.1),
     "min_boundary_feature_dist": UserSettableParameter("slider", "Min boundary feature dist",
-                                                        MIN_BOUNDARY_FEATURE_DIST, 0, 10, 0.1)
+                                                        MIN_BOUNDARY_FEATURE_DIST, 0, 10, 0.1),
+    "reduction_hh": UserSettableParameter('checkbox', 'Reduction H&H', value=REDUCTION_HH)
 }
 
 server = ModularServer(Model,

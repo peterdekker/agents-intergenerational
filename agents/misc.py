@@ -4,6 +4,7 @@ import numpy as np
 
 from agents.config import dst, logging, RG
 
+
 def lookup_lex_concept(signal_form, lex_concepts, lex_concept_data):
     retrieved_lex_concept = None
     for lex_concept in lex_concepts:
@@ -14,11 +15,12 @@ def lookup_lex_concept(signal_form, lex_concepts, lex_concept_data):
         raise Exception("Inferred lex concept cannot be None!")
     return retrieved_lex_concept
 
+
 def infer_person_from_signal(lex_concept, lex_concept_data, affixes, persons, signal):
     logging.debug("Person not given via context, inferring from affix.")
     # TODO: This assumes listener has same concept matrix, and knows which
     # verbs are prefixing/suffixing
-    
+
     possible_persons = []
     if lex_concept_data[lex_concept]["prefixing"]:
         possible_persons += infer_possible_persons("prefix",
@@ -35,6 +37,7 @@ def infer_person_from_signal(lex_concept, lex_concept_data, affixes, persons, si
     # (can be one possible person, so choice is trivial)
     inferred_person = RG.choice(possible_persons)
     return inferred_person
+
 
 def infer_possible_persons(affix_type, affix_signal, persons, affixes, lex_concept):
     # Calculate distances of internal affixes to received affix,
@@ -64,11 +67,21 @@ def reduce_affix_phonetic(verb_type, affix, form, min_boundary_feature_dist):
         affix = ""
     return affix
 
+
+def reduce_affix_hh(affix, listener, reduction_hh):
+    if reduction_hh:
+        if not listener.is_l2():
+            logging.debug("Listener L1, H&H REDUCTION performed.")
+            affix = ""
+    return affix
+
+
 def enforce_capacity(affix_list, capacity):
     while len(affix_list) > capacity:
         affix_list.pop(0)
         logging.debug(
             f"Affix list longer than MAX, after drop: {affix_list}")
+
 
 def update_affix_list(affix_type, affix_recv, affixes, lex_concept_data, lex_concept_listener, person_listener, capacity):
     affix_list = affixes[(lex_concept_listener, person_listener, affix_type)]
@@ -78,7 +91,7 @@ def update_affix_list(affix_type, affix_recv, affixes, lex_concept_data, lex_con
             raise Exception("Affix cannot be None, if this affix type is enabled for this verb!")
         affix_list.append(affix_recv)
         logging.debug(
-            f"{affix_type.capitalize()}es after update: {affix_list}") 
+            f"{affix_type.capitalize()}es after update: {affix_list}")
         enforce_capacity(affix_list, capacity)
 
 

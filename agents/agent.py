@@ -82,7 +82,8 @@ class Agent(Agent):
             # TODO: More elegant if len is always non-zero because there is always ""?
             if len(prefixes) > 0:
                 prefix = RG.choice(prefixes)
-                # TODO: Drop affix based on re-entrance (how understandable is it)
+                # Drop affix based on estimated intelligibility for listener (H&H)
+                prefix = misc.reduce_affix_hh(prefix, listener, self.model.reduction_hh)
                 # Drop affix based on phonetic distance between stem/affix boundary phonemes
                 prefix = misc.reduce_affix_phonetic("prefixing", prefix, form,
                                                     self.model.min_boundary_feature_dist)
@@ -101,6 +102,7 @@ class Agent(Agent):
                 if transitivity == "intrans":
                     if RG.random() < self.model.suffix_prob:
                         suffix = RG.choice(suffixes)
+                suffix = misc.reduce_affix_hh(suffix, listener, self.model.reduction_hh)
                 suffix = misc.reduce_affix_phonetic("suffixing", suffix, form,
                                                     self.model.min_boundary_feature_dist)
             signal.set_suffix(suffix)
@@ -119,7 +121,6 @@ class Agent(Agent):
         # Send feedback about correctness of concept to listener
         feedback = concept_speaker.compute_success(concept_listener)
         listener.receive_feedback(feedback)
-
 
     # Methods used when agent listens
 
@@ -149,17 +150,15 @@ class Agent(Agent):
                                                             self.persons,
                                                             signal)
 
-
         # We use directly existence/non-existence of object as criterion for transitivity
         transitivity = "trans" if self.signal_recv.get_object() else "intrans"
 
         self.concept_listener = ConceptMessage(
             lex_concept=lex_concept, person=inferred_person, transitivity=transitivity)
         logging.debug(f"Listener decodes concept: {self.concept_listener!s}")
-        
+
         # Point to object
         return self.concept_listener
-
 
     def receive_feedback(self, feedback_speaker):
         '''
@@ -184,8 +183,6 @@ class Agent(Agent):
             misc.update_affix_list("suffix", suffix_recv, self.affixes,
                                    self.lex_concept_data, lex_concept_listener, person_listener,
                                    self.capacity)
-                    
 
     def is_l2(self):
         return self.l2
-

@@ -1,9 +1,9 @@
 import numpy as np
 import logging
 import sys
-from panphon.distance import Distance                                                                                                                 
+from panphon.distance import Distance
 
-logging.basicConfig(stream=sys.stderr, level=logging.ERROR)
+logging.basicConfig(stream=sys.stderr, level=logging.DEBUG)
 
 HEIGHT = 6
 WIDTH = 6
@@ -28,6 +28,7 @@ CAPACITY_L2 = 50
 DROP_SUBJECT_PROB = 0.0
 DROP_OBJECT_PROB = 0.0
 MIN_BOUNDARY_FEATURE_DIST = 3.0 # 2.0
+REDUCTION_HH = False
 
 # For evaluation script (not browser visualization)
 ITERATIONS = [3]
@@ -42,8 +43,11 @@ model_params = {
     "capacity_l2": CAPACITY_L2,
     "drop_subject_prob": DROP_SUBJECT_PROB,
     "drop_object_prob": DROP_OBJECT_PROB,
-    "min_boundary_feature_dist": MIN_BOUNDARY_FEATURE_DIST
+    "min_boundary_feature_dist": MIN_BOUNDARY_FEATURE_DIST,
+    "reduction_hh": REDUCTION_HH
 }
+
+bool_params = ["reduction_hh"]
 
 evaluation_params = {
     "iterations": ITERATIONS,
