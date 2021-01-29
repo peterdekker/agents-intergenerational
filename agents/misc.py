@@ -63,24 +63,23 @@ def reduce_affix_phonetic(verb_type, affix, form, min_boundary_feature_dist):
     feature_dist = dst.weighted_feature_edit_distance(form[form_border_phoneme], affix_slice)
     # Sounds have to be different enough
     if feature_dist < min_boundary_feature_dist:
-        logging.debug("BOUNDARY PHONETIC DISTANCE too large, reduce.")
         affix = ""
     return affix
 
 
-def reduce_affix_hh(affix, listener, reduction_hh):
+def reduce_affix_hh(verb_type, affix, listener, reduction_hh):
+    affix_red = affix
     if reduction_hh:
         if not listener.is_l2():
-            logging.debug("Listener L1, H&H REDUCTION performed.")
-            affix = ""
-    return affix
+            if len(affix) > 1:
+                affix_red = affix[0] if "prefixing" else affix[1]
+                logging.debug(f"H&H: {affix} -> {affix_red}")
+    return affix_red
 
 
 def enforce_capacity(affix_list, capacity):
     while len(affix_list) > capacity:
         affix_list.pop(0)
-        logging.debug(
-            f"Affix list longer than MAX, after drop: {affix_list}")
 
 
 def update_affix_list(affix_type, affix_recv, affixes, lex_concept_data, lex_concept_listener, person_listener, capacity):

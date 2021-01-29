@@ -3,10 +3,11 @@ from mesa.time import RandomActivation
 from mesa.space import SingleGrid
 from mesa.datacollection import DataCollector
 
+import numpy as np
+
 from agents.config import N_AGENTS, DATA_FILE, MAX_RADIUS, STATS_AFTER_STEPS
 from agents import stats
 from agents import misc
-
 from agents.agent import Agent
 from agents.data import Data
 
@@ -17,7 +18,7 @@ class Model(Model):
     '''
 
     def __init__(self, height, width, proportion_l2, suffix_prob,
-                 capacity_l1, capacity_l2, drop_subject_prob, drop_object_prob,
+                 capacity_l1, capacity_l2, drop_subject_prob,
                  min_boundary_feature_dist, reduction_hh):
         '''
         Initialize field
@@ -31,7 +32,6 @@ class Model(Model):
         self.capacity_l2 = capacity_l2
         self.suffix_prob = suffix_prob
         self.drop_subject_prob = drop_subject_prob
-        self.drop_object_prob = drop_object_prob
         self.min_boundary_feature_dist = min_boundary_feature_dist
         self.reduction_hh = reduction_hh
 
@@ -41,20 +41,16 @@ class Model(Model):
 
         # Global data object is created from data file
         self.data = Data(DATA_FILE)
-
-        self.global_model_distance = 0.0
+        self.proportions_correct_interactions = []
         self.correct_interactions = 0.0
-        self.global_filled_prefix_l1 = 0.0
-        self.global_filled_suffix_l1 = 0.0
-        self.global_filled_prefix_l2 = 0.0
-        self.global_filled_suffix_l2 = 0.0
         self.datacollector = DataCollector(
-            {"global_model_distance": "global_model_distance",
+            {#"global_model_distance": "global_model_distance",
              "global_filled_prefix_l1": "global_filled_prefix_l1",
              "global_filled_suffix_l1": "global_filled_suffix_l1",
              "global_filled_prefix_l2": "global_filled_prefix_l2",
              "global_filled_suffix_l2": "global_filled_suffix_l2",
-             "proportion_correct_interactions": "proportion_correct_interactions"})
+             "proportion_correct_interactions": "proportion_correct_interactions",
+             "avg_proportion_correct_interactions": "avg_proportion_correct_interactions"})
 
         # Always use same # L2 agents, but randomly divide them
         l2 = misc.spread_l2_agents(self.proportion_l2, N_AGENTS)
@@ -80,10 +76,13 @@ class Model(Model):
         Run one step of the model.
         '''
         # Set correct interactions to 0 before all interactions are performed
-        self.correct_interactions = 0.0
         self.schedule.step()
         # Now compute proportion of correct interaction
         self.proportion_correct_interactions = self.correct_interactions/float(N_AGENTS)
+        self.proportions_correct_interactions.append(self.proportion_correct_interactions)
+        self.avg_proportion_correct_interactions = np.mean(self.proportions_correct_interactions)
+        # Reset correct interactions
+        self.correct_interactions = 0.0
         if self.steps % STATS_AFTER_STEPS == 0:
             agents = [a for a, x, y in self.grid.coord_iter()]
             agents_l1 = [a for a in agents if not a.is_l2()]
@@ -91,7 +90,7 @@ class Model(Model):
             # TODO: these vars can be calculated upon callig .collect(), by
             # registering methods in datacollector. But then
             # no differentiation between stats calculation intervals is possible
-            self.global_model_distance = stats.global_dist(agents, self.data.lex_concepts, self.data.persons)
+            #self.global_model_distance = stats.global_dist(agents, self.data.lex_concepts, self.data.persons)
             self.global_filled_prefix_l1 = stats.global_filled(agents_l1, "prefix")
             self.global_filled_suffix_l1 = stats.global_filled(agents_l1, "suffix")
             self.global_filled_prefix_l2 = stats.global_filled(agents_l2, "prefix")

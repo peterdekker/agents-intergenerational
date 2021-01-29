@@ -3,7 +3,7 @@ import logging
 import sys
 from panphon.distance import Distance
 
-logging.basicConfig(stream=sys.stderr, level=logging.DEBUG)
+logging.basicConfig(stream=sys.stderr, level=logging.ERROR)
 
 HEIGHT = 6
 WIDTH = 6
@@ -23,12 +23,11 @@ STATS_AFTER_STEPS = 20
 # Defaults for UserSettableParameters
 SUFFIX_PROB = 0.5
 PROPORTION_L2 = 0.2
-CAPACITY_L1 = 50
-CAPACITY_L2 = 50
-DROP_SUBJECT_PROB = 0.0
-DROP_OBJECT_PROB = 0.0
-MIN_BOUNDARY_FEATURE_DIST = 3.0 # 2.0
-REDUCTION_HH = False
+CAPACITY_L1 = 10
+CAPACITY_L2 = 10
+DROP_SUBJECT_PROB = 1.0
+MIN_BOUNDARY_FEATURE_DIST = 0.0
+REDUCTION_HH = True
 
 # For evaluation script (not browser visualization)
 ITERATIONS = [3]
@@ -42,7 +41,6 @@ model_params = {
     "capacity_l1": CAPACITY_L1,
     "capacity_l2": CAPACITY_L2,
     "drop_subject_prob": DROP_SUBJECT_PROB,
-    "drop_object_prob": DROP_OBJECT_PROB,
     "min_boundary_feature_dist": MIN_BOUNDARY_FEATURE_DIST,
     "reduction_hh": REDUCTION_HH
 }

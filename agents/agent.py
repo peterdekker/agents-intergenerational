@@ -83,7 +83,7 @@ class Agent(Agent):
             if len(prefixes) > 0:
                 prefix = RG.choice(prefixes)
                 # Drop affix based on estimated intelligibility for listener (H&H)
-                prefix = misc.reduce_affix_hh(prefix, listener, self.model.reduction_hh)
+                prefix = misc.reduce_affix_hh("prefixing", prefix, listener, self.model.reduction_hh)
                 # Drop affix based on phonetic distance between stem/affix boundary phonemes
                 prefix = misc.reduce_affix_phonetic("prefixing", prefix, form,
                                                     self.model.min_boundary_feature_dist)
@@ -97,22 +97,21 @@ class Agent(Agent):
             # In all cases where suffix will not be set, use empty suffix
             # (different from None, because listener will add empty suffix to its stack)
             suffix = ""
-            # TODO: More elegant if len is always non-zero because there is always ""?
-            if len(suffixes) > 0:
-                if transitivity == "intrans":
-                    if RG.random() < self.model.suffix_prob:
-                        suffix = RG.choice(suffixes)
-                suffix = misc.reduce_affix_hh(suffix, listener, self.model.reduction_hh)
-                suffix = misc.reduce_affix_phonetic("suffixing", suffix, form,
-                                                    self.model.min_boundary_feature_dist)
+            # TODO: More elegant if len(sfxs) is always non-zero because there is always ""?
+            if len(suffixes) > 0 and transitivity == "intrans":
+                if RG.random() < self.model.suffix_prob:
+                    suffix = RG.choice(suffixes)
+                    suffix = misc.reduce_affix_hh("suffixing", suffix, listener, self.model.reduction_hh)
+                    suffix = misc.reduce_affix_phonetic("suffixing", suffix, form,
+                                                        self.model.min_boundary_feature_dist)
             signal.set_suffix(suffix)
 
         # (3) Add context from sentence (subject and object), based on transivitity.
         if RG.random() > self.model.drop_subject_prob:
             signal.set_subject(person)
         if transitivity == "trans":
-            if RG.random() > self.model.drop_object_prob:
-                signal.set_object("OBJECT")
+            signal.set_object("OBJECT")
+
 
         # Send signal.
         logging.debug(f"Speaker sends signal: {signal!s}")
@@ -120,6 +119,11 @@ class Agent(Agent):
 
         # Send feedback about correctness of concept to listener
         feedback = concept_speaker.compute_success(concept_listener)
+        if not feedback:
+            if prefixing:
+                print(f"Negative prefix: '{prefix}'")
+            if suffixing:
+                print(f"Negative suffix: '{suffix}'")
         listener.receive_feedback(feedback)
 
     # Methods used when agent listens
