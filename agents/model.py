@@ -43,6 +43,12 @@ class Model(Model):
         self.data = Data(DATA_FILE)
         self.proportions_correct_interactions = []
         self.correct_interactions = 0.0
+        self.proportion_correct_interactions = 0.0
+        self.avg_proportion_correct_interactions = 0.0
+        self.global_filled_prefix_l1 = 0.0
+        self.global_filled_suffix_l1 = 0.0
+        self.global_filled_prefix_l2 = 0.0
+        self.global_filled_suffix_l2 = 0.0
         self.datacollector = DataCollector(
             {#"global_model_distance": "global_model_distance",
              "global_filled_prefix_l1": "global_filled_prefix_l1",
