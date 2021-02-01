@@ -19,6 +19,7 @@ dst = Distance()
 RG = np.random.default_rng()
 
 STATS_AFTER_STEPS = 20
+RARE_STATS_AFTER_STEPS = 2 * STATS_AFTER_STEPS  # Should always be multiple of STATS_AFTER_STEPS
 
 # Defaults for UserSettableParameters
 PROPORTION_L2 = 0.3

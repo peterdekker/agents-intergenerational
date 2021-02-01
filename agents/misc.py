@@ -71,8 +71,8 @@ def reduce_affix_hh(verb_type, affix, listener, reduction_hh):
     affix_red = affix
     if reduction_hh:
         if not listener.is_l2():
-            if len(affix) > 1:
-                affix_red = affix[0] if "prefixing" else affix[1]
+            if len(affix) > 0:
+                affix_red = affix[1:] if "prefixing" else affix[:-1]
                 logging.debug(f"H&H: {affix} -> {affix_red}")
     return affix_red
 

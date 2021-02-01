@@ -4,3 +4,4 @@ matplotlib
 mesa==0.8.6
 panphon
 argparse
+ascii_graph

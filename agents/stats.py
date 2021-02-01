@@ -1,10 +1,11 @@
 import numpy as np
 from itertools import combinations
+from collections import defaultdict
 from distance import jaccard
 
 
 # TODO: optimize this by making fixed list of affixing and suffixing verbs
-def proportion_filled_entries(agent, aff_pos):
+def agent_proportion_filled_entries(agent, aff_pos):
     total = 0
     filled = 0
     for lex_concept in agent.lex_concepts:
@@ -18,9 +19,31 @@ def proportion_filled_entries(agent, aff_pos):
     return filled/total
 
 
+def global_filled(agents, aff_pos):
+    filled_props = [agent_proportion_filled_entries(a, aff_pos) for a in agents]
+    return np.mean(filled_props) if len(filled_props) > 0 else 0
+
+
+def agent_affix_frequencies(agent, aff_pos, freq_dict):
+    for lex_concept in agent.lex_concepts:
+        for person in agent.persons:
+            if agent.lex_concept_data[lex_concept][f"{aff_pos}ing"]:
+                affix_list = agent.affixes[(lex_concept, person, aff_pos)]
+                for aff in affix_list:
+                    freq_dict[aff] += 1
+
+
+def global_affix_frequencies(agents, aff_pos):
+    freq_dict = defaultdict(int)
+    for a in agents:
+        agent_affix_frequencies(a, aff_pos, freq_dict)
+    return freq_dict
+
+
+
 def compute_colour(agent):
-    agg_prefix = proportion_filled_entries(agent, "prefix") * 50
-    agg_suffix = proportion_filled_entries(agent, "suffix") * 50
+    agg_prefix = agent_proportion_filled_entries(agent, "prefix") * 50
+    agg_suffix = agent_proportion_filled_entries(agent, "suffix") * 50
     #HSL: H->0-360,  S->0-100%, L->100% L50% is maximum color, 100% is white
     return {"prefix": colour_str([250, 80, agg_prefix]), "suffix": colour_str([250, 80, agg_suffix])}
 
@@ -46,6 +69,3 @@ def global_dist(agents, lex_concepts, persons):
                     dists.append(jaccard_dist)
     return np.mean(dists) if len(dists) > 0 else 0
 
-def global_filled(agents, aff_pos):
-    filled_props = [proportion_filled_entries(a, aff_pos) for a in agents]
-    return np.mean(filled_props) if len(filled_props) > 0 else 0

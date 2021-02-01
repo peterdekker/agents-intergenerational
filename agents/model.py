@@ -5,7 +5,7 @@ from mesa.datacollection import DataCollector
 
 import numpy as np
 
-from agents.config import N_AGENTS, DATA_FILE, MAX_RADIUS, STATS_AFTER_STEPS
+from agents.config import N_AGENTS, DATA_FILE, MAX_RADIUS, STATS_AFTER_STEPS, RARE_STATS_AFTER_STEPS
 from agents import stats
 from agents import misc
 from agents.agent import Agent
@@ -41,14 +41,22 @@ class Model(Model):
 
         # Global data object is created from data file
         self.data = Data(DATA_FILE)
+
         self.proportions_correct_interactions = []
         self.correct_interactions = 0.0
         self.proportion_correct_interactions = 0.0
         self.avg_proportion_correct_interactions = 0.0
+
         self.global_filled_prefix_l1 = 0.0
         self.global_filled_suffix_l1 = 0.0
         self.global_filled_prefix_l2 = 0.0
         self.global_filled_suffix_l2 = 0.0
+
+        self.global_affixes_prefix_l1 = {}
+        self.global_affixes_suffix_l1 = {}
+        self.global_affixes_prefix_l2 = {}
+        self.global_affixes_suffix_l2 = {}
+
         self.datacollector = DataCollector(
             {#"global_model_distance": "global_model_distance",
              "global_filled_prefix_l1": "global_filled_prefix_l1",
@@ -81,14 +89,15 @@ class Model(Model):
         '''
         Run one step of the model.
         '''
-        # Set correct interactions to 0 before all interactions are performed
+        # Reset correct interactions
+        self.correct_interactions = 0.0
+
         self.schedule.step()
+
         # Now compute proportion of correct interaction
         self.proportion_correct_interactions = self.correct_interactions/float(N_AGENTS)
         self.proportions_correct_interactions.append(self.proportion_correct_interactions)
         self.avg_proportion_correct_interactions = np.mean(self.proportions_correct_interactions)
-        # Reset correct interactions
-        self.correct_interactions = 0.0
         if self.steps % STATS_AFTER_STEPS == 0:
             agents = [a for a, x, y in self.grid.coord_iter()]
             agents_l1 = [a for a in agents if not a.is_l2()]
@@ -101,5 +110,12 @@ class Model(Model):
             self.global_filled_suffix_l1 = stats.global_filled(agents_l1, "suffix")
             self.global_filled_prefix_l2 = stats.global_filled(agents_l2, "prefix")
             self.global_filled_suffix_l2 = stats.global_filled(agents_l2, "suffix")
+        
+            if self.steps % RARE_STATS_AFTER_STEPS == 0:
+                self.global_affixes_prefix_l1 = stats.global_affix_frequencies(agents_l1, "prefix")
+                self.global_affixes_suffix_l1 = stats.global_affix_frequencies(agents_l1, "suffix")
+                self.global_affixes_prefix_l2 = stats.global_affix_frequencies(agents_l2, "prefix")
+                self.global_affixes_suffix_l2 = stats.global_affix_frequencies(agents_l2, "suffix")
+
 
         self.datacollector.collect(self)

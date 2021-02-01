@@ -3,10 +3,14 @@ from mesa.visualization.modules import CanvasGrid, ChartModule
 from mesa.visualization.UserParam import UserSettableParameter
 
 from agents.model import Model
+from agents.textbarchart import TextBarChart
 from agents import stats
 
 from agents.config import HEIGHT, WIDTH, PROPORTION_L2, SUFFIX_PROB, CAPACITY_L1, CAPACITY_L2, \
     DROP_SUBJECT_PROB, MIN_BOUNDARY_FEATURE_DIST, REDUCTION_HH
+
+
+
 
 
 def draw(agent):
@@ -31,6 +35,7 @@ filled_chart = ChartModule([{"Label": "global_filled_prefix_l1", "Color": "Blue"
                             {"Label": "global_filled_suffix_l2", "Color": "Brown"}])
 corr_int_chart = ChartModule([{"Label": "avg_proportion_correct_interactions", "Color": "brown"},
                               {"Label": "proportion_correct_interactions", "Color": "green"}])
+text_bar_chart = TextBarChart()
 
 model_params = {
     "height": HEIGHT,
@@ -46,5 +51,5 @@ model_params = {
 }
 
 server = ModularServer(Model,
-                       [canvas_element, filled_chart, corr_int_chart],
+                       [canvas_element, filled_chart, corr_int_chart, text_bar_chart],
                        "Contact-induced morphological simplification in Alorese", model_params)
