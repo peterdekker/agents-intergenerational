@@ -119,11 +119,11 @@ class Agent(Agent):
 
         # Send feedback about correctness of concept to listener
         feedback = concept_speaker.compute_success(concept_listener)
-        if not feedback:
-            if prefixing:
-                print(f"Negative prefix: '{prefix}'")
-            if suffixing:
-                print(f"Negative suffix: '{suffix}'")
+        # if not feedback:
+        #     if prefixing:
+        #         print(f"Negative prefix: '{prefix}'")
+        #     if suffixing:
+        #         print(f"Negative suffix: '{suffix}'")
         listener.receive_feedback(feedback)
 
     # Methods used when agent listens
