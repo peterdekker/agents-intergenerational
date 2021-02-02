@@ -63,6 +63,10 @@ class Model(Model):
              "global_filled_suffix_l1": "global_filled_suffix_l1",
              "global_filled_prefix_l2": "global_filled_prefix_l2",
              "global_filled_suffix_l2": "global_filled_suffix_l2",
+             "global_affixes_prefix_l1": "global_affixes_prefix_l1",
+             "global_affixes_suffix_l1": "global_affixes_suffix_l1",
+             "global_affixes_prefix_l2": "global_affixes_prefix_l2",
+             "global_affixes_suffix_l2": "global_affixes_suffix_l2",
              "proportion_correct_interactions": "proportion_correct_interactions",
              "avg_proportion_correct_interactions": "avg_proportion_correct_interactions"})
 
@@ -116,6 +120,5 @@ class Model(Model):
                 self.global_affixes_suffix_l1 = stats.global_affix_frequencies(agents_l1, "suffix")
                 self.global_affixes_prefix_l2 = stats.global_affix_frequencies(agents_l2, "prefix")
                 self.global_affixes_suffix_l2 = stats.global_affix_frequencies(agents_l2, "suffix")
-
 
         self.datacollector.collect(self)

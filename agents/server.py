@@ -35,7 +35,10 @@ filled_chart = ChartModule([{"Label": "global_filled_prefix_l1", "Color": "Blue"
                             {"Label": "global_filled_suffix_l2", "Color": "Brown"}])
 corr_int_chart = ChartModule([{"Label": "avg_proportion_correct_interactions", "Color": "brown"},
                               {"Label": "proportion_correct_interactions", "Color": "green"}])
-text_bar_chart = TextBarChart()
+text_bar_chart = TextBarChart([{"Label": "global_affixes_prefix_l1", "Color": "Blue"},
+                               {"Label": "global_affixes_suffix_l1", "Color": "Purple"},
+                               {"Label": "global_affixes_prefix_l2", "Color": "Orange"},
+                               {"Label": "global_affixes_suffix_l2", "Color": "Brown"}])
 
 model_params = {
     "height": HEIGHT,

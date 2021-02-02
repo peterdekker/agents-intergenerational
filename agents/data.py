@@ -8,7 +8,7 @@ from agents.config import PERSONS
 class Data():
     def __init__(self, data_file):
         self.data = pd.read_csv(data_file, sep="\t").fillna(value="")
-        # Filter on only entries which have Lewoingu form
+        # Filter on only cells which have Lewoingu form
         self.data = self.data[self.data["form_lewoingu"] != ""]
         self.lex_concepts = list(self.data["concept"])
         self.persons = PERSONS
