@@ -4,6 +4,7 @@ from mesa.space import SingleGrid
 from mesa.datacollection import DataCollector
 
 import numpy as np
+from collections import defaultdict
 
 from agents.config import N_AGENTS, DATA_FILE, MAX_RADIUS, STATS_AFTER_STEPS, RARE_STATS_AFTER_STEPS
 from agents import stats
@@ -42,10 +43,13 @@ class Model(Model):
         # Global data object is created from data file
         self.data = Data(DATA_FILE)
 
+        # Stats
         self.proportions_correct_interactions = []
         self.correct_interactions = 0.0
         self.proportion_correct_interactions = 0.0
         self.avg_proportion_correct_interactions = 0.0
+        self.ambiguity = defaultdict(list)
+        self.avg_ambiguity = {}
 
         self.global_filled_prefix_l1 = 0.0
         self.global_filled_suffix_l1 = 0.0
@@ -68,7 +72,8 @@ class Model(Model):
              "global_affixes_prefix_l2": "global_affixes_prefix_l2",
              "global_affixes_suffix_l2": "global_affixes_suffix_l2",
              "proportion_correct_interactions": "proportion_correct_interactions",
-             "avg_proportion_correct_interactions": "avg_proportion_correct_interactions"})
+             "avg_proportion_correct_interactions": "avg_proportion_correct_interactions",
+             "avg_ambiguity": "avg_ambiguity"})
 
         # Always use same # L2 agents, but randomly divide them
         l2 = misc.spread_l2_agents(self.proportion_l2, N_AGENTS)
@@ -103,13 +108,18 @@ class Model(Model):
         self.proportions_correct_interactions.append(self.proportion_correct_interactions)
         self.avg_proportion_correct_interactions = np.mean(self.proportions_correct_interactions)
         if self.steps % STATS_AFTER_STEPS == 0:
+            # Calculate and reset ambiguity every STAT_AFTER_STEPS_INTERACTIONS,
+            # to do some averaging over steps
+            self.avg_ambiguity = {k: np.mean(v) for k, v in self.ambiguity.items()}
+            self.ambiguity = defaultdict(list)
+
             agents = [a for a, x, y in self.grid.coord_iter()]
             agents_l1 = [a for a in agents if not a.is_l2()]
             agents_l2 = [a for a in agents if a.is_l2()]
             # TODO: these vars can be calculated upon callig .collect(), by
             # registering methods in datacollector. But then
             # no differentiation between stats calculation intervals is possible
-            #self.global_model_distance = stats.global_dist(agents, self.data.lex_concepts, self.data.persons)
+            # self.global_model_distance = stats.global_dist(agents, self.data.lex_concepts, self.data.persons)
             self.global_filled_prefix_l1 = stats.global_filled(agents_l1, "prefix")
             self.global_filled_suffix_l1 = stats.global_filled(agents_l1, "suffix")
             self.global_filled_prefix_l2 = stats.global_filled(agents_l2, "prefix")

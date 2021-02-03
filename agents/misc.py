@@ -16,30 +16,31 @@ def lookup_lex_concept(signal_form, lex_concepts, lex_concept_data):
     return retrieved_lex_concept
 
 
-def infer_person_from_signal(lex_concept, lex_concept_data, affixes, persons, signal):
+def infer_person_from_signal(lex_concept, lex_concept_data, affixes, persons, signal, ambiguity):
     logging.debug("Person not given via context, inferring from affix.")
     # TODO: This assumes listener has same concept matrix, and knows which
     # verbs are prefixing/suffixing
 
     possible_persons = []
     if lex_concept_data[lex_concept]["prefixing"]:
-        possible_persons += infer_possible_persons("prefix",
-                                                   signal.get_prefix(), persons, affixes, lex_concept)
+        possible_persons += infer_possible_persons("prefix", signal.get_prefix(), persons,
+                                                   affixes, lex_concept, ambiguity)
     if lex_concept_data[lex_concept]["suffixing"]:
         possible_persons += infer_possible_persons("suffix",
-                                                   signal.get_suffix(), persons, affixes, lex_concept)
+                                                   signal.get_suffix(), persons,
+                                                   affixes, lex_concept, ambiguity)
 
     # If no possible persons (because no affix, or empty internal suffixes=L2),
     # pick person randomly from all persons
     if len(possible_persons) == 0:
         possible_persons = persons
+    
     # Choose person, weighted by how many affixes are closest to received affix
     # (can be one possible person, so choice is trivial)
     inferred_person = RG.choice(possible_persons)
     return inferred_person
 
-
-def infer_possible_persons(affix_type, affix_signal, persons, affixes, lex_concept):
+def infer_possible_persons(affix_type, affix_signal, persons, affixes, lex_concept, ambiguity):
     # Calculate distances of internal affixes to received affix,
     # to find candidate persons
     possible_persons = []
@@ -53,6 +54,9 @@ def infer_possible_persons(affix_type, affix_signal, persons, affixes, lex_conce
                     lowest_dist = dist
                     possible_persons = []
                 possible_persons.append(p)
+    
+    persons_ambig = len(possible_persons) if len(possible_persons) > 0 else len(persons)
+    ambiguity[f"'{affix_signal}'-{affix_type}"].append(persons_ambig)
     return possible_persons
 
 
