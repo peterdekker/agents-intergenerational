@@ -34,11 +34,12 @@ def infer_person_from_signal(lex_concept, lex_concept_data, affixes, persons, si
     # pick person randomly from all persons
     if len(possible_persons) == 0:
         possible_persons = persons
-    
+
     # Choose person, weighted by how many affixes are closest to received affix
     # (can be one possible person, so choice is trivial)
     inferred_person = RG.choice(possible_persons)
     return inferred_person
+
 
 def infer_possible_persons(affix_type, affix_signal, persons, affixes, lex_concept, ambiguity):
     # Calculate distances of internal affixes to received affix,
@@ -54,7 +55,7 @@ def infer_possible_persons(affix_type, affix_signal, persons, affixes, lex_conce
                     lowest_dist = dist
                     possible_persons = []
                 possible_persons.append(p)
-    
+
     persons_ambig = len(possible_persons) if len(possible_persons) > 0 else len(persons)
     ambiguity[f"'{affix_signal}'-{affix_type}"].append(persons_ambig)
     return possible_persons
@@ -76,7 +77,7 @@ def reduce_affix_hh(verb_type, affix, listener, reduction_hh):
     if reduction_hh:
         if not listener.is_l2():
             if len(affix) > 0:
-                affix_red = affix[1:] if verb_type=="prefixing" else affix[:-1]
+                affix_red = affix[1:] if verb_type == "prefixing" else affix[:-1]
                 logging.debug(f"H&H: {affix} -> {affix_red}")
     return affix_red
 

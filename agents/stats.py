@@ -1,6 +1,6 @@
 import numpy as np
 from itertools import combinations
-from collections import defaultdict
+from collections import defaultdict, Counter
 from distance import jaccard
 
 
@@ -16,6 +16,10 @@ def agent_proportion_filled_cells(agent, aff_pos):
                 affix_set.discard("")
                 if len(affix_set) > 0:
                     filled += 1
+                # affixes = agent.affixes[(lex_concept, person, aff_pos)]
+                # most_common = Counter(affixes).most_common(1)
+                # if len(affixes) > 0 and most_common[0][0] != "":
+                #     filled += 1
     return filled/total
 
 

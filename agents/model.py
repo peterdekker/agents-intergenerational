@@ -62,18 +62,18 @@ class Model(Model):
         self.global_affixes_suffix_l2 = {}
 
         self.datacollector = DataCollector(
-            {#"global_model_distance": "global_model_distance",
-             "global_filled_prefix_l1": "global_filled_prefix_l1",
-             "global_filled_suffix_l1": "global_filled_suffix_l1",
-             "global_filled_prefix_l2": "global_filled_prefix_l2",
-             "global_filled_suffix_l2": "global_filled_suffix_l2",
-             "global_affixes_prefix_l1": "global_affixes_prefix_l1",
-             "global_affixes_suffix_l1": "global_affixes_suffix_l1",
-             "global_affixes_prefix_l2": "global_affixes_prefix_l2",
-             "global_affixes_suffix_l2": "global_affixes_suffix_l2",
-             "proportion_correct_interactions": "proportion_correct_interactions",
-             "avg_proportion_correct_interactions": "avg_proportion_correct_interactions",
-             "avg_ambiguity": "avg_ambiguity"})
+            {  # "global_model_distance": "global_model_distance",
+                "global_filled_prefix_l1": "global_filled_prefix_l1",
+                "global_filled_suffix_l1": "global_filled_suffix_l1",
+                "global_filled_prefix_l2": "global_filled_prefix_l2",
+                "global_filled_suffix_l2": "global_filled_suffix_l2",
+                "global_affixes_prefix_l1": "global_affixes_prefix_l1",
+                "global_affixes_suffix_l1": "global_affixes_suffix_l1",
+                "global_affixes_prefix_l2": "global_affixes_prefix_l2",
+                "global_affixes_suffix_l2": "global_affixes_suffix_l2",
+                "proportion_correct_interactions": "proportion_correct_interactions",
+                "avg_proportion_correct_interactions": "avg_proportion_correct_interactions",
+                "avg_ambiguity": "avg_ambiguity"})
 
         # Always use same # L2 agents, but randomly divide them
         l2 = misc.spread_l2_agents(self.proportion_l2, N_AGENTS)
@@ -119,12 +119,11 @@ class Model(Model):
             # TODO: these vars can be calculated upon callig .collect(), by
             # registering methods in datacollector. But then
             # no differentiation between stats calculation intervals is possible
-            # self.global_model_distance = stats.global_dist(agents, self.data.lex_concepts, self.data.persons)
             self.global_filled_prefix_l1 = stats.global_filled(agents_l1, "prefix")
             self.global_filled_suffix_l1 = stats.global_filled(agents_l1, "suffix")
             self.global_filled_prefix_l2 = stats.global_filled(agents_l2, "prefix")
             self.global_filled_suffix_l2 = stats.global_filled(agents_l2, "suffix")
-        
+
             if self.steps % RARE_STATS_AFTER_STEPS == 0:
                 self.global_affixes_prefix_l1 = stats.global_affix_frequencies(agents_l1, "prefix")
                 self.global_affixes_suffix_l1 = stats.global_affix_frequencies(agents_l1, "suffix")
