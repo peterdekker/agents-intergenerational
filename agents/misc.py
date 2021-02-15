@@ -61,25 +61,29 @@ def infer_possible_persons(affix_type, affix_signal, persons, affixes, lex_conce
     return possible_persons
 
 
-def reduce_affix_phonetic(verb_type, affix, form, min_boundary_feature_dist):
-    form_border_phoneme = 0 if verb_type == "prefixing" else -1
-    affix_border_phoneme = -1 if verb_type == "prefixing" else 0
-    affix_slice = affix[affix_border_phoneme] if len(affix) > 0 else affix
-    feature_dist = dst.weighted_feature_edit_distance(form[form_border_phoneme], affix_slice)
-    # Sounds have to be different enough
-    if feature_dist < min_boundary_feature_dist:
-        affix = ""
+def reduce_affix_phonetic(verb_type, affix, form, min_boundary_feature_dist, listener):
+    if min_boundary_feature_dist > 0.0:
+        # if not listener.is_l2():
+        form_border_phoneme = 0 if verb_type == "prefixing" else -1
+        affix_border_phoneme = -1 if verb_type == "prefixing" else 0
+        affix_slice = affix[affix_border_phoneme] if len(affix) > 0 else affix
+        feature_dist = dst.weighted_feature_edit_distance(form[form_border_phoneme], affix_slice)
+        # Sounds have to be different enough
+        if feature_dist < min_boundary_feature_dist:
+            affix = ""
+            # if len(affix) > 0:
+            #     affix = affix[1:] if verb_type == "prefixing" else affix[:-1]
     return affix
 
 
 def reduce_affix_hh(verb_type, affix, listener, reduction_hh):
-    affix_red = affix
+    affix_old = affix
     if reduction_hh:
         if not listener.is_l2():
             if len(affix) > 0:
-                affix_red = affix[1:] if verb_type == "prefixing" else affix[:-1]
-                logging.debug(f"H&H: {affix} -> {affix_red}")
-    return affix_red
+                affix = affix[1:] if verb_type == "prefixing" else affix[:-1]
+                logging.debug(f"H&H: {affix_old} -> {affix}")
+    return affix
 
 
 def enforce_capacity(affix_list, capacity):
@@ -87,13 +91,22 @@ def enforce_capacity(affix_list, capacity):
         affix_list.pop(0)
 
 
-def update_affix_list(affix_type, affix_recv, affixes, lex_concept_data, lex_concept_listener, person_listener, capacity):
+def update_affix_list(affix_type, affix_recv, affixes, lex_concept_data, concept_listener, capacity, negative=False):
+    lex_concept_listener = concept_listener.get_lex_concept()
+    person_listener = concept_listener.get_person()
     affix_list = affixes[(lex_concept_listener, person_listener, affix_type)]
     if lex_concept_data[lex_concept_listener][f"{affix_type}ing"]:
         if affix_recv is None:
             # TODO: check should be unnecessary. delete later
             raise Exception("Affix cannot be None, if this affix type is enabled for this verb!")
-        affix_list.append(affix_recv)
+        if negative:
+            # Negative update
+            if affix_recv in affix_list:
+                #affix_list = [x for x in affix_list if x != affix_recv]
+                affix_list.remove(affix_recv)
+        else:
+            # Positive update
+            affix_list.append(affix_recv)
         logging.debug(
             f"{affix_type.capitalize()}es after update: {affix_list}")
         enforce_capacity(affix_list, capacity)

@@ -20,7 +20,9 @@ class Model(Model):
 
     def __init__(self, height, width, proportion_l2, suffix_prob,
                  capacity_l1, capacity_l2, drop_subject_prob,
-                 min_boundary_feature_dist, reduction_hh):
+                 min_boundary_feature_dist, reduction_hh,
+                 negative_update, generalize_production,
+                 generalize_comprehension):
         '''
         Initialize field
         '''
@@ -35,6 +37,9 @@ class Model(Model):
         self.drop_subject_prob = drop_subject_prob
         self.min_boundary_feature_dist = min_boundary_feature_dist
         self.reduction_hh = reduction_hh
+        self.negative_update = negative_update
+        self.generalize_production = generalize_production
+        self.generalize_comprehension = generalize_comprehension
 
         self.schedule = RandomActivation(self)
         self.grid = SingleGrid(width, height, torus=True)

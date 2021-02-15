@@ -66,6 +66,15 @@ class Agent(Agent):
         concept_speaker, lex_concept, person, transitivity = ConceptMessage.draw_new_concept(self.lex_concepts,
                                                                                              self.persons,
                                                                                              self.lex_concept_data)
+        # Generalize: draw other concept to use affixes from
+        if RG.random() < self.model.generalize_production:
+            _, lex_concept_gen, person_gen, _ = ConceptMessage.draw_new_concept(self.lex_concepts,
+                                                                                self.persons,
+                                                                                self.lex_concept_data)
+        else:
+            lex_concept_gen = lex_concept
+            person_gen = person
+
         logging.debug(f"Speaker chose concept: {concept_speaker!s}")
 
         form = self.lex_concept_data[lex_concept]["form"]
@@ -76,8 +85,8 @@ class Agent(Agent):
         # (2) Based on verb and transitivity, add prefix or suffix:
         #  - prefixing verb:
         #     -- regardless of transitive or intransitive: use prefix
-        prefixes = self.affixes[(lex_concept, person, "prefix")]
         if prefixing:
+            prefixes = self.affixes[(lex_concept_gen, person_gen, "prefix")]
             prefix = ""
             # TODO: More elegant if len is always non-zero because there is always ""?
             if len(prefixes) > 0:
@@ -86,14 +95,15 @@ class Agent(Agent):
                 prefix = misc.reduce_affix_hh("prefixing", prefix, listener, self.model.reduction_hh)
                 # Drop affix based on phonetic distance between stem/affix boundary phonemes
                 prefix = misc.reduce_affix_phonetic("prefixing", prefix, form,
-                                                    self.model.min_boundary_feature_dist)
+                                                    self.model.min_boundary_feature_dist, listener)
             signal.set_prefix(prefix)
 
         #  - suffixing verb:
         #     -- transitive: do not use suffix
         #     -- intransitive: use suffix with probability, because it is not obligatory
-        suffixes = self.affixes[(lex_concept, person, "suffix")]
         if suffixing:
+            suffixes = self.affixes[(lex_concept_gen, person_gen, "suffix")]
+
             # In all cases where suffix will not be set, use empty suffix
             # (different from None, because listener will add empty suffix to its stack)
             suffix = ""
@@ -103,15 +113,14 @@ class Agent(Agent):
                     suffix = RG.choice(suffixes)
                     suffix = misc.reduce_affix_hh("suffixing", suffix, listener, self.model.reduction_hh)
                     suffix = misc.reduce_affix_phonetic("suffixing", suffix, form,
-                                                        self.model.min_boundary_feature_dist)
+                                                        self.model.min_boundary_feature_dist, listener)
             signal.set_suffix(suffix)
 
         # (3) Add context from sentence (subject and object), based on transivitity.
-        if RG.random() > self.model.drop_subject_prob:
+        if RG.random() >= self.model.drop_subject_prob:
             signal.set_subject(person)
         if transitivity == "trans":
             signal.set_object("OBJECT")
-
 
         # Send signal.
         logging.debug(f"Speaker sends signal: {signal!s}")
@@ -125,6 +134,18 @@ class Agent(Agent):
         #     if suffixing:
         #         print(f"Negative suffix: '{suffix}'")
         listener.receive_feedback(feedback)
+
+    def newmethod746(self, lex_concept, person):
+        if RG.random() >= self.model.generalize_production:
+            # Use affixes of this concept
+            suffixes = self.affixes[(lex_concept, person, "suffix")]
+        else:
+            # Use affixes of other concept (generalize)
+            _, lex_concept_other, person_other, _ = ConceptMessage.draw_new_concept(self.lex_concepts,
+                                                                                    self.persons,
+                                                                                    self.lex_concept_data)
+            suffixes = self.affixes[(lex_concept, person_other, "suffix")]
+        return suffixes
 
     # Methods used when agent listens
 
@@ -176,18 +197,26 @@ class Agent(Agent):
 
         if feedback_speaker:
             self.model.correct_interactions += 1
-            # TODO: perform negative update on wrong affix as well?
-            lex_concept_listener = self.concept_listener.get_lex_concept()
-            person_listener = self.concept_listener.get_person()
             # Add current affix to right concept
             prefix_recv = self.signal_recv.get_prefix()
             suffix_recv = self.signal_recv.get_suffix()
             misc.update_affix_list("prefix", prefix_recv, self.affixes,
-                                   self.lex_concept_data, lex_concept_listener, person_listener,
+                                   self.lex_concept_data, self.concept_listener,
                                    self.capacity)
             misc.update_affix_list("suffix", suffix_recv, self.affixes,
-                                   self.lex_concept_data, lex_concept_listener, person_listener,
+                                   self.lex_concept_data, self.concept_listener,
                                    self.capacity)
+        else:
+            if self.model.negative_update:
+                # Do negative update!
+                prefix_recv = self.signal_recv.get_prefix()
+                suffix_recv = self.signal_recv.get_suffix()
+                misc.update_affix_list("prefix", prefix_recv, self.affixes,
+                                       self.lex_concept_data, self.concept_listener,
+                                       self.capacity, negative=True)
+                misc.update_affix_list("suffix", suffix_recv, self.affixes,
+                                       self.lex_concept_data, self.concept_listener,
+                                       self.capacity, negative=True)
 
     def is_l2(self):
         return self.l2
