@@ -1,6 +1,6 @@
 import numpy as np
 from itertools import combinations
-from collections import defaultdict, Counter
+from collections import defaultdict
 from distance import jaccard
 
 
@@ -44,15 +44,16 @@ def global_affix_frequencies(agents, aff_pos):
     return freq_dict
 
 
-
 def compute_colour(agent):
     agg_prefix = agent_proportion_filled_cells(agent, "prefix") * 50
     agg_suffix = agent_proportion_filled_cells(agent, "suffix") * 50
-    #HSL: H->0-360,  S->0-100%, L->100% L50% is maximum color, 100% is white
+    # HSL: H->0-360,  S->0-100%, L->100% L50% is maximum color, 100% is white
     return {"prefix": colour_str([250, 80, agg_prefix]), "suffix": colour_str([250, 80, agg_suffix])}
+
 
 def colour_str(c):
     return f"hsl({c[0]},{c[1]}%,{c[2]}%)"
+
 
 def global_dist(agents, lex_concepts, persons):
     dists = []
@@ -72,4 +73,3 @@ def global_dist(agents, lex_concepts, persons):
                     jaccard_dist = jaccard(aff1, aff2)
                     dists.append(jaccard_dist)
     return np.mean(dists) if len(dists) > 0 else 0
-

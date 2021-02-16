@@ -18,8 +18,8 @@ PERSONS = ['1sg', '2sg', '3sg', '1pl.incl', '1pl.excl', '2pl', '3pl']
 dst = Distance()
 RG = np.random.default_rng()
 
-STATS_AFTER_STEPS = 100
-RARE_STATS_AFTER_STEPS = 1 * STATS_AFTER_STEPS  # Should always be multiple of STATS_AFTER_STEPS
+STATS_AFTER_STEPS = 50
+RARE_STATS_AFTER_STEPS = 2 * STATS_AFTER_STEPS  # Should always be multiple of STATS_AFTER_STEPS
 
 # Defaults for UserSettableParameters
 PROPORTION_L2 = 0.3
@@ -30,8 +30,8 @@ DROP_SUBJECT_PROB = 1.0
 MIN_BOUNDARY_FEATURE_DIST = 0.0
 REDUCTION_HH = False
 NEGATIVE_UPDATE = False
-GENERALIZE_PRODUCTION = 0.0
-GENERALIZE_COMPREHENSION = 0.3
+GENERALIZE_PRODUCTION_L1 = 0.0
+GENERALIZE_PRODUCTION_L2 = 0.0
 
 # For evaluation script (not browser visualization)
 ITERATIONS = [3]
@@ -48,8 +48,8 @@ model_params = {
     "min_boundary_feature_dist": MIN_BOUNDARY_FEATURE_DIST,
     "reduction_hh": REDUCTION_HH,
     "negative_update": NEGATIVE_UPDATE,
-    "generalize_production": GENERALIZE_PRODUCTION,
-    "generalize_comprehension": GENERALIZE_COMPREHENSION
+    "generalize_production_l1": GENERALIZE_PRODUCTION_L1,
+    "generalize_production_l2": GENERALIZE_PRODUCTION_L2
 }
 
 bool_params = ["reduction_hh", "negative_update"]

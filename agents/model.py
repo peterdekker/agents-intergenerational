@@ -21,8 +21,8 @@ class Model(Model):
     def __init__(self, height, width, proportion_l2, suffix_prob,
                  capacity_l1, capacity_l2, drop_subject_prob,
                  min_boundary_feature_dist, reduction_hh,
-                 negative_update, generalize_production,
-                 generalize_comprehension):
+                 negative_update, generalize_production_l1,
+                 generalize_production_l2):
         '''
         Initialize field
         '''
@@ -38,8 +38,8 @@ class Model(Model):
         self.min_boundary_feature_dist = min_boundary_feature_dist
         self.reduction_hh = reduction_hh
         self.negative_update = negative_update
-        self.generalize_production = generalize_production
-        self.generalize_comprehension = generalize_comprehension
+        self.generalize_production_l1 = generalize_production_l1
+        self.generalize_production_l2 = generalize_production_l2
 
         self.schedule = RandomActivation(self)
         self.grid = SingleGrid(width, height, torus=True)
@@ -91,7 +91,8 @@ class Model(Model):
             x = cell[1]
             y = cell[2]
             agent = Agent((x, y), self, self.data, init="empty" if l2[i] else "data",
-                          capacity=self.capacity_l2 if l2[i] else self.capacity_l1, l2=l2[i])
+                          capacity=self.capacity_l2 if l2[i] else self.capacity_l1, l2=l2[i],
+                          generalize_production=self.generalize_production_l2 if l2[i] else self.generalize_production_l1)
             self.grid.position_agent(agent, (x, y))
             self.schedule.add(agent)
 

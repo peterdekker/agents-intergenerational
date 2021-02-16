@@ -1,8 +1,22 @@
 import editdistance
 import math
 import numpy as np
+from itertools import chain
 
 from agents.config import dst, logging, RG
+from agents.conceptmessage import ConceptMessage
+
+from collections import Counter
+
+# Returns list
+
+
+def most_common(lst):
+    most_common = []
+    if len(lst) > 0:
+        data = Counter(lst)
+        most_common = [data.most_common(1)[0][0]]
+    return most_common
 
 
 def lookup_lex_concept(signal_form, lex_concepts, lex_concept_data):
@@ -118,3 +132,29 @@ def spread_l2_agents(proportion_l2, n_agents):
     l2[0:n_l2_agents] = 1
     RG.shuffle(l2)
     return l2
+
+
+def retrieve_affixes_generalize(lex_concept, person, verb_type, affixes, generalize_production, lex_concepts, persons, lex_concept_data):
+    # Generalize: draw other concept to use affixes from
+    if RG.random() < generalize_production:
+        # Generalize: create list of all affixes, regardless of concept (but taking into account verb type)
+
+        # Commented out code: draw one specific other concept
+        # _, lex_concept_gen, person_gen, _ = ConceptMessage.draw_new_concept(lex_concepts,
+        #                                                                     persons,
+        #                                                                     lex_concept_data)
+        # return affixes[(lex_concept_gen, person_gen, verb_type)]
+
+        affixes_verb_type = {(l, p, t): affixes[(l, p, t)] for (l, p, t) in affixes.keys() if t == verb_type}
+        affixes_all = list(chain.from_iterable(affixes_verb_type.values()))
+        #affixes_all = most_common(affixes_all)
+
+        return affixes_all
+    else:
+        # Do not generalize: take affixes list for this concept
+        return affixes[(lex_concept, person, verb_type)]
+
+
+def affix_choice(affixes):
+    return RG.choice(affixes)
+    # return most_common(affixes)[0]
