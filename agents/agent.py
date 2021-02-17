@@ -28,6 +28,7 @@ class Agent(Agent):
         # These vars are not deep copies, because they will not be altered by agents
         # Always initialized from data, whatever init is.
         self.lex_concepts = data.lex_concepts
+        self.lex_concepts_type = data.lex_concepts_type
         self.persons = data.persons
         self.lex_concept_data = data.lex_concept_data
 
@@ -92,6 +93,8 @@ class Agent(Agent):
                 # Drop affix based on phonetic distance between stem/affix boundary phonemes
                 prefix = misc.reduce_affix_phonetic("prefixing", prefix, form,
                                                     self.model.min_boundary_feature_dist, listener)
+            # else:
+            #    return
             signal.set_prefix(prefix)
 
         #  - suffixing verb:
@@ -107,13 +110,20 @@ class Agent(Agent):
             # (different from None, because listener will add empty suffix to its stack)
             suffix = ""
             # TODO: More elegant if len(sfxs) is always non-zero because there is always ""?
-            if len(suffixes) > 0 and transitivity == "intrans":
-                if RG.random() < self.model.suffix_prob:
-                    suffix = misc.affix_choice(suffixes)
-                    suffix = misc.reduce_affix_hh("suffixing", suffix, listener, self.model.reduction_hh)
-                    suffix = misc.reduce_affix_phonetic("suffixing", suffix, form,
-                                                        self.model.min_boundary_feature_dist, listener)
+            if len(suffixes) > 0:
+                if transitivity == "intrans":
+                    if RG.random() < self.model.suffix_prob:
+                        suffix = misc.affix_choice(suffixes)
+                        suffix = misc.reduce_affix_hh("suffixing", suffix, listener, self.model.reduction_hh)
+                        suffix = misc.reduce_affix_phonetic("suffixing", suffix, form,
+                                                            self.model.min_boundary_feature_dist, listener)
+            # else:
+            #    return
             signal.set_suffix(suffix)
+
+        # if self.l2:
+        #     signal.set_prefix("")
+        #     signal.set_suffix("")
 
         # (3) Add context from sentence (subject and object), based on transivitity.
         if RG.random() >= self.model.drop_subject_prob:

@@ -1,25 +1,24 @@
 import numpy as np
 from itertools import combinations
-from collections import defaultdict
+from collections import defaultdict, Counter
 from distance import jaccard
 
 
-# TODO: optimize this by making fixed list of affixing and suffixing verbs
 def agent_proportion_filled_cells(agent, aff_pos):
     total = 0
     filled = 0
-    for lex_concept in agent.lex_concepts:
+    for lex_concept in agent.lex_concepts_type[f"{aff_pos}ing"]:
         for person in agent.persons:
-            if agent.lex_concept_data[lex_concept][f"{aff_pos}ing"]:
-                total += 1
-                affix_set = set(agent.affixes[(lex_concept, person, aff_pos)])
-                affix_set.discard("")
-                if len(affix_set) > 0:
+            total += 1
+            # affix_set = set(agent.affixes[(lex_concept, person, aff_pos)])
+            # affix_set.discard("")
+            # if len(affix_set) > 0:
+            #     filled += 1
+            affixes = agent.affixes[(lex_concept, person, aff_pos)]
+            if len(affixes) > 0:
+                most_common = Counter(affixes).most_common(1)[0][0]
+                if most_common != "":
                     filled += 1
-                # affixes = agent.affixes[(lex_concept, person, aff_pos)]
-                # most_common = Counter(affixes).most_common(1)
-                # if len(affixes) > 0 and most_common[0][0] != "":
-                #     filled += 1
     return filled/total
 
 
@@ -29,12 +28,11 @@ def global_filled(agents, aff_pos):
 
 
 def agent_affix_frequencies(agent, aff_pos, freq_dict):
-    for lex_concept in agent.lex_concepts:
+    for lex_concept in agent.lex_concepts_type[f"{aff_pos}ing"]:
         for person in agent.persons:
-            if agent.lex_concept_data[lex_concept][f"{aff_pos}ing"]:
-                affix_list = agent.affixes[(lex_concept, person, aff_pos)]
-                for aff in affix_list:
-                    freq_dict[f"'{aff}'-{person}"] += 1
+            affix_list = agent.affixes[(lex_concept, person, aff_pos)]
+            for aff in affix_list:
+                freq_dict[f"'{aff}'-{person}"] += 1
 
 
 def global_affix_frequencies(agents, aff_pos):
