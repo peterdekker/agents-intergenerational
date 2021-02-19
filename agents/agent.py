@@ -121,9 +121,9 @@ class Agent(Agent):
             #    return
             signal.set_suffix(suffix)
 
-        if self.l2:
-            signal.set_prefix("")
-            signal.set_suffix("")
+        # if self.l2:
+        #     signal.set_prefix("")
+        #     signal.set_suffix("")
 
         # (3) Add context from sentence (subject and object), based on transivitity.
         if RG.random() >= self.model.drop_subject_prob:
