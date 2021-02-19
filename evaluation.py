@@ -49,7 +49,6 @@ def main():
 
     # Parse arguments
     args = vars(parser.parse_args())
-    print(args)
     variable_params = {k: v for k, v in args.items() if k not in evaluation_params and v is not None}
     fixed_params = {k: v for k, v in model_params.items() if k not in variable_params}
     iterations = args["iterations"]
@@ -60,6 +59,6 @@ def main():
         for steps_setting in steps:
             evaluate_model(fixed_params, variable_params, iterations_setting, steps_setting)
 
+
 if __name__ == "__main__":
     main()
-
