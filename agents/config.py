@@ -25,13 +25,15 @@ RARE_STATS_AFTER_STEPS = 2 * STATS_AFTER_STEPS  # Should always be multiple of S
 PROPORTION_L2 = 0.7
 SUFFIX_PROB = 0.5
 CAPACITY_L1 = 10
-CAPACITY_L2 = 2
+CAPACITY_L2 = 10
 DROP_SUBJECT_PROB = 0.5
 MIN_BOUNDARY_FEATURE_DIST = 0.0
 REDUCTION_HH = False
 NEGATIVE_UPDATE = False
 GENERALIZE_PRODUCTION_L1 = 0.0
 GENERALIZE_PRODUCTION_L2 = 0.0
+GENERALIZE_UPDATE_L1 = 0.1
+GENERALIZE_UPDATE_L2 = 0.0
 
 # For evaluation script (not browser visualization)
 ITERATIONS = [3]
@@ -49,7 +51,9 @@ model_params = {
     "reduction_hh": REDUCTION_HH,
     "negative_update": NEGATIVE_UPDATE,
     "generalize_production_l1": GENERALIZE_PRODUCTION_L1,
-    "generalize_production_l2": GENERALIZE_PRODUCTION_L2
+    "generalize_production_l2": GENERALIZE_PRODUCTION_L2,
+    "generalize_update_l1": GENERALIZE_UPDATE_L1,
+    "generalize_update_l2": GENERALIZE_UPDATE_L2
 }
 
 bool_params = ["reduction_hh", "negative_update"]

@@ -22,7 +22,8 @@ class Model(Model):
                  capacity_l1, capacity_l2, drop_subject_prob,
                  min_boundary_feature_dist, reduction_hh,
                  negative_update, generalize_production_l1,
-                 generalize_production_l2):
+                 generalize_production_l2, generalize_update_l1,
+                 generalize_update_l2):
         '''
         Initialize field
         '''
@@ -31,15 +32,11 @@ class Model(Model):
         self.width = width
         self.proportion_l2 = proportion_l2
         self.radius = MAX_RADIUS
-        self.capacity_l1 = capacity_l1
-        self.capacity_l2 = capacity_l2
         self.suffix_prob = suffix_prob
         self.drop_subject_prob = drop_subject_prob
         self.min_boundary_feature_dist = min_boundary_feature_dist
         self.reduction_hh = reduction_hh
         self.negative_update = negative_update
-        self.generalize_production_l1 = generalize_production_l1
-        self.generalize_production_l2 = generalize_production_l2
 
         self.schedule = RandomActivation(self)
         self.grid = SingleGrid(width, height, torus=True)
@@ -91,8 +88,9 @@ class Model(Model):
             x = cell[1]
             y = cell[2]
             agent = Agent((x, y), self, self.data, init="empty" if l2[i] else "data",
-                          capacity=self.capacity_l2 if l2[i] else self.capacity_l1, l2=l2[i],
-                          generalize_production=self.generalize_production_l2 if l2[i] else self.generalize_production_l1)
+                          capacity=capacity_l2 if l2[i] else capacity_l1, l2=l2[i],
+                          generalize_production=generalize_production_l2 if l2[i] else generalize_production_l1,
+                          generalize_update=generalize_update_l2 if l2[i] else generalize_update_l1,)
             self.grid.position_agent(agent, (x, y))
             self.schedule.add(agent)
 

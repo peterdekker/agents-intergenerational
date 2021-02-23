@@ -10,7 +10,7 @@ from agents import misc
 
 
 class Agent(Agent):
-    def __init__(self, pos, model, data, init, capacity, generalize_production, l2):
+    def __init__(self, pos, model, data, init, capacity, generalize_production, generalize_update, l2):
         '''
          Create a new speech agent.
 
@@ -23,6 +23,7 @@ class Agent(Agent):
         self.pos = pos
         self.capacity = capacity
         self.generalize_production = generalize_production
+        self.generalize_update = generalize_update
         self.l2 = l2
 
         # These vars are not deep copies, because they will not be altered by agents
@@ -196,23 +197,23 @@ class Agent(Agent):
             self.model.correct_interactions += 1
             prefix_recv = self.signal_recv.get_prefix()
             suffix_recv = self.signal_recv.get_suffix()
-            misc.update_affix_list("prefix", prefix_recv, self.affixes,
-                                   self.lex_concept_data, self.concept_listener,
-                                   self.capacity)
-            misc.update_affix_list("suffix", suffix_recv, self.affixes,
-                                   self.lex_concept_data, self.concept_listener,
-                                   self.capacity)
+            misc.update_affix_list(prefix_recv, suffix_recv, self.affixes, self.lex_concepts_type,
+                                   self.lex_concept_data, self.persons, self.concept_listener,
+                                   self.capacity, self.generalize_update, self.l2)
+            # misc.update_affix_list("suffix", suffix_recv, self.affixes, self.lex_concepts_type,
+            #                        self.lex_concept_data, self.persons, self.concept_listener,
+            #                        self.capacity, self.generalize_update)
         else:
             if self.model.negative_update:
                 # Do negative update!
                 prefix_recv = self.signal_recv.get_prefix()
                 suffix_recv = self.signal_recv.get_suffix()
-                misc.update_affix_list("prefix", prefix_recv, self.affixes,
-                                       self.lex_concept_data, self.concept_listener,
-                                       self.capacity, negative=True)
-                misc.update_affix_list("suffix", suffix_recv, self.affixes,
-                                       self.lex_concept_data, self.concept_listener,
-                                       self.capacity, negative=True)
+                misc.update_affix_list(prefix_recv, suffix_recv, self.affixes, self.lex_concepts_type,
+                                       self.lex_concept_data, self.persons, self.concept_listener,
+                                       self.capacity, self.generalize_update, self.l2, negative=True)
+                # misc.update_affix_list("suffix", suffix_recv, self.affixes, self.lex_concepts_type,
+                #                        self.lex_concept_data, self.persons, self.concept_listener,
+                #                        self.capacity, self.generalize_update, negative=True)
 
     def is_l2(self):
         return self.l2

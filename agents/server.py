@@ -8,7 +8,7 @@ from agents import stats
 
 from agents.config import HEIGHT, WIDTH, PROPORTION_L2, SUFFIX_PROB, CAPACITY_L1, CAPACITY_L2, \
     DROP_SUBJECT_PROB, MIN_BOUNDARY_FEATURE_DIST, REDUCTION_HH, NEGATIVE_UPDATE, GENERALIZE_PRODUCTION_L1, \
-    GENERALIZE_PRODUCTION_L2
+    GENERALIZE_PRODUCTION_L2, GENERALIZE_UPDATE_L1, GENERALIZE_UPDATE_L2
 
 
 def draw(agent):
@@ -55,6 +55,10 @@ model_params = {
                                                       GENERALIZE_PRODUCTION_L1, 0, 1, 0.1),
     "generalize_production_l2": UserSettableParameter("slider", "Generalize production L2 prob",
                                                       GENERALIZE_PRODUCTION_L2, 0, 1, 0.1),
+    "generalize_update_l1": UserSettableParameter("slider", "Generalize update L1 prob",
+                                                  GENERALIZE_UPDATE_L1, 0, 1, 0.01),
+    "generalize_update_l2": UserSettableParameter("slider", "Generalize update L2 prob",
+                                                  GENERALIZE_UPDATE_L2, 0, 1, 0.01),
 }
 
 server = ModularServer(Model,

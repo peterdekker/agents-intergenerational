@@ -105,25 +105,40 @@ def enforce_capacity(affix_list, capacity):
         affix_list.pop(0)
 
 
-def update_affix_list(affix_type, affix_recv, affixes, lex_concept_data, concept_listener, capacity, negative=False):
+def update_affix_list(prefix_recv, suffix_recv, affixes, lex_concepts_type, lex_concept_data, persons_all,
+                      concept_listener, capacity, generalize_update, l2, negative=False):
     lex_concept_listener = concept_listener.get_lex_concept()
     person_listener = concept_listener.get_person()
-    affix_list = affixes[(lex_concept_listener, person_listener, affix_type)]
-    if lex_concept_data[lex_concept_listener][f"{affix_type}ing"]:
+    for affix_type, affix_recv in [("prefix", prefix_recv), ("suffix", suffix_recv)]:
         if affix_recv is None:
-            # TODO: check should be unnecessary. delete later
-            raise Exception("Affix cannot be None, if this affix type is enabled for this verb!")
-        if negative:
-            # Negative update
-            if affix_recv in affix_list:
-                #affix_list = [x for x in affix_list if x != affix_recv]
-                affix_list.remove(affix_recv)
+            # If no affix for this verb type received (e.g. prefix), skip
+            continue
+        if RG.random() < generalize_update:
+            # Generalization: update all concepts
+            lex_concepts = lex_concepts_type[f"{affix_type}ing"]
+            persons = persons_all
         else:
-            # Positive update
-            affix_list.append(affix_recv)
-        logging.debug(
-            f"{affix_type.capitalize()}es after update: {affix_list}")
-        enforce_capacity(affix_list, capacity)
+            # Normal update: do not generalize
+            lex_concepts = [lex_concept_listener]
+            persons = [person_listener]
+        for lex_concept in lex_concepts:
+            for person in persons:
+                affix_list = affixes[(lex_concept, person, affix_type)]
+                if affix_recv is None:
+                    # TODO: check should be unnecessary. delete later
+                    raise Exception("Affix cannot be None, if this affix type is enabled for this verb!")
+                if negative:
+                    # Negative update
+                    if affix_recv in affix_list:
+                        # affix_list = [x for x in affix_list if x != affix_recv]
+                        affix_list.remove(affix_recv)
+                else:
+                    # Positive update
+                    affix_list.append(affix_recv)
+                # if not l2:
+                #     logging.debug(
+                #         f"{affix_type.capitalize()}es after update: {affix_list}")
+                enforce_capacity(affix_list, capacity)
 
 
 def spread_l2_agents(proportion_l2, n_agents):
@@ -147,7 +162,7 @@ def retrieve_affixes_generalize(lex_concept, person, verb_type, affixes, general
 
         affixes_verb_type = {(l, p, t): affixes[(l, p, t)] for (l, p, t) in affixes.keys() if t == verb_type}
         affixes_all = list(chain.from_iterable(affixes_verb_type.values()))
-        #affixes_all = most_common(affixes_all)
+        # affixes_all = most_common(affixes_all)
 
         return affixes_all
     else:
