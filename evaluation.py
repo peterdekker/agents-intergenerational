@@ -3,12 +3,24 @@ from mesa.batchrunner import BatchRunner
 
 from agents.model import Model
 from agents.config import model_params, evaluation_params, bool_params
+#from distutils.util import strtobool
 
 
 stats = {"global_filled_prefix_l1": lambda m: m.global_filled_prefix_l1,
          "global_filled_suffix_l1": lambda m: m.global_filled_suffix_l1,
          "global_filled_prefix_l2": lambda m: m.global_filled_prefix_l2,
          "global_filled_suffix_l2": lambda m: m.global_filled_suffix_l2}
+
+
+def str2bool(v):
+    if isinstance(v, bool):
+        return v
+    if v.lower() in ('yes', 'true', 't', 'y', '1'):
+        return True
+    elif v.lower() in ('no', 'false', 'f', 'n', '0'):
+        return False
+    else:
+        raise argparse.ArgumentTypeError('Boolean value expected.')
 
 
 def params_print(params):
@@ -42,7 +54,8 @@ def main():
     parser = argparse.ArgumentParser(description='Run agent model from terminal.')
     model_group = parser.add_argument_group('model', 'Model parameters')
     for param in model_params:
-        model_group.add_argument(f"--{param}", nargs="+", type=bool if param in bool_params else float)
+        model_group.add_argument(f"--{param}", nargs="+",
+                                 type=str2bool if param in bool_params else float)
     evaluation_group = parser.add_argument_group('evaluation', 'Evaluation parameters')
     for param in evaluation_params:
         evaluation_group.add_argument(f"--{param}", nargs="+", type=int, default=evaluation_params[param])

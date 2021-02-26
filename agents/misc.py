@@ -115,8 +115,8 @@ def update_affix_list(prefix_recv, suffix_recv, affixes, lex_concepts_type, lex_
             continue
         if RG.random() < generalize_update:
             # Generalization: update all concepts
-            lex_concepts = lex_concepts_type[f"{affix_type}ing"]
-            persons = persons_all
+            lex_concepts = lex_concepts_type[f"{affix_type}ing"]  # [lex_concept_listener]
+            persons = persons_all  # [person_listener]
         else:
             # Normal update: do not generalize
             lex_concepts = [lex_concept_listener]
