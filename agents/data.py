@@ -51,8 +51,8 @@ class Data():
                     if "" in affixes_processed:
                         affixes_processed.remove("")
                     self.affixes[(lex_concept, person, affix_type)] = affixes_processed
-        print(f"Number of concept cells: {len(self.affixes.keys())}")
 
+        #print(f"Number of concept cells: {len(self.affixes.keys())}")
         # check double items: print([item for item, count in collections.Counter(self.concepts).items() if count > 1])
 
 
