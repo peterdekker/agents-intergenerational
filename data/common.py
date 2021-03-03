@@ -3,12 +3,16 @@ import os
 import pathlib
 import requests
 import shutil
+import pandas as pd
+
+from pycldf.dataset import Dataset
 
 DATA_ARCHIVE_URL = "https://github.com/lessersunda/lexirumah-data/archive/v3.0.0.tar.gz"
 DATA_ARCHIVE_PATH = "lexirumah.tar.gz"
 DATA_UNPACK_PATH = "lexirumah-data-3.0.0"
-DATA_PATH = os.path.join(DATA_UNPACK_PATH, "cldf/forms.csv")
-LECTS_PATH = os.path.join(DATA_UNPACK_PATH, "cldf/lects.csv")
+METADATA_PATH = os.path.join(DATA_UNPACK_PATH, "cldf/cldf-metadata.json")
+#DATA_PATH = os.path.join(DATA_UNPACK_PATH, "cldf/forms.csv")
+#LECTS_PATH = os.path.join(DATA_UNPACK_PATH, "cldf/lects.csv")
 
 
 def download_if_needed(file_path, url, label):
@@ -29,5 +33,11 @@ def download_if_needed(file_path, url, label):
                 shutil.unpack_archive(file_path)
 
 
-def download_lexirumah():
+def load_lexirumah():
     download_if_needed(DATA_ARCHIVE_PATH, DATA_ARCHIVE_URL, "LexiRumah")
+    print("Loading data...")
+    dataset = Dataset.from_metadata(METADATA_PATH)
+    data_df = pd.DataFrame(dataset["FormTable"])
+    lects_df = pd.DataFrame(dataset["LanguageTable"])
+    print("Loaded data.")
+    return data_df, lects_df
