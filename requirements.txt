@@ -1,7 +1,15 @@
-distance
 jupyter
 matplotlib
 mesa==0.8.6
+numpy
+pandas
+editdistance
+distance
 panphon
 argparse
 ascii_graph
+# Scripts
+requests
+nltk
+sklearn
+matplotlib
