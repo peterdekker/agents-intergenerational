@@ -10,6 +10,7 @@ import shutil
 import pandas as pd
 from sklearn.preprocessing import StandardScaler
 import matplotlib.pyplot as plt
+import numpy as np
 plt.rcParams['figure.figsize'] = [12, 6]
 
 
@@ -19,6 +20,8 @@ DATA_UNPACK_PATH = "lexirumah-data-3.0.0"
 METADATA_PATH = os.path.join(DATA_UNPACK_PATH, "cldf/cldf-metadata.json")
 # DATA_PATH = os.path.join(DATA_UNPACK_PATH, "cldf/forms.csv")
 # LECTS_PATH = os.path.join(DATA_UNPACK_PATH, "cldf/lects.csv")
+
+USE_RAW_FREQ = False
 
 
 def download_if_needed(file_path, url, label):
@@ -64,9 +67,6 @@ def shared_feature_matrix(df, column_name):
     return shared_matrix
 
 
-USE_RAW_FREQ = False
-
-
 def freq_to_prob(freq_dict):
     n_tokens = sum(freq_dict.values())  # faster than elements
     if USE_RAW_FREQ:
@@ -86,7 +86,13 @@ def biphone_prob_existence(phone_lists):
     return biphone_prob(phone_lists, existence=True)
 
 
-def phone_prob(phone_lists, existence=False):
+def biphone_prob_boundaries(phone_lists):
+    return biphone_prob(phone_lists, word_boundaries=True)
+
+
+def phone_prob(phone_lists, existence=False, word_boundaries=False):
+    if word_boundaries:
+        phone_lists = [['<']+x+['>'] for x in phone_lists]
     flattened = chain.from_iterable(phone_lists)
     counter = Counter(flattened)
     table = freq_to_existence(counter) if existence else freq_to_prob(counter)
@@ -103,6 +109,12 @@ def biphone_prob(phone_lists, existence=False):
 
     table = freq_to_existence(counter) if existence else freq_to_prob(counter)
     return table
+
+
+def create_matrix(data_df, segments_col, calculation_function, label):
+    data_df[label] = data_df[segments_col].apply(calculation_function)
+    feature_matrix = shared_feature_matrix(data_df, label)
+    return feature_matrix
 
 
 def reduce_plot(study_label, study_data, dr_label, dr, data_agg, language_groups, plot_labels, reduce):
@@ -123,11 +135,22 @@ def reduce_plot(study_label, study_data, dr_label, dr, data_agg, language_groups
         data_group = data_agg[data_agg.index.isin(lects_group)]
         data_x = data_group[f"{study_label}-{dr_label}-pc1"]
         data_y = data_group[f"{study_label}-{dr_label}-pc2"]
-        scatter = plt.scatter(data_x, data_y, color=color, label=lang_group, s=36)
+        plt.scatter(data_x, data_y, color=color, label=lang_group, s=36)
         if plot_labels:
             for _, row in data_group.iterrows():
-                plt.annotate(row.name, xy=(
-                    row[f"{study_label}-{dr_label}-pc1"], row[f"{study_label}-{dr_label}-pc2"]))
+                plt.annotate(row.name, xy=(row[f"{study_label}-{dr_label}-pc1"],
+                                           row[f"{study_label}-{dr_label}-pc2"]))
     plt.title(f"{study_label} ({dr_label})")
     plt.legend()
     plt.show()
+
+
+def compute_loadings(dr, feature_names):
+    loadings = pd.DataFrame(dr.components_.T, columns=['PC1', 'PC2'], index=feature_names)
+    #loadings = loadings.abs()
+    NL = 10
+    loadings_x_pos = loadings.sort_values(by="PC1", ascending=False)["PC1"].head(NL)
+    loadings_x_neg = loadings.sort_values(by="PC1", ascending=True)["PC1"].head(NL)
+    loadings_y_pos = loadings.sort_values(by="PC2", ascending=False)["PC2"].head(NL)
+    loadings_y_neg = loadings.sort_values(by="PC2", ascending=True)["PC2"].head(NL)
+    return loadings_x_pos, loadings_x_neg, loadings_y_pos, loadings_y_neg
