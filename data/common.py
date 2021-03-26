@@ -62,8 +62,6 @@ def shared_feature_matrix(df, column_name):
         prob_dict = column.loc[lect]
         for key, prob in prob_dict.items():
             shared_matrix.at[lect, key] = prob
-    # TODO: Should there be NaNs for missing data?
-    shared_matrix = shared_matrix.fillna(0)
     return shared_matrix
 
 
@@ -86,8 +84,8 @@ def biphone_prob_existence(phone_lists):
     return biphone_prob(phone_lists, existence=True)
 
 
-def biphone_prob_boundaries(phone_lists):
-    return biphone_prob(phone_lists, word_boundaries=True)
+def phone_prob_boundaries(phone_lists):
+    return phone_prob(phone_lists, word_boundaries=True)
 
 
 def phone_prob(phone_lists, existence=False, word_boundaries=False):
@@ -118,6 +116,7 @@ def create_matrix(data_df, segments_col, calculation_function, label):
 
 
 def reduce_plot(study_label, study_data, dr_label, dr, data_agg, language_groups, plot_labels, reduce):
+    study_data = study_data.fillna(0)
     if reduce:
         std_data = StandardScaler().fit_transform(study_data)
         red_data = dr.fit_transform(std_data)
