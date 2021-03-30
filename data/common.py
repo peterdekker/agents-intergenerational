@@ -23,6 +23,10 @@ METADATA_PATH = os.path.join(DATA_UNPACK_PATH, "cldf/cldf-metadata.json")
 
 USE_RAW_FREQ = False
 
+LEFT_BOUND_SYM = "🡄"
+RIGHT_BOUND_SYM = "🡆"
+BACKWARD_SYMB = "🔙"
+
 
 def download_if_needed(file_path, url, label):
     if not os.path.exists(file_path):
@@ -90,7 +94,7 @@ def phone_prob_boundaries(phone_lists):
 
 def phone_prob(phone_lists, existence=False, word_boundaries=False):
     if word_boundaries:
-        phone_lists = [['<']+x+['>'] for x in phone_lists]
+        phone_lists = [[LEFT_BOUND_SYM]+x+[RIGHT_BOUND_SYM] for x in phone_lists]
     flattened = chain.from_iterable(phone_lists)
     counter = Counter(flattened)
     table = freq_to_existence(counter) if existence else freq_to_prob(counter)
@@ -103,7 +107,7 @@ def biphone_prob(phone_lists, existence=False):
     counter = Counter()
     for phone_list in phone_lists:
         counter.update(ngrams(phone_list, 2, pad_left=True, pad_right=True,
-                              left_pad_symbol='<', right_pad_symbol='>'))
+                              left_pad_symbol=LEFT_BOUND_SYM, right_pad_symbol=RIGHT_BOUND_SYM))
 
     table = freq_to_existence(counter) if existence else freq_to_prob(counter)
     return table
@@ -115,9 +119,20 @@ def create_matrix(data_df, segments_col, calculation_function, label):
     return feature_matrix
 
 
+# This function is different than create_matrix, because it combines two matrices created before
+def create_biphone_transition_matrix(biphone_prob_matrix, phone_prob_boundaries_matrix):
+    biphone_transition_matrix = pd.DataFrame(
+        columns=biphone_prob_matrix.columns, index=biphone_prob_matrix.index)
+    for x, y in biphone_prob_matrix.columns:
+        biphone_transition_matrix[x, y] = biphone_prob_matrix[x, y] / phone_prob_boundaries_matrix[x]
+        biphone_transition_matrix[f"{BACKWARD_SYMB}{x}",
+                                  f"{BACKWARD_SYMB}{y}"] = biphone_prob_matrix[x, y] / phone_prob_boundaries_matrix[y]
+    return biphone_transition_matrix
+
+
 def reduce_plot(study_label, study_data, dr_label, dr, data_agg, language_groups, plot_labels, reduce):
-    study_data = study_data.fillna(0)
     if reduce:
+        study_data = study_data.fillna(0)
         std_data = StandardScaler().fit_transform(study_data)
         red_data = dr.fit_transform(std_data)
         x = [i[0] for i in red_data]
