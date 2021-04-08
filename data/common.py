@@ -10,7 +10,10 @@ import shutil
 import pandas as pd
 from sklearn.preprocessing import StandardScaler
 import matplotlib.pyplot as plt
-import numpy as np
+
+import unicodedata as ud
+import unidecode
+
 plt.rcParams['figure.figsize'] = [12, 6]
 
 
@@ -168,3 +171,8 @@ def compute_loadings(dr, feature_names):
     loadings_y_pos = loadings.sort_values(by="PC2", ascending=False)["PC2"].head(NL)
     loadings_y_neg = loadings.sort_values(by="PC2", ascending=True)["PC2"].head(NL)
     return loadings_x_pos, loadings_x_neg, loadings_y_pos, loadings_y_neg
+
+
+def normalize_list(list_of_strings, form="NFKD"):
+    return [ud.normalize(form, s).encode('ASCII', 'ignore') for s in list_of_strings]
+    # return [unidecode.unidecode(s) for s in list_of_strings]
