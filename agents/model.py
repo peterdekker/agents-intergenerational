@@ -27,6 +27,20 @@ class Model(Model):
         '''
         Initialize field
         '''
+        assert height % 1 == 0
+        assert width % 1 == 0
+        assert proportion_l2 >= 0 and proportion_l2 <= 1
+        assert suffix_prob >= 0 and suffix_prob <= 1
+        assert capacity_l1 % 1 == 0
+        assert capacity_l2 % 1 == 0
+        assert drop_subject_prob >= 0 and drop_subject_prob <= 1
+        assert min_boundary_feature_dist >= 0
+        assert isinstance(reduction_hh, bool)
+        assert isinstance(negative_update, bool)
+        assert generalize_production_l1 >= 0 and generalize_production_l1 <= 1
+        assert generalize_production_l2 >= 0 and generalize_production_l2 <= 1
+        assert generalize_update_l1 >= 0 and generalize_update_l1 <= 1
+        assert generalize_update_l2 >= 0 and generalize_update_l2 <= 1
 
         self.height = height
         self.width = width

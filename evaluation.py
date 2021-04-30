@@ -58,12 +58,18 @@ def main():
                                  type=str2bool if param in bool_params else float)
     evaluation_group = parser.add_argument_group('evaluation', 'Evaluation parameters')
     for param in evaluation_params:
-        evaluation_group.add_argument(f"--{param}", nargs="+", type=int, default=evaluation_params[param])
+        if param in bool_params:
+            evaluation_group.add_argument(f'--{param}', action='store_true')
+        else:
+            evaluation_group.add_argument(f"--{param}", nargs="+", type=int, default=evaluation_params[param])
 
     # Parse arguments
     args = vars(parser.parse_args())
-    variable_params = {k: v for k, v in args.items() if k not in evaluation_params and v is not None}
+    variable_params = {k: v for k, v in args.items() if k in model_params and v is not None}
     fixed_params = {k: v for k, v in model_params.items() if k not in variable_params}
+    if args["compare_graph"] and len(variable_params) != 1:
+        raise ValueError(
+            "With option --compare_graph, please supply EXACTLY ONE model variable to evaluate in graph.")
     iterations = args["iterations"]
     steps = args["steps"]
 
