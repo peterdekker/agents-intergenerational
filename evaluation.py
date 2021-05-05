@@ -3,8 +3,11 @@ from mesa.batchrunner import BatchRunner
 
 from agents.model import Model
 from agents.config import model_params, evaluation_params, bool_params
-#from distutils.util import strtobool
 
+import matplotlib.pyplot as plt
+import numpy as np
+
+import textwrap
 
 stats = {"global_filled_prefix_l1": lambda m: m.global_filled_prefix_l1,
          "global_filled_suffix_l1": lambda m: m.global_filled_suffix_l1,
@@ -48,6 +51,37 @@ def evaluate_model(fixed_params, variable_params, iterations, steps):
     print(run_data)
     print("\n")
     run_data.to_csv(f"evaluation-{iterations}-{steps}.tsv", sep="\t")
+    return run_data
+
+
+def create_graph(run_data, fixed_params, variable_params):
+    # TODO: Does var_cols have to be list, or just one item?
+    # TODO: Make it possible to create separate graphs for multiple vars
+    var_cols = list(variable_params.keys())
+    var_col = var_cols[0]
+    run_data_means = run_data.groupby(var_cols).mean()
+    stats_cols = run_data_means.columns  # Statistics: suffix L1, etc.
+    labels = run_data_means.index  # variable values
+    x = np.arange(len(labels))  # the label locations
+    width = 0.2  # the width of the bars
+    fig, ax = plt.subplots()
+    rects = {}
+    for i, stats_col in enumerate(stats_cols):
+        rects[stats_col] = ax.bar(x+i*width, run_data_means[stats_col],
+                                  width=width, edgecolor="white", label=stats_col.strip("global_filled_"))
+        #ax.bar_label(rects[stats_col], padding=3)
+
+    # # Add some text for labels, title and custom x-axis tick labels, etc.
+    ax.set_ylabel('% paradigm cells filled')
+    ax.set_title(var_col)
+    ax.set_xticks(x+1.5*width)
+    ax.set_xticklabels(labels)
+    ax.legend()
+    # fig.tight_layout()
+    graphtext = textwrap.fill(params_print(fixed_params), width=100)
+    plt.subplots_adjust(bottom=0.2)
+    plt.figtext(0.05, 0.03, graphtext, fontsize=8, ha="left")
+    plt.savefig(f"{var_col}.png")  # bbox_inches="tight"
 
 
 def main():
@@ -67,16 +101,23 @@ def main():
     args = vars(parser.parse_args())
     variable_params = {k: v for k, v in args.items() if k in model_params and v is not None}
     fixed_params = {k: v for k, v in model_params.items() if k not in variable_params}
-    if args["compare_graph"] and len(variable_params) != 1:
-        raise ValueError(
-            "With option --compare_graph, please supply EXACTLY ONE model variable to evaluate in graph.")
     iterations = args["iterations"]
     steps = args["steps"]
+    compare_graph = args["compare_graph"]
+    # if compare_graph and len(variable_params) != 1:
+    #     raise ValueError(
+    #         "With option --compare_graph, please supply EXACTLY ONE model variable to evaluate in graph.")
 
     print(f"Evaluating iterations {iterations} and steps {steps}")
     for iterations_setting in iterations:
         for steps_setting in steps:
-            evaluate_model(fixed_params, variable_params, iterations_setting, steps_setting)
+            if compare_graph:
+                # Try variable parameters one by one, while keeping all of the other parameters fixed
+                run_data = evaluate_model(fixed_params, variable_params, iterations_setting, steps_setting)
+                create_graph(run_data, fixed_params, variable_params)
+            else:
+                # Evaluate all combinations of variable parameters
+                run_data = evaluate_model(fixed_params, variable_params, iterations_setting, steps_setting)
 
 
 if __name__ == "__main__":
