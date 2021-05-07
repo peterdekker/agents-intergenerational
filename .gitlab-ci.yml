@@ -28,7 +28,7 @@ pytest:
   script:
     - pip3 -V # Check we are still in the venv
     - pip3 install pytest
-    - pytest --junitxml=report.xml
+    - pytest tests/ --junitxml=report.xml
   artifacts:
     when: always
     reports:
