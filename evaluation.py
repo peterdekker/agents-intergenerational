@@ -54,12 +54,8 @@ def evaluate_model(fixed_params, variable_params, iterations, steps):
     return run_data
 
 
-def create_graph(run_data, fixed_params, variable_params):
-    # TODO: Does var_cols have to be list, or just one item?
-    # TODO: Make it possible to create separate graphs for multiple vars
-    var_cols = list(variable_params.keys())
-    var_col = var_cols[0]
-    run_data_means = run_data.groupby(var_cols).mean()
+def create_graph(run_data, fixed_params, variable_param):
+    run_data_means = run_data.groupby(variable_param).mean()
     stats_cols = run_data_means.columns  # Statistics: suffix L1, etc.
     labels = run_data_means.index  # variable values
     x = np.arange(len(labels))  # the label locations
@@ -73,7 +69,7 @@ def create_graph(run_data, fixed_params, variable_params):
 
     # # Add some text for labels, title and custom x-axis tick labels, etc.
     ax.set_ylabel('% paradigm cells filled')
-    ax.set_title(var_col)
+    ax.set_title(variable_param)
     ax.set_xticks(x+1.5*width)
     ax.set_xticklabels(labels)
     ax.legend()
@@ -81,7 +77,7 @@ def create_graph(run_data, fixed_params, variable_params):
     graphtext = textwrap.fill(params_print(fixed_params), width=100)
     plt.subplots_adjust(bottom=0.2)
     plt.figtext(0.05, 0.03, graphtext, fontsize=8, ha="left")
-    plt.savefig(f"{var_col}.png")  # bbox_inches="tight"
+    plt.savefig(f"{variable_param}.png")  # bbox_inches="tight"
 
 
 def main():
@@ -100,7 +96,6 @@ def main():
     # Parse arguments
     args = vars(parser.parse_args())
     variable_params = {k: v for k, v in args.items() if k in model_params and v is not None}
-    fixed_params = {k: v for k, v in model_params.items() if k not in variable_params}
     iterations = args["iterations"]
     steps = args["steps"]
     compare_graph = args["compare_graph"]
@@ -109,14 +104,21 @@ def main():
     #         "With option --compare_graph, please supply EXACTLY ONE model variable to evaluate in graph.")
 
     print(f"Evaluating iterations {iterations} and steps {steps}")
-    for iterations_setting in iterations:
-        for steps_setting in steps:
-            if compare_graph:
-                # Try variable parameters one by one, while keeping all of the other parameters fixed
-                run_data = evaluate_model(fixed_params, variable_params, iterations_setting, steps_setting)
-                create_graph(run_data, fixed_params, variable_params)
-            else:
-                # Evaluate all combinations of variable parameters
+    if compare_graph:
+        # Try variable parameters one by one, while keeping all of the other parameters fixed
+        for var_param, var_param_setting in variable_params.items():
+            for iterations_setting in iterations:
+                for steps_setting in steps:
+                    fixed_params_other = {k: v for k, v in model_params.items() if k != var_param}
+                    run_data = evaluate_model(fixed_params_other, {var_param: var_param_setting},
+                                              iterations_setting, steps_setting)
+                    create_graph(run_data, fixed_params_other, var_param)
+    else:
+        # Evaluate all combinations of variable parameters
+        # Only params not changed by user are fixed
+        fixed_params = {k: v for k, v in model_params.items() if k not in variable_params}
+        for iterations_setting in iterations:
+            for steps_setting in steps:
                 run_data = evaluate_model(fixed_params, variable_params, iterations_setting, steps_setting)
 
 
