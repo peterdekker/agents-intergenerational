@@ -38,7 +38,8 @@ GENERALIZE_UPDATE_L2 = 0.0
 # For evaluation script (not browser visualization)
 ITERATIONS = [3]
 STEPS = [5000]
-COMPARE_GRAPH = False
+SETTINGS_GRAPH = False
+STEPS_GRAPH = False
 
 model_params = {
     "height": HEIGHT,
@@ -60,7 +61,8 @@ model_params = {
 evaluation_params = {
     "iterations": ITERATIONS,
     "steps": STEPS,
-    "compare_graph": COMPARE_GRAPH
+    "settings_graph": SETTINGS_GRAPH,
+    "steps_graph": STEPS_GRAPH
 }
 
-bool_params = ["reduction_hh", "negative_update", "compare_graph"]
+bool_params = ["reduction_hh", "negative_update", "settings_graph", "steps_graph"]

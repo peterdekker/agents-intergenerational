@@ -6,6 +6,7 @@ from agents.config import model_params, evaluation_params, bool_params
 
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
 
 import textwrap
 
@@ -98,21 +99,35 @@ def main():
     variable_params = {k: v for k, v in args.items() if k in model_params and v is not None}
     iterations = args["iterations"]
     steps = args["steps"]
-    compare_graph = args["compare_graph"]
-    # if compare_graph and len(variable_params) != 1:
-    #     raise ValueError(
-    #         "With option --compare_graph, please supply EXACTLY ONE model variable to evaluate in graph.")
+    settings_graph = args["settings_graph"]
+    steps_graph = args["steps_graph"]
+    if steps_graph and len(variable_params) != 0:
+        raise ValueError(
+            "With option --steps_graph, please do not supply variable parameters.")
 
     print(f"Evaluating iterations {iterations} and steps {steps}")
-    if compare_graph:
+    if settings_graph:
         # Try variable parameters one by one, while keeping all of the other parameters fixed
         for var_param, var_param_setting in variable_params.items():
             for iterations_setting in iterations:
                 for steps_setting in steps:
-                    fixed_params_other = {k: v for k, v in model_params.items() if k != var_param}
-                    run_data = evaluate_model(fixed_params_other, {var_param: var_param_setting},
+                    fixed_params = {k: v for k, v in model_params.items() if k != var_param}
+                    run_data = evaluate_model(fixed_params, {var_param: var_param_setting},
                                               iterations_setting, steps_setting)
-                    create_graph(run_data, fixed_params_other, var_param)
+                    create_graph(run_data, fixed_params, var_param)
+    elif steps_graph:
+        # No variable parameters are used. Only evaluate
+        run_data_list = []
+        for iterations_setting in iterations:
+            for steps_setting in steps:
+                fixed_params = model_params
+                run_data = evaluate_model(fixed_params, {},
+                                          iterations_setting, steps_setting)
+                run_data["steps"] = steps_setting
+                run_data_list.append(run_data)
+        combined_run_data = pd.concat(run_data_list, ignore_index=True)
+        print(combined_run_data)
+        create_graph(combined_run_data, fixed_params, "steps")
     else:
         # Evaluate all combinations of variable parameters
         # Only params not changed by user are fixed
