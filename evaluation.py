@@ -112,9 +112,11 @@ def main():
             for iterations_setting in iterations:
                 for steps_setting in steps:
                     fixed_params = {k: v for k, v in model_params.items() if k != var_param}
+                    fixed_params_print = {**fixed_params, **
+                                          {"iterations": iterations_setting, "steps": steps_setting}}
                     run_data = evaluate_model(fixed_params, {var_param: var_param_setting},
                                               iterations_setting, steps_setting)
-                    create_graph(run_data, fixed_params, var_param)
+                    create_graph(run_data, fixed_params_print, var_param)
     elif steps_graph:
         # No variable parameters are used. Only evaluate
         run_data_list = []
@@ -125,9 +127,9 @@ def main():
                                           iterations_setting, steps_setting)
                 run_data["steps"] = steps_setting
                 run_data_list.append(run_data)
-        combined_run_data = pd.concat(run_data_list, ignore_index=True)
-        print(combined_run_data)
-        create_graph(combined_run_data, fixed_params, "steps")
+            combined_run_data = pd.concat(run_data_list, ignore_index=True)
+            fixed_params_print = {**fixed_params, **{"iterations": iterations_setting}}
+            create_graph(combined_run_data, fixed_params_print, "steps")
     else:
         # Evaluate all combinations of variable parameters
         # Only params not changed by user are fixed
