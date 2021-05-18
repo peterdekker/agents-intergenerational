@@ -16,9 +16,17 @@ def agent_proportion_filled_cells(agent, aff_pos):
             #     filled += 1
             affixes = agent.affixes[(lex_concept, person, aff_pos)]
             if len(affixes) > 0:
-                most_common = Counter(affixes).most_common(1)[0][0]
-                if most_common != "":
+                # Find, possibly multiple, most common elements
+                most_common_list = Counter(affixes).most_common()
+                max_freq = max([v for k, v in most_common_list])
+                most_common = [k for k, v in most_common_list if v == max_freq]
+                # Cell is filled if "" is not most common, or even among the most common
+                if "" not in most_common:
                     filled += 1
+                # most_common = Counter(affixes).most_common(1)[0][0]
+                # if most_common != "":
+                #     filled += 1
+
     return filled/total
 
 
