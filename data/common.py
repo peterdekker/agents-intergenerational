@@ -12,7 +12,8 @@ from sklearn.preprocessing import StandardScaler
 import matplotlib.pyplot as plt
 
 import unicodedata as ud
-import unidecode
+# import unidecode
+from ipapy.ipastring import IPAString
 
 plt.rcParams['figure.figsize'] = [12, 6]
 
@@ -173,6 +174,11 @@ def compute_loadings(dr, feature_names):
     return loadings_x_pos, loadings_x_neg, loadings_y_pos, loadings_y_neg
 
 
-def normalize_list(list_of_strings, form="NFKD"):
-    return [ud.normalize(form, s).encode('ASCII', 'ignore') for s in list_of_strings]
+def normalize_list(list_of_strings, method="", ud_form="NFKD"):
+    if method == "ipapy":
+        def function(x): return str(IPAString(unicode_string=x, ignore=True).cns_vwl)
+    elif method == "ud":
+        def function(x): return ud.normalize(ud_form, x).encode('ASCII', 'ignore')
+    applied_list = [function(s) for s in list_of_strings]
+    return [s for s in applied_list if " " not in s and len(s) > 0]
     # return [unidecode.unidecode(s) for s in list_of_strings]
