@@ -4,7 +4,6 @@ import numpy as np
 from itertools import chain
 
 from agents.config import dst, logging, RG
-from agents.conceptmessage import ConceptMessage
 
 from collections import Counter
 
@@ -77,7 +76,6 @@ def infer_possible_persons(affix_type, affix_signal, persons, affixes, lex_conce
 
 def reduce_affix_phonetic(verb_type, affix, form, min_boundary_feature_dist, listener):
     if min_boundary_feature_dist > 0.0:
-        # if not listener.is_l2():
         form_border_phoneme = 0 if verb_type == "prefixing" else -1
         affix_border_phoneme = -1 if verb_type == "prefixing" else 0
         affix_slice = affix[affix_border_phoneme] if len(affix) > 0 else affix
@@ -149,7 +147,8 @@ def spread_l2_agents(proportion_l2, n_agents):
     return l2
 
 
-def retrieve_affixes_generalize(lex_concept, person, verb_type, affixes, generalize_production, lex_concepts, persons, lex_concept_data):
+def retrieve_affixes_generalize(lex_concept, person, verb_type, affixes, generalize_production, lex_concepts,
+                                persons, lex_concept_data):
     # Generalize: draw other concept to use affixes from
     if RG.random() < generalize_production:
         # Generalize: create list of all affixes, regardless of concept (but taking into account verb type)
@@ -162,7 +161,6 @@ def retrieve_affixes_generalize(lex_concept, person, verb_type, affixes, general
 
         affixes_verb_type = {(l, p, t): affixes[(l, p, t)] for (l, p, t) in affixes.keys() if t == verb_type}
         affixes_all = list(chain.from_iterable(affixes_verb_type.values()))
-        # affixes_all = most_common(affixes_all)
 
         return affixes_all
     else:
@@ -172,4 +170,3 @@ def retrieve_affixes_generalize(lex_concept, person, verb_type, affixes, general
 
 def affix_choice(affixes):
     return RG.choice(affixes)
-    # return most_common(affixes)[0]

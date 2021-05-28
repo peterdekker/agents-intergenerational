@@ -1,4 +1,5 @@
 
+from pyclts import CLTS
 from pycldf.dataset import Dataset
 from itertools import chain
 from nltk.util import ngrams
@@ -25,11 +26,28 @@ METADATA_PATH = os.path.join(DATA_UNPACK_PATH, "cldf/cldf-metadata.json")
 # DATA_PATH = os.path.join(DATA_UNPACK_PATH, "cldf/forms.csv")
 # LECTS_PATH = os.path.join(DATA_UNPACK_PATH, "cldf/lects.csv")
 
+CLTS_PATH = "v1.4.1.tar.gz"
+CLTS_URL = "https://github.com/cldf-clts/clts/archive/v1.4.1.tar.gz"
+
 USE_RAW_FREQ = False
 
 LEFT_BOUND_SYM = "🡄"
 RIGHT_BOUND_SYM = "🡆"
 BACKWARD_SYMB = "🔙"
+
+currentdir = os.path.dirname(os.path.realpath(__file__))
+parentdir = os.path.dirname(currentdir)
+
+
+clts = CLTS(f"{parentdir}/clts-1.4.1")
+asjp = clts.transcriptionsystem('asjpcode')
+
+
+def asjp_to_ipa(word):
+    word_spaced = " ".join(word)
+    translated = asjp.translate(word_spaced, clts.bipa)
+    translated_nospace = "".join(translated.split(" "))
+    return translated_nospace
 
 
 def download_if_needed(file_path, url, label):
@@ -58,6 +76,11 @@ def load_lexirumah():
     lects_df = pd.DataFrame(dataset["LanguageTable"])
     print("Loaded data.")
     return data_df, lects_df
+
+
+def load_clts():
+    # Download CLTS
+    download_if_needed(CLTS_PATH, CLTS_URL, "CLTS")
 
 
 def shared_feature_matrix(df, column_name):
@@ -165,7 +188,6 @@ def reduce_plot(study_label, study_data, dr_label, dr, data_agg, language_groups
 
 def compute_loadings(dr, feature_names):
     loadings = pd.DataFrame(dr.components_.T, columns=['PC1', 'PC2'], index=feature_names)
-    #loadings = loadings.abs()
     NL = 10
     loadings_x_pos = loadings.sort_values(by="PC1", ascending=False)["PC1"].head(NL)
     loadings_x_neg = loadings.sort_values(by="PC1", ascending=True)["PC1"].head(NL)

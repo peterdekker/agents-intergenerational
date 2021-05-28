@@ -77,6 +77,18 @@ class Model(Model):
         self.global_affixes_prefix_l2 = {}
         self.global_affixes_suffix_l2 = {}
 
+        # Behaviourist
+        self.prop_communicated_prefix_l1 = 0.0
+        self.prop_communicated_suffix_l1 = 0.0
+        self.prop_communicated_prefix_l2 = 0.0
+        self.prop_communicated_suffix_l2 = 0.0
+
+        self.communicated_prefix_l1 = []
+        self.communicated_suffix_l1 = []
+        self.communicated_prefix_l2 = []
+        self.communicated_suffix_l2 = []
+        ###
+
         self.datacollector = DataCollector(
             {  # "global_model_distance": "global_model_distance",
                 "global_filled_prefix_l1": "global_filled_prefix_l1",
@@ -87,6 +99,10 @@ class Model(Model):
                 "global_affixes_suffix_l1": "global_affixes_suffix_l1",
                 "global_affixes_prefix_l2": "global_affixes_prefix_l2",
                 "global_affixes_suffix_l2": "global_affixes_suffix_l2",
+                "prop_communicated_prefix_l1": "prop_communicated_prefix_l1",
+                "prop_communicated_suffix_l1": "prop_communicated_suffix_l1",
+                "prop_communicated_prefix_l2": "prop_communicated_prefix_l2",
+                "prop_communicated_suffix_l2": "prop_communicated_suffix_l2",
                 "proportion_correct_interactions": "proportion_correct_interactions",
                 "avg_proportion_correct_interactions": "avg_proportion_correct_interactions",
                 "avg_ambiguity": "avg_ambiguity"})
@@ -134,13 +150,23 @@ class Model(Model):
             agents = [a for a, x, y in self.grid.coord_iter()]
             agents_l1 = [a for a in agents if not a.is_l2()]
             agents_l2 = [a for a in agents if a.is_l2()]
-            # TODO: these vars can be calculated upon callig .collect(), by
+            # TODO: these vars can be calculated upon calling .collect(), by
             # registering methods in datacollector. But then
             # no differentiation between stats calculation intervals is possible
             self.global_filled_prefix_l1 = stats.global_filled(agents_l1, "prefix")
             self.global_filled_suffix_l1 = stats.global_filled(agents_l1, "suffix")
             self.global_filled_prefix_l2 = stats.global_filled(agents_l2, "prefix")
             self.global_filled_suffix_l2 = stats.global_filled(agents_l2, "suffix")
+
+            # Compute proportion non-empty cells in communicative measure
+            self.prop_communicated_prefix_l1 = stats.calculate_proportion_communicated(
+                self.communicated_prefix_l1)
+            self.prop_communicated_prefix_l2 = stats.calculate_proportion_communicated(
+                self.communicated_prefix_l2)
+            self.prop_communicated_suffix_l1 = stats.calculate_proportion_communicated(
+                self.communicated_suffix_l1)
+            self.prop_communicated_suffix_l2 = stats.calculate_proportion_communicated(
+                self.communicated_suffix_l2)
 
             if self.steps % RARE_STATS_AFTER_STEPS == 0:
                 self.global_affixes_prefix_l1 = stats.global_affix_frequencies(agents_l1, "prefix")

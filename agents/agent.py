@@ -7,6 +7,7 @@ from agents.signal import Signal
 from agents.conceptmessage import ConceptMessage
 from agents.config import RG, logging
 from agents import misc
+from agents import stats
 
 
 class Agent(Agent):
@@ -77,6 +78,8 @@ class Agent(Agent):
 
         prefixing = self.lex_concept_data[lex_concept]["prefixing"]
         suffixing = self.lex_concept_data[lex_concept]["suffixing"]
+        prefix = ""
+        suffix = ""
         # (2) Based on verb and transitivity, add prefix or suffix:
         #  - prefixing verb:
         #     -- regardless of transitive or intransitive: use prefix
@@ -85,7 +88,6 @@ class Agent(Agent):
             prefixes = misc.retrieve_affixes_generalize(lex_concept, person, "prefix",
                                                         self.affixes, self.generalize_production,
                                                         self.lex_concepts, self.persons, self.lex_concept_data)
-            prefix = ""
             # TODO: More elegant if len is always non-zero because there is always ""?
             if len(prefixes) > 0:
                 prefix = misc.affix_choice(prefixes)
@@ -109,7 +111,6 @@ class Agent(Agent):
 
             # In all cases where suffix will not be set, use empty suffix
             # (different from None, because listener will add empty suffix to its stack)
-            suffix = ""
             # TODO: More elegant if len(sfxs) is always non-zero because there is always ""?
             if len(suffixes) > 0:
                 if transitivity == "intrans":
@@ -122,9 +123,7 @@ class Agent(Agent):
             #    return
             signal.set_suffix(suffix)
 
-        # if self.l2:
-        #     signal.set_prefix("")
-        #     signal.set_suffix("")
+        stats.update_communicated_model_stats(self.model, prefix, suffix, prefixing, suffixing, self.l2)
 
         # (3) Add context from sentence (subject and object), based on transivitity.
         if RG.random() >= self.model.drop_subject_prob:
@@ -138,11 +137,6 @@ class Agent(Agent):
 
         # Send feedback about correctness of concept to listener
         feedback = concept_speaker.compute_success(concept_listener)
-        # if not feedback:
-        #     if prefixing:
-        #         print(f"Negative prefix: '{prefix}'")
-        #     if suffixing:
-        #         print(f"Negative suffix: '{suffix}'")
         listener.receive_feedback(feedback)
 
     # Methods used when agent listens
@@ -200,9 +194,6 @@ class Agent(Agent):
             misc.update_affix_list(prefix_recv, suffix_recv, self.affixes, self.lex_concepts_type,
                                    self.lex_concept_data, self.persons, self.concept_listener,
                                    self.capacity, self.generalize_update, self.l2)
-            # misc.update_affix_list("suffix", suffix_recv, self.affixes, self.lex_concepts_type,
-            #                        self.lex_concept_data, self.persons, self.concept_listener,
-            #                        self.capacity, self.generalize_update)
         else:
             if self.model.negative_update:
                 # Do negative update!
@@ -211,9 +202,6 @@ class Agent(Agent):
                 misc.update_affix_list(prefix_recv, suffix_recv, self.affixes, self.lex_concepts_type,
                                        self.lex_concept_data, self.persons, self.concept_listener,
                                        self.capacity, self.generalize_update, self.l2, negative=True)
-                # misc.update_affix_list("suffix", suffix_recv, self.affixes, self.lex_concepts_type,
-                #                        self.lex_concept_data, self.persons, self.concept_listener,
-                #                        self.capacity, self.generalize_update, negative=True)
 
     def is_l2(self):
         return self.l2

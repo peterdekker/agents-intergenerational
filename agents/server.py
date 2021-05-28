@@ -31,6 +31,10 @@ filled_chart = ChartModule([{"Label": "global_filled_prefix_l1", "Color": "Blue"
                             {"Label": "global_filled_suffix_l1", "Color": "Purple"},
                             {"Label": "global_filled_prefix_l2", "Color": "Orange"},
                             {"Label": "global_filled_suffix_l2", "Color": "Brown"}])
+communicated_chart = ChartModule([{"Label": "prop_communicated_prefix_l1", "Color": "Blue"},
+                                  {"Label": "prop_communicated_suffix_l1", "Color": "Purple"},
+                                  {"Label": "prop_communicated_prefix_l2", "Color": "Orange"},
+                                  {"Label": "prop_communicated_suffix_l2", "Color": "Brown"}])
 corr_int_chart = ChartModule([{"Label": "avg_proportion_correct_interactions", "Color": "brown"},
                               {"Label": "proportion_correct_interactions", "Color": "green"}])
 text_bar_chart = TextBarChart([{"Label": "avg_ambiguity", "Color": "green"},
@@ -62,5 +66,5 @@ model_params = {
 }
 
 server = ModularServer(Model,
-                       [canvas_element, filled_chart, corr_int_chart, text_bar_chart],
+                       [canvas_element, filled_chart, communicated_chart, corr_int_chart, text_bar_chart],
                        "Contact-induced morphological simplification in Alorese", model_params)

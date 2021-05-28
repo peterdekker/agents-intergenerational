@@ -79,3 +79,23 @@ def global_dist(agents, lex_concepts, persons):
                     jaccard_dist = jaccard(aff1, aff2)
                     dists.append(jaccard_dist)
     return np.mean(dists) if len(dists) > 0 else 0
+
+
+def update_communicated_model_stats(model, prefix, suffix, prefixing, suffixing, l2):
+    if prefixing:
+        if l2:
+            model.communicated_prefix_l2.append(prefix)
+        else:
+            model.communicated_prefix_l1.append(prefix)
+
+    if suffixing:
+        if l2:
+            model.communicated_suffix_l2.append(suffix)
+        else:
+            model.communicated_suffix_l1.append(suffix)
+
+
+def calculate_proportion_communicated(communicated_list):
+    # Calculate proportion non-empty communications
+    non_empty = [s for s in communicated_list if s != ""]
+    return len(non_empty)/len(communicated_list)
