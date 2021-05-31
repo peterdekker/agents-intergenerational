@@ -1,5 +1,6 @@
 
 from pyclts import CLTS
+from pyclts.models import Vowel, Consonant
 from pycldf.dataset import Dataset
 from itertools import chain
 from nltk.util import ngrams
@@ -26,8 +27,8 @@ METADATA_PATH = os.path.join(DATA_UNPACK_PATH, "cldf/cldf-metadata.json")
 # DATA_PATH = os.path.join(DATA_UNPACK_PATH, "cldf/forms.csv")
 # LECTS_PATH = os.path.join(DATA_UNPACK_PATH, "cldf/lects.csv")
 
-CLTS_PATH = "v1.4.1.tar.gz"
-CLTS_URL = "https://github.com/cldf-clts/clts/archive/v1.4.1.tar.gz"
+CLTS_PATH = "2.1.0.tar.gz"
+CLTS_URL = "https://github.com/cldf-clts/clts/archive/refs/tags/v2.1.0.tar.gz"
 
 USE_RAW_FREQ = False
 
@@ -36,18 +37,17 @@ RIGHT_BOUND_SYM = "🡆"
 BACKWARD_SYMB = "🔙"
 
 currentdir = os.path.dirname(os.path.realpath(__file__))
-parentdir = os.path.dirname(currentdir)
+# parentdir = os.path.dirname(currentdir)
 
 
-clts = CLTS(f"{parentdir}/clts-1.4.1")
-asjp = clts.transcriptionsystem('asjpcode')
+clts = CLTS(f"{currentdir}/clts-2.1.0")
 
 
-def asjp_to_ipa(word):
+""" def asjp_to_ipa(word):
     word_spaced = " ".join(word)
     translated = asjp.translate(word_spaced, clts.bipa)
     translated_nospace = "".join(translated.split(" "))
-    return translated_nospace
+    return translated_nospace """
 
 
 def download_if_needed(file_path, url, label):
@@ -196,11 +196,32 @@ def compute_loadings(dr, feature_names):
     return loadings_x_pos, loadings_x_neg, loadings_y_pos, loadings_y_neg
 
 
-def normalize_list(list_of_strings, method="", ud_form="NFKD"):
+def normalize_list(list_of_strings, method, ud_form="NFKD", soundclass_system="asjp"):
     if method == "ipapy":
         def function(x): return str(IPAString(unicode_string=x, ignore=True).cns_vwl)
     elif method == "ud":
         def function(x): return ud.normalize(ud_form, x).encode('ASCII', 'ignore')
+    elif method == "soundclass":
+        def function(x):
+            return clts.bipa.translate(x, clts.soundclass(soundclass_system))
+    elif method == "bipa_base":
+        # Problem: base not defined on all object. Maybe only call for Vowel or Consonant?
+        # Problem: base returns nonetype for plain letters
+        def function(x):
+            b = clts.bipa[x]
+            return b.base if (isinstance(b, Vowel) or isinstance(b, Consonant)) else str(b)
+    else:
+        raise ValueError("Please supply a method!")
     applied_list = [function(s) for s in list_of_strings]
-    return [s for s in applied_list if " " not in s and len(s) > 0]
+    cleaned_list = [s for s in applied_list if s != None and s != "_" and " " not in s and len(s) > 0]
+    return cleaned_list
     # return [unidecode.unidecode(s) for s in list_of_strings]
+
+
+# def ipa_to_soundclass(segment, soundclass_system="asjp"):
+#     clts_system = clts.transcriptionsystem(soundclass_system)
+#     return clts.bipa.translate(segment, clts_system)
+
+
+# def bipa_base(segment):
+#     return clts.bipa.base[segment]
