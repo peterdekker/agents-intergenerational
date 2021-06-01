@@ -11,7 +11,6 @@ MAX_RADIUS = max(HEIGHT, WIDTH)
 
 N_AGENTS = HEIGHT*WIDTH
 SAMPLE = HEIGHT
-HSAMPLE = int(SAMPLE/2)
 DATA_FILE = "data/data.csv"
 PERSONS = ['1sg', '2sg', '3sg', '1pl.incl', '1pl.excl', '2pl', '3pl']
 

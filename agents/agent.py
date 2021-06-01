@@ -74,7 +74,7 @@ class Agent(Agent):
         logging.debug(f"Speaker chose concept: {concept_speaker!s}")
 
         form = self.lex_concept_data[lex_concept]["form"]
-        signal.set_form(form)
+        signal.form = form
 
         prefixing = self.lex_concept_data[lex_concept]["prefixing"]
         suffixing = self.lex_concept_data[lex_concept]["suffixing"]
@@ -98,7 +98,7 @@ class Agent(Agent):
                                                     self.model.min_boundary_feature_dist, listener)
             # else:
             #    return
-            signal.set_prefix(prefix)
+            signal.prefix = prefix
 
         #  - suffixing verb:
         #     -- transitive: do not use suffix
@@ -121,15 +121,15 @@ class Agent(Agent):
                                                             self.model.min_boundary_feature_dist, listener)
             # else:
             #    return
-            signal.set_suffix(suffix)
+            signal.suffix = suffix
 
         stats.update_communicated_model_stats(self.model, prefix, suffix, prefixing, suffixing, self.l2)
 
         # (3) Add context from sentence (subject and object), based on transivitity.
         if RG.random() >= self.model.drop_subject_prob:
-            signal.set_subject(person)
+            signal.subject = person
         if transitivity == "trans":
-            signal.set_object("OBJECT")
+            signal.object = "OBJECT"
 
         # Send signal.
         logging.debug(f"Speaker sends signal: {signal!s}")
@@ -153,12 +153,12 @@ class Agent(Agent):
         '''
         self.signal_recv = signal
 
-        signal_form = self.signal_recv.get_form()
+        signal_form = self.signal_recv.form
         # Do reverse lookup in forms dict to find accompanying concept
         lex_concept = misc.lookup_lex_concept(signal_form, self.lex_concepts, self.lex_concept_data)
 
         # Infer person from subject
-        inferred_person = self.signal_recv.get_subject()
+        inferred_person = self.signal_recv.subject
         if not inferred_person:
             # If person not inferred from context, try using affix
             inferred_person = misc.infer_person_from_signal(lex_concept,
@@ -169,7 +169,7 @@ class Agent(Agent):
                                                             self.model.ambiguity)
 
         # We use directly existence/non-existence of object as criterion for transitivity
-        transitivity = "trans" if self.signal_recv.get_object() else "intrans"
+        transitivity = "trans" if self.signal_recv.object else "intrans"
 
         self.concept_listener = ConceptMessage(
             lex_concept=lex_concept, person=inferred_person, transitivity=transitivity)
@@ -189,16 +189,16 @@ class Agent(Agent):
 
         if feedback_speaker:
             self.model.correct_interactions += 1
-            prefix_recv = self.signal_recv.get_prefix()
-            suffix_recv = self.signal_recv.get_suffix()
+            prefix_recv = self.signal_recv.prefix
+            suffix_recv = self.signal_recv.suffix
             misc.update_affix_list(prefix_recv, suffix_recv, self.affixes, self.lex_concepts_type,
                                    self.lex_concept_data, self.persons, self.concept_listener,
                                    self.capacity, self.generalize_update, self.l2)
         else:
             if self.model.negative_update:
                 # Do negative update!
-                prefix_recv = self.signal_recv.get_prefix()
-                suffix_recv = self.signal_recv.get_suffix()
+                prefix_recv = self.signal_recv.prefix
+                suffix_recv = self.signal_recv.suffix
                 misc.update_affix_list(prefix_recv, suffix_recv, self.affixes, self.lex_concepts_type,
                                        self.lex_concept_data, self.persons, self.concept_listener,
                                        self.capacity, self.generalize_update, self.l2, negative=True)

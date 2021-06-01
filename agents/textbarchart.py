@@ -8,8 +8,8 @@ class TextBarChart(TextElement):
         self.fields = fields
         self.data_collector_name = data_collector_name
         self.graph = Pyasciigraph(line_length=20,
-                                      min_graph_length=20,
-                                      titlebar="")
+                                  min_graph_length=20,
+                                  titlebar="")
 
     def render(self, model):
         data_collector = getattr(model, self.data_collector_name)

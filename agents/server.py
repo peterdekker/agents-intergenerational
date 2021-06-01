@@ -26,11 +26,11 @@ def draw(agent):
 
 
 canvas_element = CanvasGrid(draw, HEIGHT, WIDTH, 500, 500)
-#dist_chart = ChartModule([{"Label": "global_model_distance", "Color": "Blue"}])
-filled_chart = ChartModule([{"Label": "global_filled_prefix_l1", "Color": "Blue"},
-                            {"Label": "global_filled_suffix_l1", "Color": "Purple"},
-                            {"Label": "global_filled_prefix_l2", "Color": "Orange"},
-                            {"Label": "global_filled_suffix_l2", "Color": "Brown"}])
+#dist_chart = ChartModule([{"Label": "internal_model_distance", "Color": "Blue"}])
+filled_chart = ChartModule([{"Label": "internal_filled_prefix_l1", "Color": "Blue"},
+                            {"Label": "internal_filled_suffix_l1", "Color": "Purple"},
+                            {"Label": "internal_filled_prefix_l2", "Color": "Orange"},
+                            {"Label": "internal_filled_suffix_l2", "Color": "Brown"}])
 communicated_chart = ChartModule([{"Label": "prop_communicated_prefix_l1", "Color": "Blue"},
                                   {"Label": "prop_communicated_suffix_l1", "Color": "Purple"},
                                   {"Label": "prop_communicated_prefix_l2", "Color": "Orange"},
@@ -38,10 +38,10 @@ communicated_chart = ChartModule([{"Label": "prop_communicated_prefix_l1", "Colo
 corr_int_chart = ChartModule([{"Label": "avg_proportion_correct_interactions", "Color": "brown"},
                               {"Label": "proportion_correct_interactions", "Color": "green"}])
 text_bar_chart = TextBarChart([{"Label": "avg_ambiguity", "Color": "green"},
-                               {"Label": "global_affixes_prefix_l1", "Color": "Blue"},
-                               {"Label": "global_affixes_suffix_l1", "Color": "Purple"},
-                               {"Label": "global_affixes_prefix_l2", "Color": "Orange"},
-                               {"Label": "global_affixes_suffix_l2", "Color": "Brown"}])
+                               {"Label": "internal_affixes_prefix_l1", "Color": "Blue"},
+                               {"Label": "internal_affixes_suffix_l1", "Color": "Purple"},
+                               {"Label": "internal_affixes_prefix_l2", "Color": "Orange"},
+                               {"Label": "internal_affixes_suffix_l2", "Color": "Brown"}])
 
 model_params = {
     "height": HEIGHT,

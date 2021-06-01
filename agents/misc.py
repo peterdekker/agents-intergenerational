@@ -36,11 +36,11 @@ def infer_person_from_signal(lex_concept, lex_concept_data, affixes, persons, si
 
     possible_persons = []
     if lex_concept_data[lex_concept]["prefixing"]:
-        possible_persons += infer_possible_persons("prefix", signal.get_prefix(), persons,
+        possible_persons += infer_possible_persons("prefix", signal.prefix, persons,
                                                    affixes, lex_concept, ambiguity)
     if lex_concept_data[lex_concept]["suffixing"]:
         possible_persons += infer_possible_persons("suffix",
-                                                   signal.get_suffix(), persons,
+                                                   signal.suffix, persons,
                                                    affixes, lex_concept, ambiguity)
 
     # If no possible persons (because no affix, or empty internal suffixes=L2),
@@ -105,8 +105,8 @@ def enforce_capacity(affix_list, capacity):
 
 def update_affix_list(prefix_recv, suffix_recv, affixes, lex_concepts_type, lex_concept_data, persons_all,
                       concept_listener, capacity, generalize_update, l2, negative=False):
-    lex_concept_listener = concept_listener.get_lex_concept()
-    person_listener = concept_listener.get_person()
+    lex_concept_listener = concept_listener.lex_concept
+    person_listener = concept_listener.person
     for affix_type, affix_recv in [("prefix", prefix_recv), ("suffix", suffix_recv)]:
         if affix_recv is None:
             # If no affix for this verb type received (e.g. prefix), skip

@@ -6,7 +6,7 @@ class ConceptMessage:
         self.lex_concept = lex_concept
         self.person = person
         self.transitivity = transitivity
-    
+
     @classmethod
     def draw_new_concept(concept_message_class, lex_concepts, persons, lex_concept_data):
         lex_concept = RG.choice(lex_concepts)
@@ -14,32 +14,9 @@ class ConceptMessage:
         transitivity = RG.choice(lex_concept_data[lex_concept]["transitivities"])
         concept_message_instance = concept_message_class(lex_concept, person, transitivity)
         return concept_message_instance, lex_concept, person, transitivity
-    
 
     def __str__(self):
         return f"{self.lex_concept}-{self.person}-{self.transitivity}"
-
-    # Getters
-
-    def get_lex_concept(self):
-        return self.lex_concept
-
-    def get_person(self):
-        return self.person
-
-    def get_transitivity(self):
-        return self.transitivity
-
-    # Setters
-
-    def set_lex_concept(self, lex_concept):
-        self.lex_concept
-
-    def set_person(self, person):
-        self.person = person
-
-    def set_transitivity(self, transitivity):
-        self.transitivity = transitivity
 
     # Compute loss, compared to other message
 

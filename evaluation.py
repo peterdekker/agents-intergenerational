@@ -10,10 +10,10 @@ import pandas as pd
 
 import textwrap
 
-stats = {"global_filled_prefix_l1": lambda m: m.global_filled_prefix_l1,
-         "global_filled_suffix_l1": lambda m: m.global_filled_suffix_l1,
-         "global_filled_prefix_l2": lambda m: m.global_filled_prefix_l2,
-         "global_filled_suffix_l2": lambda m: m.global_filled_suffix_l2}
+stats = {"internal_filled_prefix_l1": lambda m: m.internal_filled_prefix_l1,
+         "internal_filled_suffix_l1": lambda m: m.internal_filled_suffix_l1,
+         "internal_filled_prefix_l2": lambda m: m.internal_filled_prefix_l2,
+         "internal_filled_suffix_l2": lambda m: m.internal_filled_suffix_l2}
 
 
 def str2bool(v):
@@ -65,7 +65,7 @@ def create_graph(run_data, fixed_params, variable_param):
     rects = {}
     for i, stats_col in enumerate(stats_cols):
         rects[stats_col] = ax.bar(x+i*width, run_data_means[stats_col],
-                                  width=width, edgecolor="white", label=stats_col.strip("global_filled_"))
+                                  width=width, edgecolor="white", label=stats_col.strip("internal_filled_"))
         #ax.bar_label(rects[stats_col], padding=3)
 
     # # Add some text for labels, title and custom x-axis tick labels, etc.
