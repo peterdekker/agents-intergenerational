@@ -10,10 +10,18 @@ import pandas as pd
 
 import textwrap
 
-stats = {"internal_filled_prefix_l1": lambda m: m.internal_filled_prefix_l1,
-         "internal_filled_suffix_l1": lambda m: m.internal_filled_suffix_l1,
-         "internal_filled_prefix_l2": lambda m: m.internal_filled_prefix_l2,
-         "internal_filled_suffix_l2": lambda m: m.internal_filled_suffix_l2}
+stats_internal = {"internal_filled_prefix_l1": lambda m: m.internal_filled_prefix_l1,
+                  "internal_filled_suffix_l1": lambda m: m.internal_filled_suffix_l1,
+                  "internal_filled_prefix_l2": lambda m: m.internal_filled_prefix_l2,
+                  "internal_filled_suffix_l2": lambda m: m.internal_filled_suffix_l2}
+
+
+stats_communicated = {"prop_communicated_prefix_l1": lambda m: m.prop_communicated_prefix_l1,
+                      "prop_communicated_suffix_l1": lambda m: m.prop_communicated_suffix_l1,
+                      "prop_communicated_prefix_l2": lambda m: m.prop_communicated_prefix_l2,
+                      "prop_communicated_suffix_l2": lambda m: m.prop_communicated_suffix_l2}
+
+stats = {**stats_internal, **stats_communicated}
 
 
 def str2bool(v):
@@ -46,30 +54,43 @@ def evaluate_model(fixed_params, variable_params, iterations, steps):
     )
 
     batch_run.run_all()
-    cols = list(variable_params.keys()) + list(stats.keys())
-    run_data = batch_run.get_model_vars_dataframe()[cols]
-    print()
-    print(run_data)
-    print("\n")
+
+    # cols_internal = list(variable_params.keys()) + list(stats_internal.keys())
+    # run_data_internal = batch_run.get_model_vars_dataframe()[cols_internal]
+    # run_data_internal.to_csv(f"evaluation-internal-{iterations}-{steps}.tsv", sep="\t")
+
+    # cols_communicated = list(variable_params.keys()) + list(stats_communicated.keys())
+    # run_data_communicated = batch_run.get_model_vars_dataframe()[cols_communicated]
+    # run_data_communicated.to_csv(f"evaluation-communicated-{iterations}-{steps}.tsv", sep="\t")
+
+    run_data = batch_run.get_model_vars_dataframe()
     run_data.to_csv(f"evaluation-{iterations}-{steps}.tsv", sep="\t")
+
+    # print()
+    # print(run_data)
+    # print("\n")
     return run_data
 
 
-def create_graph(run_data, fixed_params, variable_param):
+def create_graph(run_data, fixed_params, variable_param, mode, stats):
     run_data_means = run_data.groupby(variable_param).mean()
-    stats_cols = run_data_means.columns  # Statistics: suffix L1, etc.
     labels = run_data_means.index  # variable values
     x = np.arange(len(labels))  # the label locations
     width = 0.2  # the width of the bars
     fig, ax = plt.subplots()
     rects = {}
-    for i, stats_col in enumerate(stats_cols):
-        rects[stats_col] = ax.bar(x+i*width, run_data_means[stats_col],
-                                  width=width, edgecolor="white", label=stats_col.strip("internal_filled_"))
-        #ax.bar_label(rects[stats_col], padding=3)
+    for i, stat in enumerate(stats):
+        stat_label = stat.replace(
+            "internal_filled_", "") if mode == "internal" else stat.replace("prop_communicated_", "")
+        rects[stat] = ax.bar(x+i*width, run_data_means[stat],
+                             width=width, edgecolor="white", label=stat_label)
+        # ax.bar_label(rects[stats_col], padding=3)
 
     # # Add some text for labels, title and custom x-axis tick labels, etc.
-    ax.set_ylabel('% paradigm cells filled')
+    if mode == "internal":
+        ax.set_ylabel('% paradigm cells filled')
+    elif mode == "communicated":
+        ax.set_ylabel('% utterances non-empty')
     ax.set_title(variable_param)
     ax.set_xticks(x+1.5*width)
     ax.set_xticklabels(labels)
@@ -78,7 +99,7 @@ def create_graph(run_data, fixed_params, variable_param):
     graphtext = textwrap.fill(params_print(fixed_params), width=100)
     plt.subplots_adjust(bottom=0.2)
     plt.figtext(0.05, 0.03, graphtext, fontsize=8, ha="left")
-    plt.savefig(f"{variable_param}.png")  # bbox_inches="tight"
+    plt.savefig(f"{variable_param}-{mode}.png")  # bbox_inches="tight"
 
 
 def main():
@@ -116,7 +137,10 @@ def main():
                                           {"iterations": iterations_setting, "steps": steps_setting}}
                     run_data = evaluate_model(fixed_params, {var_param: var_param_setting},
                                               iterations_setting, steps_setting)
-                    create_graph(run_data, fixed_params_print, var_param)
+                    create_graph(run_data, fixed_params_print, var_param,
+                                 mode="internal", stats=stats_internal)
+                    create_graph(run_data, fixed_params_print, var_param,
+                                 mode="communicated", stats=stats_communicated)
     elif steps_graph:
         # No variable parameters are used. Only evaluate
         run_data_list = []
@@ -129,7 +153,10 @@ def main():
                 run_data_list.append(run_data)
             combined_run_data = pd.concat(run_data_list, ignore_index=True)
             fixed_params_print = {**fixed_params, **{"iterations": iterations_setting}}
-            create_graph(combined_run_data, fixed_params_print, "steps")
+            create_graph(combined_run_data, fixed_params_print,
+                         "steps", mode="internal", stats=stats_internal)
+            create_graph(combined_run_data, fixed_params_print, "steps",
+                         mode="communicated", stats=stats_communicated)
     else:
         # Evaluate all combinations of variable parameters
         # Only params not changed by user are fixed

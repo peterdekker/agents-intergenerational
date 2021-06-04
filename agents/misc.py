@@ -69,8 +69,8 @@ def infer_possible_persons(affix_type, affix_signal, persons, affixes, lex_conce
                     possible_persons = []
                 possible_persons.append(p)
 
-    persons_ambig = len(possible_persons) if len(possible_persons) > 0 else len(persons)
-    ambiguity[f"'{affix_signal}'-{affix_type}"].append(persons_ambig)
+    #persons_ambig = len(possible_persons) if len(possible_persons) > 0 else len(persons)
+    # ambiguity[f"'{affix_signal}'-{affix_type}"].append(persons_ambig)
     return possible_persons
 
 

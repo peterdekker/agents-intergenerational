@@ -65,7 +65,7 @@ class Model(Model):
         self.proportion_correct_interactions = 0.0
         self.avg_proportion_correct_interactions = 0.0
         self.ambiguity = defaultdict(list)
-        self.avg_ambiguity = {}
+        # self.avg_ambiguity = {}
 
         self.internal_filled_prefix_l1 = 0.0
         self.internal_filled_suffix_l1 = 0.0
@@ -105,7 +105,9 @@ class Model(Model):
                 "prop_communicated_suffix_l2": "prop_communicated_suffix_l2",
                 "proportion_correct_interactions": "proportion_correct_interactions",
                 "avg_proportion_correct_interactions": "avg_proportion_correct_interactions",
-                "avg_ambiguity": "avg_ambiguity"})
+                # "avg_ambiguity": "avg_ambiguity"
+            }
+        )
 
         # Always use same # L2 agents, but randomly divide them
         l2 = misc.spread_l2_agents(self.proportion_l2, N_AGENTS)
@@ -144,8 +146,8 @@ class Model(Model):
         if self.steps % STATS_AFTER_STEPS == 0:
             # Calculate and reset ambiguity every STAT_AFTER_STEPS_INTERACTIONS,
             # to do some averaging over steps
-            self.avg_ambiguity = {k: np.mean(v) for k, v in self.ambiguity.items()}
-            self.ambiguity = defaultdict(list)
+            # self.avg_ambiguity = {k: np.mean(v) for k, v in self.ambiguity.items()}
+            # self.ambiguity = defaultdict(list)
 
             agents = [a for a, x, y in self.grid.coord_iter()]
             agents_l1 = [a for a in agents if not a.is_l2()]
