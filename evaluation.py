@@ -50,7 +50,7 @@ def evaluate_model(fixed_params, variable_params, iterations, steps):
         fixed_params,
         iterations=iterations,
         max_steps=steps,
-        model_reporters=stats
+        model_reporters={**stats, **{"datacollector": lambda m: m.datacollector}}
     )
 
     batch_run.run_all()
@@ -72,8 +72,42 @@ def evaluate_model(fixed_params, variable_params, iterations, steps):
     return run_data
 
 
-def create_graph(run_data, fixed_params, variable_param, mode, stats):
-    run_data_means = run_data.groupby(variable_param).mean()
+def create_graph_course(run_data, fixed_params, variable_param, mode, stats):
+    run_data_grouped = run_data.groupby(variable_param)
+    for name, group in run_data_grouped:
+        print(group)
+    return
+    labels = run_data_means.index  # variable values
+    x = np.arange(len(labels))  # the label locations
+    width = 0.2  # the width of the bars
+    fig, ax = plt.subplots()
+    rects = {}
+    for i, stat in enumerate(stats):
+        stat_label = stat.replace(
+            "internal_filled_", "") if mode == "internal" else stat.replace("prop_communicated_", "")
+        rects[stat] = ax.bar(x+i*width, run_data_means[stat],
+                             width=width, edgecolor="white", label=stat_label)
+        # ax.bar_label(rects[stats_col], padding=3)
+
+    # # Add some text for labels, title and custom x-axis tick labels, etc.
+    if mode == "internal":
+        ax.set_ylabel('% paradigm cells filled')
+    elif mode == "communicated":
+        ax.set_ylabel('% utterances non-empty')
+    ax.set_title(variable_param)
+    ax.set_xticks(x+1.5*width)
+    ax.set_xticklabels(labels)
+    ax.legend()
+    # fig.tight_layout()
+    graphtext = textwrap.fill(params_print(fixed_params), width=100)
+    plt.subplots_adjust(bottom=0.2)
+    plt.figtext(0.05, 0.03, graphtext, fontsize=8, ha="left")
+    plt.savefig(f"{variable_param}-{mode}.png")  # bbox_inches="tight"
+
+
+def create_graph_end_state(run_data, fixed_params, variable_param, mode, stats):
+    print(run_data)
+    run_data_means = run_data.groupby(variable_param).mean(numeric_only=True)
     labels = run_data_means.index  # variable values
     x = np.arange(len(labels))  # the label locations
     width = 0.2  # the width of the bars
@@ -137,10 +171,14 @@ def main():
                                           {"iterations": iterations_setting, "steps": steps_setting}}
                     run_data = evaluate_model(fixed_params, {var_param: var_param_setting},
                                               iterations_setting, steps_setting)
-                    create_graph(run_data, fixed_params_print, var_param,
-                                 mode="internal", stats=stats_internal)
-                    create_graph(run_data, fixed_params_print, var_param,
-                                 mode="communicated", stats=stats_communicated)
+                    create_graph_end_state(run_data, fixed_params_print, var_param,
+                                           mode="internal", stats=stats_internal)
+                    create_graph_end_state(run_data, fixed_params_print, var_param,
+                                           mode="communicated", stats=stats_communicated)
+                    create_graph_course(run_data, fixed_params_print, var_param,
+                                        mode="internal", stats=stats_internal)
+                    create_graph_course(run_data, fixed_params_print, var_param,
+                                        mode="communicated", stats=stats_communicated)
     elif steps_graph:
         # No variable parameters are used. Only evaluate
         run_data_list = []
@@ -153,10 +191,14 @@ def main():
                 run_data_list.append(run_data)
             combined_run_data = pd.concat(run_data_list, ignore_index=True)
             fixed_params_print = {**fixed_params, **{"iterations": iterations_setting}}
-            create_graph(combined_run_data, fixed_params_print,
-                         "steps", mode="internal", stats=stats_internal)
-            create_graph(combined_run_data, fixed_params_print, "steps",
-                         mode="communicated", stats=stats_communicated)
+            create_graph_end_state(combined_run_data, fixed_params_print,
+                                   "steps", mode="internal", stats=stats_internal)
+            create_graph_end_state(combined_run_data, fixed_params_print, "steps",
+                                   mode="communicated", stats=stats_communicated)
+            create_graph_end_course(combined_run_data, fixed_params_print,
+                                    "steps", mode="internal", stats=stats_internal)
+            create_graph_end_course(combined_run_data, fixed_params_print, "steps",
+                                    mode="communicated", stats=stats_communicated)
     else:
         # Evaluate all combinations of variable parameters
         # Only params not changed by user are fixed
