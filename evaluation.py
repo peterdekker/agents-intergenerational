@@ -73,9 +73,9 @@ def evaluate_model(fixed_params, variable_params, iterations, steps):
 
 
 def create_graph_course(run_data, fixed_params, variable_param, mode, stats):
-    run_data_grouped = run_data.groupby(variable_param)
-    for name, group in run_data_grouped:
-        print(group)
+    for name, group in run_data.groupby(variable_param):
+        for i,row in group.iterrows():
+            print(row["datacollector"])
     return
     labels = run_data_means.index  # variable values
     x = np.arange(len(labels))  # the label locations
@@ -102,7 +102,7 @@ def create_graph_course(run_data, fixed_params, variable_param, mode, stats):
     graphtext = textwrap.fill(params_print(fixed_params), width=100)
     plt.subplots_adjust(bottom=0.2)
     plt.figtext(0.05, 0.03, graphtext, fontsize=8, ha="left")
-    plt.savefig(f"{variable_param}-{mode}.png")  # bbox_inches="tight"
+    plt.savefig(f"{variable_param}-{mode}-course.png")  # bbox_inches="tight"
 
 
 def create_graph_end_state(run_data, fixed_params, variable_param, mode, stats):
@@ -133,7 +133,7 @@ def create_graph_end_state(run_data, fixed_params, variable_param, mode, stats):
     graphtext = textwrap.fill(params_print(fixed_params), width=100)
     plt.subplots_adjust(bottom=0.2)
     plt.figtext(0.05, 0.03, graphtext, fontsize=8, ha="left")
-    plt.savefig(f"{variable_param}-{mode}.png")  # bbox_inches="tight"
+    plt.savefig(f"{variable_param}-{mode}-end.png")  # bbox_inches="tight"
 
 
 def main():
@@ -171,10 +171,10 @@ def main():
                                           {"iterations": iterations_setting, "steps": steps_setting}}
                     run_data = evaluate_model(fixed_params, {var_param: var_param_setting},
                                               iterations_setting, steps_setting)
-                    create_graph_end_state(run_data, fixed_params_print, var_param,
-                                           mode="internal", stats=stats_internal)
-                    create_graph_end_state(run_data, fixed_params_print, var_param,
-                                           mode="communicated", stats=stats_communicated)
+                    # create_graph_end_state(run_data, fixed_params_print, var_param,
+                    #                        mode="internal", stats=stats_internal)
+                    # create_graph_end_state(run_data, fixed_params_print, var_param,
+                    #                        mode="communicated", stats=stats_communicated)
                     create_graph_course(run_data, fixed_params_print, var_param,
                                         mode="internal", stats=stats_internal)
                     create_graph_course(run_data, fixed_params_print, var_param,
@@ -191,14 +191,14 @@ def main():
                 run_data_list.append(run_data)
             combined_run_data = pd.concat(run_data_list, ignore_index=True)
             fixed_params_print = {**fixed_params, **{"iterations": iterations_setting}}
-            create_graph_end_state(combined_run_data, fixed_params_print,
-                                   "steps", mode="internal", stats=stats_internal)
-            create_graph_end_state(combined_run_data, fixed_params_print, "steps",
-                                   mode="communicated", stats=stats_communicated)
-            create_graph_end_course(combined_run_data, fixed_params_print,
-                                    "steps", mode="internal", stats=stats_internal)
-            create_graph_end_course(combined_run_data, fixed_params_print, "steps",
-                                    mode="communicated", stats=stats_communicated)
+            # create_graph_end_state(combined_run_data, fixed_params_print,
+            #                        "steps", mode="internal", stats=stats_internal)
+            # create_graph_end_state(combined_run_data, fixed_params_print, "steps",
+            #                        mode="communicated", stats=stats_communicated)
+            create_graph_course(combined_run_data, fixed_params_print,
+                                "steps", mode="internal", stats=stats_internal)
+            create_graph_course(combined_run_data, fixed_params_print, "steps",
+                                mode="communicated", stats=stats_communicated)
     else:
         # Evaluate all combinations of variable parameters
         # Only params not changed by user are fixed

@@ -75,5 +75,6 @@ def update_communicated_model_stats(model, prefix, suffix, prefixing, suffixing,
 
 def calculate_proportion_communicated(communicated_list):
     # Calculate proportion non-empty communications
-    non_empty = [s for s in communicated_list if s != ""]
-    return len(non_empty)/len(communicated_list)
+    n_non_empty = len([s for s in communicated_list if s != ""])
+    n_total = len(communicated_list)
+    return n_non_empty/n_total if n_total > 0 else 0
