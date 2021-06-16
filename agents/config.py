@@ -1,6 +1,7 @@
 import numpy as np
 import logging
 import sys
+import datetime
 from panphon.distance import Distance
 
 logging.basicConfig(stream=sys.stderr, level=logging.ERROR)
@@ -19,6 +20,8 @@ RG = np.random.default_rng()
 
 STATS_AFTER_STEPS = 10
 RARE_STATS_AFTER_STEPS = 10 * STATS_AFTER_STEPS  # Should always be multiple of STATS_AFTER_STEPS
+
+OUTPUT_DIR = f'output-{str(datetime.datetime.now()).replace(" ","-")}'
 
 # Defaults for UserSettableParameters
 PROPORTION_L2 = 0.5

@@ -2,13 +2,14 @@ import argparse
 from mesa.batchrunner import BatchRunner
 
 from agents.model import Model
-from agents.config import model_params, evaluation_params, bool_params
+from agents.config import model_params, evaluation_params, bool_params, OUTPUT_DIR
 
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
 import textwrap
+import os
 
 stats_internal = {"internal_filled_prefix_l1": lambda m: m.internal_filled_prefix_l1,
                   "internal_filled_suffix_l1": lambda m: m.internal_filled_suffix_l1,
@@ -64,7 +65,7 @@ def evaluate_model(fixed_params, variable_params, iterations, steps):
     # run_data_communicated.to_csv(f"evaluation-communicated-{iterations}-{steps}.tsv", sep="\t")
 
     run_data = batch_run.get_model_vars_dataframe()
-    run_data.to_csv(f"evaluation-{iterations}-{steps}.tsv", sep="\t")
+    run_data.to_csv(os.path.join(OUTPUT_DIR, f"evaluation-{iterations}-{steps}.tsv"), sep="\t")
 
     # print()
     # print(run_data)
@@ -83,7 +84,6 @@ def create_graph_course(run_data, fixed_params, variable_param, mode, stat):
         # TODO: spread instead of mean
         combined = iteration_dfs_concat.groupby(iteration_dfs_concat.index).mean()  # group by index
         course_df[param_setting] = combined
-    print(course_df)
 
     fig, ax = plt.subplots()
     steps_ix = course_df.index
@@ -103,7 +103,7 @@ def create_graph_course(run_data, fixed_params, variable_param, mode, stat):
     graphtext = textwrap.fill(params_print(fixed_params), width=100)
     plt.subplots_adjust(bottom=0.2)
     plt.figtext(0.05, 0.03, graphtext, fontsize=8, ha="left")
-    plt.savefig(f"{variable_param}-{mode}-course.png")  # bbox_inches="tight"
+    plt.savefig(os.path.join(OUTPUT_DIR, f"{variable_param}-{mode}-course.pdf"), format="pdf")  # bbox_inches="tight"
 
 
 def create_graph_end_state(run_data, fixed_params, variable_param, mode, stats):
@@ -134,7 +134,12 @@ def create_graph_end_state(run_data, fixed_params, variable_param, mode, stats):
     graphtext = textwrap.fill(params_print(fixed_params), width=100)
     plt.subplots_adjust(bottom=0.2)
     plt.figtext(0.05, 0.03, graphtext, fontsize=8, ha="left")
-    plt.savefig(f"{variable_param}-{mode}-end.png")  # bbox_inches="tight"
+    plt.savefig(os.path.join(OUTPUT_DIR, f"{variable_param}-{mode}-end.pdf"), format="pdf")  # bbox_inches="tight"
+
+
+def create_output_dir(output_dir):
+    # We assume a plots dir with current timesteps does not exist, not even checking
+    os.mkdir(output_dir)
 
 
 def main():
@@ -157,45 +162,65 @@ def main():
     steps = args["steps"]
     settings_graph = args["settings_graph"]
     steps_graph = args["steps_graph"]
-    if steps_graph and len(variable_params) != 0:
-        raise ValueError(
-            "With option --steps_graph, please do not supply variable parameters.")
+
+    if settings_graph:
+        if (len(iterations) != 1 or len(steps) != 1):
+            raise ValueError(
+                "With option --settings_graph, only supply one iterations setting and one steps setting (or none for default).")
+        if (len(variable_params) == 0):
+            raise ValueError(
+                "With option --settings_graph, please supply one or more variable parameters.")
+
+    if steps_graph:
+        if (len(variable_params) != 0 or len(iterations) != 1):
+            raise ValueError(
+                "With option --steps_graph, please do not supply variable parameters. Also, supply only one iterations setting, or none for default.")
+        if (len(steps) == 0):
+            # This does not happen easily in practice, because of default value
+            raise ValueError(
+                "With option --steps_graph, please supply one or multiple steps settings")
 
     print(f"Evaluating iterations {iterations} and steps {steps}")
+
+    create_output_dir(OUTPUT_DIR)
+
     if settings_graph:
         # Try variable parameters one by one, while keeping all of the other parameters fixed
         for var_param, var_param_setting in variable_params.items():
-            for iterations_setting in iterations:
-                for steps_setting in steps:
-                    fixed_params = {k: v for k, v in model_params.items() if k != var_param}
-                    fixed_params_print = {**fixed_params, **
-                                          {"iterations": iterations_setting, "steps": steps_setting}}
-                    run_data = evaluate_model(fixed_params, {var_param: var_param_setting},
-                                              iterations_setting, steps_setting)
-                    create_graph_end_state(run_data, fixed_params_print, var_param,
-                                           mode="internal", stats=stats_internal)
-                    create_graph_end_state(run_data, fixed_params_print, var_param,
-                                           mode="communicated", stats=stats_communicated)
-                    create_graph_course(run_data, fixed_params_print, var_param,
-                                        mode="internal", stat="prop_communicated_suffix_l1")
-                    create_graph_course(run_data, fixed_params_print, var_param,
-                                        mode="communicated", stat="prop_communicated_suffix_l1")
-    elif steps_graph:
-        # No variable parameters are used. Only evaluate
-        run_data_list = []
-        for iterations_setting in iterations:
-            for steps_setting in steps:
-                fixed_params = model_params
-                run_data = evaluate_model(fixed_params, {},
-                                          iterations_setting, steps_setting)
-                run_data["steps"] = steps_setting
-                run_data_list.append(run_data)
-            combined_run_data = pd.concat(run_data_list, ignore_index=True)
-            fixed_params_print = {**fixed_params, **{"iterations": iterations_setting}}
-            create_graph_end_state(combined_run_data, fixed_params_print,
-                                   "steps", mode="internal", stats=stats_internal)
-            create_graph_end_state(combined_run_data, fixed_params_print, "steps",
+            assert len(iterations) == 1
+            assert len(steps) == 1
+            iterations_setting = iterations[0]
+            steps_setting = steps[0]
+            fixed_params = {k: v for k, v in model_params.items() if k != var_param}
+            fixed_params_print = {**fixed_params, **
+                                  {"iterations": iterations_setting, "steps": steps_setting}}
+            run_data = evaluate_model(fixed_params, {var_param: var_param_setting},
+                                      iterations_setting, steps_setting)
+            create_graph_end_state(run_data, fixed_params_print, var_param,
+                                   mode="internal", stats=stats_internal)
+            create_graph_end_state(run_data, fixed_params_print, var_param,
                                    mode="communicated", stats=stats_communicated)
+            create_graph_course(run_data, fixed_params_print, var_param,
+                                mode="internal", stat="prop_communicated_suffix_l1")
+            create_graph_course(run_data, fixed_params_print, var_param,
+                                mode="communicated", stat="prop_communicated_suffix_l1")
+    elif steps_graph:
+        # No variable parameters are used and no iterations are used. Only evaluate
+        run_data_list = []
+        assert len(iterations) == 1
+        iterations_setting = iterations[0]
+        for steps_setting in steps:
+            fixed_params = model_params
+            run_data = evaluate_model(fixed_params, {},
+                                      iterations_setting, steps_setting)
+            run_data["steps"] = steps_setting
+            run_data_list.append(run_data)
+        combined_run_data = pd.concat(run_data_list, ignore_index=True)
+        fixed_params_print = {**fixed_params, **{"iterations": iterations_setting}}
+        create_graph_end_state(combined_run_data, fixed_params_print,
+                               "steps", mode="internal", stats=stats_internal)
+        create_graph_end_state(combined_run_data, fixed_params_print, "steps",
+                               mode="communicated", stats=stats_communicated)
     else:
         # Evaluate all combinations of variable parameters
         # Only params not changed by user are fixed

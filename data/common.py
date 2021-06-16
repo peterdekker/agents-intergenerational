@@ -183,6 +183,7 @@ def reduce_plot(study_label, study_data, dr_label, dr, data_agg, language_groups
                                            row[f"{study_label}-{dr_label}-pc2"]))
     plt.title(f"{study_label} ({dr_label})")
     plt.legend()
+    plt.savefig(f"{study_label}-{dr_label}.pdf", format="pdf")
     plt.show()
 
 
