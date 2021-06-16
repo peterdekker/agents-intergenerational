@@ -40,7 +40,7 @@ def params_print(params):
     return "".join([f"{k}: {v}   " for k, v in params.items()])
 
 
-def evaluate_model(fixed_params, variable_params, iterations, steps):
+def evaluate_model(fixed_params, variable_params, iterations, steps, output_dir):
     print(f"- Running batch: {iterations} iterations of {steps} steps")
     print(f"  Variable parameters: {params_print(variable_params)}")
     print(f"  Fixed parameters: {params_print(fixed_params)}")
@@ -65,7 +65,7 @@ def evaluate_model(fixed_params, variable_params, iterations, steps):
     # run_data_communicated.to_csv(f"evaluation-communicated-{iterations}-{steps}.tsv", sep="\t")
 
     run_data = batch_run.get_model_vars_dataframe()
-    run_data.to_csv(os.path.join(OUTPUT_DIR, f"evaluation-{iterations}-{steps}.tsv"), sep="\t")
+    run_data.to_csv(os.path.join(output_dir, f"evaluation-{iterations}-{steps}.tsv"), sep="\t")
 
     # print()
     # print(run_data)
@@ -73,7 +73,7 @@ def evaluate_model(fixed_params, variable_params, iterations, steps):
     return run_data
 
 
-def create_graph_course(run_data, fixed_params, variable_param, mode, stat):
+def create_graph_course(run_data, fixed_params, variable_param, mode, stat, output_dir):
     course_df = pd.DataFrame()
     for param_setting, group in run_data.groupby(variable_param):
         iteration_dfs = []
@@ -103,10 +103,10 @@ def create_graph_course(run_data, fixed_params, variable_param, mode, stat):
     graphtext = textwrap.fill(params_print(fixed_params), width=100)
     plt.subplots_adjust(bottom=0.2)
     plt.figtext(0.05, 0.03, graphtext, fontsize=8, ha="left")
-    plt.savefig(os.path.join(OUTPUT_DIR, f"{variable_param}-{mode}-course.pdf"), format="pdf")  # bbox_inches="tight"
+    plt.savefig(os.path.join(output_dir, f"{variable_param}-{mode}-course.pdf"), format="pdf")  # bbox_inches="tight"
 
 
-def create_graph_end_state(run_data, fixed_params, variable_param, mode, stats):
+def create_graph_end_state(run_data, fixed_params, variable_param, mode, stats, output_dir):
     print(run_data)
     run_data_means = run_data.groupby(variable_param).mean(numeric_only=True)
     labels = run_data_means.index  # variable values
@@ -134,7 +134,7 @@ def create_graph_end_state(run_data, fixed_params, variable_param, mode, stats):
     graphtext = textwrap.fill(params_print(fixed_params), width=100)
     plt.subplots_adjust(bottom=0.2)
     plt.figtext(0.05, 0.03, graphtext, fontsize=8, ha="left")
-    plt.savefig(os.path.join(OUTPUT_DIR, f"{variable_param}-{mode}-end.pdf"), format="pdf")  # bbox_inches="tight"
+    plt.savefig(os.path.join(output_dir, f"{variable_param}-{mode}-end.pdf"), format="pdf")  # bbox_inches="tight"
 
 
 def create_output_dir(output_dir):
@@ -195,15 +195,15 @@ def main():
             fixed_params_print = {**fixed_params, **
                                   {"iterations": iterations_setting, "steps": steps_setting}}
             run_data = evaluate_model(fixed_params, {var_param: var_param_setting},
-                                      iterations_setting, steps_setting)
+                                      iterations_setting, steps_setting, output_dir=OUTPUT_DIR)
             create_graph_end_state(run_data, fixed_params_print, var_param,
-                                   mode="internal", stats=stats_internal)
+                                   mode="internal", stats=stats_internal, output_dir=OUTPUT_DIR)
             create_graph_end_state(run_data, fixed_params_print, var_param,
-                                   mode="communicated", stats=stats_communicated)
+                                   mode="communicated", stats=stats_communicated, output_dir=OUTPUT_DIR)
             create_graph_course(run_data, fixed_params_print, var_param,
-                                mode="internal", stat="prop_communicated_suffix_l1")
+                                mode="internal", stat="prop_communicated_suffix_l1", output_dir=OUTPUT_DIR)
             create_graph_course(run_data, fixed_params_print, var_param,
-                                mode="communicated", stat="prop_communicated_suffix_l1")
+                                mode="communicated", stat="prop_communicated_suffix_l1", output_dir=OUTPUT_DIR)
     elif steps_graph:
         # No variable parameters are used and no iterations are used. Only evaluate
         run_data_list = []
@@ -212,7 +212,7 @@ def main():
         for steps_setting in steps:
             fixed_params = model_params
             run_data = evaluate_model(fixed_params, {},
-                                      iterations_setting, steps_setting)
+                                      iterations_setting, steps_setting, OUTPUT_DIR)
             run_data["steps"] = steps_setting
             run_data_list.append(run_data)
         combined_run_data = pd.concat(run_data_list, ignore_index=True)
@@ -227,7 +227,7 @@ def main():
         fixed_params = {k: v for k, v in model_params.items() if k not in variable_params}
         for iterations_setting in iterations:
             for steps_setting in steps:
-                run_data = evaluate_model(fixed_params, variable_params, iterations_setting, steps_setting)
+                run_data = evaluate_model(fixed_params, variable_params, iterations_setting, steps_setting, OUTPUT_DIR)
 
 
 if __name__ == "__main__":
