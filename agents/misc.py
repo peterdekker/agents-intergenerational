@@ -1,6 +1,7 @@
 import editdistance
 import math
 import numpy as np
+import os
 from itertools import chain
 
 from agents.config import dst, logging, RG
@@ -170,3 +171,10 @@ def retrieve_affixes_generalize(lex_concept, person, verb_type, affixes, general
 
 def affix_choice(affixes):
     return RG.choice(affixes)
+
+
+def create_output_dir(output_dir):
+    # Check if dir exists only for test scripts,
+    # in normal cases dir should be created once and not exist
+    if not os.path.exists(output_dir):
+        os.mkdir(output_dir)

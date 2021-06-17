@@ -2,6 +2,7 @@ import argparse
 from mesa.batchrunner import BatchRunner
 
 from agents.model import Model
+from agents import misc
 from agents.config import model_params, evaluation_params, bool_params, OUTPUT_DIR
 
 import matplotlib.pyplot as plt
@@ -103,7 +104,8 @@ def create_graph_course(run_data, fixed_params, variable_param, mode, stat, outp
     graphtext = textwrap.fill(params_print(fixed_params), width=100)
     plt.subplots_adjust(bottom=0.2)
     plt.figtext(0.05, 0.03, graphtext, fontsize=8, ha="left")
-    plt.savefig(os.path.join(output_dir, f"{variable_param}-{mode}-course.pdf"), format="pdf")  # bbox_inches="tight"
+    # bbox_inches="tight"
+    plt.savefig(os.path.join(output_dir, f"{variable_param}-{mode}-course.pdf"), format="pdf")
 
 
 def create_graph_end_state(run_data, fixed_params, variable_param, mode, stats, output_dir):
@@ -134,12 +136,8 @@ def create_graph_end_state(run_data, fixed_params, variable_param, mode, stats, 
     graphtext = textwrap.fill(params_print(fixed_params), width=100)
     plt.subplots_adjust(bottom=0.2)
     plt.figtext(0.05, 0.03, graphtext, fontsize=8, ha="left")
-    plt.savefig(os.path.join(output_dir, f"{variable_param}-{mode}-end.pdf"), format="pdf")  # bbox_inches="tight"
-
-
-def create_output_dir(output_dir):
-    # We assume a plots dir with current timesteps does not exist, not even checking
-    os.mkdir(output_dir)
+    # bbox_inches="tight"
+    plt.savefig(os.path.join(output_dir, f"{variable_param}-{mode}-end.pdf"), format="pdf")
 
 
 def main():
@@ -182,7 +180,7 @@ def main():
 
     print(f"Evaluating iterations {iterations} and steps {steps}")
 
-    create_output_dir(OUTPUT_DIR)
+    misc.create_output_dir(OUTPUT_DIR)
 
     if settings_graph:
         # Try variable parameters one by one, while keeping all of the other parameters fixed
@@ -227,7 +225,8 @@ def main():
         fixed_params = {k: v for k, v in model_params.items() if k not in variable_params}
         for iterations_setting in iterations:
             for steps_setting in steps:
-                run_data = evaluate_model(fixed_params, variable_params, iterations_setting, steps_setting, OUTPUT_DIR)
+                run_data = evaluate_model(fixed_params, variable_params,
+                                          iterations_setting, steps_setting, OUTPUT_DIR)
 
 
 if __name__ == "__main__":
