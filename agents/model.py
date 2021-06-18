@@ -170,10 +170,10 @@ class Model(Model):
             self.prop_communicated_suffix_l2 = stats.calculate_proportion_communicated(
                 self.communicated_suffix_l2)
 
-            if self.steps % RARE_STATS_AFTER_STEPS == 0:
-                self.affixes_internal_prefix_l1 = stats.internal_affix_frequencies(agents_l1, "prefix")
-                self.affixes_internal_suffix_l1 = stats.internal_affix_frequencies(agents_l1, "suffix")
-                self.affixes_internal_prefix_l2 = stats.internal_affix_frequencies(agents_l2, "prefix")
-                self.affixes_internal_suffix_l2 = stats.internal_affix_frequencies(agents_l2, "suffix")
+            # if self.steps % RARE_STATS_AFTER_STEPS == 0:
+            self.affixes_internal_prefix_l1 = stats.internal_affix_frequencies(agents_l1, "prefix")
+            self.affixes_internal_suffix_l1 = stats.internal_affix_frequencies(agents_l1, "suffix")
+            self.affixes_internal_prefix_l2 = stats.internal_affix_frequencies(agents_l2, "prefix")
+            self.affixes_internal_suffix_l2 = stats.internal_affix_frequencies(agents_l2, "suffix")
 
         self.datacollector.collect(self)

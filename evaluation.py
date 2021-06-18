@@ -96,7 +96,7 @@ def create_graph_course(run_data, fixed_params, variable_param, mode, stat, outp
         ax.set_ylabel('% paradigm cells filled')
     elif mode == "communicated":
         ax.set_ylabel('% utterances non-empty')
-    ax.set_title(variable_param)
+    ax.set_title(f"{variable_param} ({mode})")
     # ax.set_xticks(x+1.5*width)
     # ax.set_xticklabels(labels)
     ax.legend()
@@ -126,7 +126,7 @@ def create_graph_end_state(run_data, fixed_params, variable_param, mode, stats, 
         ax.set_ylabel('% paradigm cells filled')
     elif mode == "communicated":
         ax.set_ylabel('% utterances non-empty')
-    ax.set_title(variable_param)
+    ax.set_title(f"{variable_param} ({mode})")
     ax.set_xticks(x+1.5*width)
     ax.set_xticklabels(labels)
     ax.legend()
