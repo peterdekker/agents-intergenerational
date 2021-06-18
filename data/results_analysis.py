@@ -11,10 +11,10 @@ def analyze(args):
     if args.file2:
         df, lsuff = join_dfs(args.file2, df, lsuff, rsuff)
     # Find most different values
-    # df["l1_pre_suff_diff"] = df[f"internal_filled_prefix_l1{lsuff}"] - \
-    #     df[f"internal_filled_suffix_l1{lsuff}"]
+    # df["l1_pre_suff_diff"] = df[f"prop_internal_prefix_l1{lsuff}"] - \
+    #     df[f"prop_internal_suffix_l1{lsuff}"]
     # df = df.sort_values(by="l1_pre_suff_diff", ascending=False)
-    df = df.sort_values(by=f"internal_filled_suffix_l1{lsuff}", ascending=False)
+    df = df.sort_values(by=f"prop_internal_suffix_l1{lsuff}", ascending=False)
     df = df.loc[df['proportion_l2'].isin([0.0, 0.7])]
     print(df)
     df.to_csv("comb.tsv", sep="\t")

@@ -12,10 +12,10 @@ import pandas as pd
 import textwrap
 import os
 
-stats_internal = {"internal_filled_prefix_l1": lambda m: m.internal_filled_prefix_l1,
-                  "internal_filled_suffix_l1": lambda m: m.internal_filled_suffix_l1,
-                  "internal_filled_prefix_l2": lambda m: m.internal_filled_prefix_l2,
-                  "internal_filled_suffix_l2": lambda m: m.internal_filled_suffix_l2}
+stats_internal = {"prop_internal_prefix_l1": lambda m: m.prop_internal_prefix_l1,
+                  "prop_internal_suffix_l1": lambda m: m.prop_internal_suffix_l1,
+                  "prop_internal_prefix_l2": lambda m: m.prop_internal_prefix_l2,
+                  "prop_internal_suffix_l2": lambda m: m.prop_internal_suffix_l2}
 
 
 stats_communicated = {"prop_communicated_prefix_l1": lambda m: m.prop_communicated_prefix_l1,
@@ -86,7 +86,6 @@ def create_graph_course(run_data, fixed_params, variable_param, mode, stat, outp
         combined = iteration_dfs_concat.groupby(iteration_dfs_concat.index).mean()  # group by index
         course_df[param_setting] = combined
 
-    print(course_df)
     fig, ax = plt.subplots()
     steps_ix = course_df.index
     for param_setting in course_df.columns:
@@ -118,7 +117,7 @@ def create_graph_end_state(run_data, fixed_params, variable_param, mode, stats, 
     rects = {}
     for i, stat in enumerate(stats):
         stat_label = stat.replace(
-            "internal_filled_", "") if mode == "internal" else stat.replace("prop_communicated_", "")
+            "prop_internal_", "") if mode == "internal" else stat.replace("prop_communicated_", "")
         rects[stat] = ax.bar(x+i*width, run_data_means[stat],
                              width=width, edgecolor="white", label=stat_label)
         # ax.bar_label(rects[stats_col], padding=3)

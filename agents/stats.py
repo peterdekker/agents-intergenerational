@@ -28,7 +28,7 @@ def agent_proportion_filled_cells(agent, aff_pos):
     return filled/total
 
 
-def internal_filled(agents, aff_pos):
+def prop_internal(agents, aff_pos):
     filled_props = [agent_proportion_filled_cells(a, aff_pos) for a in agents]
     return np.mean(filled_props) if len(filled_props) > 0 else 0
 

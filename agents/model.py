@@ -67,15 +67,15 @@ class Model(Model):
         self.ambiguity = defaultdict(list)
         # self.avg_ambiguity = {}
 
-        self.internal_filled_prefix_l1 = 0.0
-        self.internal_filled_suffix_l1 = 0.0
-        self.internal_filled_prefix_l2 = 0.0
-        self.internal_filled_suffix_l2 = 0.0
+        self.prop_internal_prefix_l1 = 0.0
+        self.prop_internal_suffix_l1 = 0.0
+        self.prop_internal_prefix_l2 = 0.0
+        self.prop_internal_suffix_l2 = 0.0
 
-        self.internal_affixes_prefix_l1 = {}
-        self.internal_affixes_suffix_l1 = {}
-        self.internal_affixes_prefix_l2 = {}
-        self.internal_affixes_suffix_l2 = {}
+        self.affixes_internal_prefix_l1 = {}
+        self.affixes_internal_suffix_l1 = {}
+        self.affixes_internal_prefix_l2 = {}
+        self.affixes_internal_suffix_l2 = {}
 
         # Behaviourist
         self.prop_communicated_prefix_l1 = 0.0
@@ -91,14 +91,14 @@ class Model(Model):
 
         self.datacollector = DataCollector(
             {  # "internal_model_distance": "internal_model_distance",
-                "internal_filled_prefix_l1": "internal_filled_prefix_l1",
-                "internal_filled_suffix_l1": "internal_filled_suffix_l1",
-                "internal_filled_prefix_l2": "internal_filled_prefix_l2",
-                "internal_filled_suffix_l2": "internal_filled_suffix_l2",
-                "internal_affixes_prefix_l1": "internal_affixes_prefix_l1",
-                "internal_affixes_suffix_l1": "internal_affixes_suffix_l1",
-                "internal_affixes_prefix_l2": "internal_affixes_prefix_l2",
-                "internal_affixes_suffix_l2": "internal_affixes_suffix_l2",
+                "prop_internal_prefix_l1": "prop_internal_prefix_l1",
+                "prop_internal_suffix_l1": "prop_internal_suffix_l1",
+                "prop_internal_prefix_l2": "prop_internal_prefix_l2",
+                "prop_internal_suffix_l2": "prop_internal_suffix_l2",
+                "affixes_internal_prefix_l1": "affixes_internal_prefix_l1",
+                "affixes_internal_suffix_l1": "affixes_internal_suffix_l1",
+                "affixes_internal_prefix_l2": "affixes_internal_prefix_l2",
+                "affixes_internal_suffix_l2": "affixes_internal_suffix_l2",
                 "prop_communicated_prefix_l1": "prop_communicated_prefix_l1",
                 "prop_communicated_suffix_l1": "prop_communicated_suffix_l1",
                 "prop_communicated_prefix_l2": "prop_communicated_prefix_l2",
@@ -155,10 +155,10 @@ class Model(Model):
             # TODO: these vars can be calculated upon calling .collect(), by
             # registering methods in datacollector. But then
             # no differentiation between stats calculation intervals is possible
-            self.internal_filled_prefix_l1 = stats.internal_filled(agents_l1, "prefix")
-            self.internal_filled_suffix_l1 = stats.internal_filled(agents_l1, "suffix")
-            self.internal_filled_prefix_l2 = stats.internal_filled(agents_l2, "prefix")
-            self.internal_filled_suffix_l2 = stats.internal_filled(agents_l2, "suffix")
+            self.prop_internal_prefix_l1 = stats.prop_internal(agents_l1, "prefix")
+            self.prop_internal_suffix_l1 = stats.prop_internal(agents_l1, "suffix")
+            self.prop_internal_prefix_l2 = stats.prop_internal(agents_l2, "prefix")
+            self.prop_internal_suffix_l2 = stats.prop_internal(agents_l2, "suffix")
 
             # Compute proportion non-empty cells in communicative measure
             self.prop_communicated_prefix_l1 = stats.calculate_proportion_communicated(
@@ -171,9 +171,9 @@ class Model(Model):
                 self.communicated_suffix_l2)
 
             if self.steps % RARE_STATS_AFTER_STEPS == 0:
-                self.internal_affixes_prefix_l1 = stats.internal_affix_frequencies(agents_l1, "prefix")
-                self.internal_affixes_suffix_l1 = stats.internal_affix_frequencies(agents_l1, "suffix")
-                self.internal_affixes_prefix_l2 = stats.internal_affix_frequencies(agents_l2, "prefix")
-                self.internal_affixes_suffix_l2 = stats.internal_affix_frequencies(agents_l2, "suffix")
+                self.affixes_internal_prefix_l1 = stats.internal_affix_frequencies(agents_l1, "prefix")
+                self.affixes_internal_suffix_l1 = stats.internal_affix_frequencies(agents_l1, "suffix")
+                self.affixes_internal_prefix_l2 = stats.internal_affix_frequencies(agents_l2, "prefix")
+                self.affixes_internal_suffix_l2 = stats.internal_affix_frequencies(agents_l2, "suffix")
 
         self.datacollector.collect(self)

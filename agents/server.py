@@ -27,10 +27,10 @@ def draw(agent):
 
 canvas_element = CanvasGrid(draw, HEIGHT, WIDTH, 500, 500)
 #dist_chart = ChartModule([{"Label": "internal_model_distance", "Color": "Blue"}])
-internal_chart = ChartModule([{"Label": "internal_filled_prefix_l1", "Color": "Blue"},
-                              {"Label": "internal_filled_suffix_l1", "Color": "Purple"},
-                              {"Label": "internal_filled_prefix_l2", "Color": "Orange"},
-                              {"Label": "internal_filled_suffix_l2", "Color": "Brown"}])
+internal_chart = ChartModule([{"Label": "prop_internal_prefix_l1", "Color": "Blue"},
+                              {"Label": "prop_internal_suffix_l1", "Color": "Purple"},
+                              {"Label": "prop_internal_prefix_l2", "Color": "Orange"},
+                              {"Label": "prop_internal_suffix_l2", "Color": "Brown"}])
 communicated_chart = ChartModule([{"Label": "prop_communicated_prefix_l1", "Color": "Blue"},
                                   {"Label": "prop_communicated_suffix_l1", "Color": "Purple"},
                                   {"Label": "prop_communicated_prefix_l2", "Color": "Orange"},
@@ -38,10 +38,10 @@ communicated_chart = ChartModule([{"Label": "prop_communicated_prefix_l1", "Colo
 corr_int_chart = ChartModule([{"Label": "avg_proportion_correct_interactions", "Color": "brown"},
                               {"Label": "proportion_correct_interactions", "Color": "green"}])
 text_bar_chart = TextBarChart([  # {"Label": "avg_ambiguity", "Color": "green"},
-    {"Label": "internal_affixes_prefix_l1"},
-    {"Label": "internal_affixes_suffix_l1"},
-    {"Label": "internal_affixes_prefix_l2"},
-    {"Label": "internal_affixes_suffix_l2"}])
+    {"Label": "affixes_internal_prefix_l1"},
+    {"Label": "affixes_internal_suffix_l1"},
+    {"Label": "affixes_internal_prefix_l2"},
+    {"Label": "affixes_internal_suffix_l2"}])
 
 model_params = {
     "height": HEIGHT,
