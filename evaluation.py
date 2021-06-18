@@ -86,6 +86,7 @@ def create_graph_course(run_data, fixed_params, variable_param, mode, stat, outp
         combined = iteration_dfs_concat.groupby(iteration_dfs_concat.index).mean()  # group by index
         course_df[param_setting] = combined
 
+    print(course_df)
     fig, ax = plt.subplots()
     steps_ix = course_df.index
     for param_setting in course_df.columns:
@@ -109,7 +110,6 @@ def create_graph_course(run_data, fixed_params, variable_param, mode, stat, outp
 
 
 def create_graph_end_state(run_data, fixed_params, variable_param, mode, stats, output_dir):
-    print(run_data)
     run_data_means = run_data.groupby(variable_param).mean(numeric_only=True)
     labels = run_data_means.index  # variable values
     x = np.arange(len(labels))  # the label locations
@@ -122,7 +122,6 @@ def create_graph_end_state(run_data, fixed_params, variable_param, mode, stats, 
         rects[stat] = ax.bar(x+i*width, run_data_means[stat],
                              width=width, edgecolor="white", label=stat_label)
         # ax.bar_label(rects[stats_col], padding=3)
-
     # # Add some text for labels, title and custom x-axis tick labels, etc.
     if mode == "internal":
         ax.set_ylabel('% paradigm cells filled')
@@ -199,7 +198,7 @@ def main():
             create_graph_end_state(run_data, fixed_params_print, var_param,
                                    mode="communicated", stats=stats_communicated, output_dir=OUTPUT_DIR)
             create_graph_course(run_data, fixed_params_print, var_param,
-                                mode="internal", stat="prop_communicated_suffix_l1", output_dir=OUTPUT_DIR)
+                                mode="internal", stat="prop_internal_suffix_l1", output_dir=OUTPUT_DIR)
             create_graph_course(run_data, fixed_params_print, var_param,
                                 mode="communicated", stat="prop_communicated_suffix_l1", output_dir=OUTPUT_DIR)
     elif steps_graph:

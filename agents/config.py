@@ -18,8 +18,8 @@ PERSONS = ['1sg', '2sg', '3sg', '1pl.incl', '1pl.excl', '2pl', '3pl']
 dst = Distance()
 RG = np.random.default_rng()
 
-STATS_AFTER_STEPS = 10
-RARE_STATS_AFTER_STEPS = 10 * STATS_AFTER_STEPS  # Should always be multiple of STATS_AFTER_STEPS
+STATS_AFTER_STEPS = 1
+RARE_STATS_AFTER_STEPS = 100 * STATS_AFTER_STEPS  # Should always be multiple of STATS_AFTER_STEPS
 
 OUTPUT_DIR = f'output-{str(datetime.datetime.now()).replace(" ","-")}'
 
