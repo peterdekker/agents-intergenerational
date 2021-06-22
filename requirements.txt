@@ -13,5 +13,5 @@ requests
 nltk
 sklearn
 matplotlib
-#ipapy
+ipapy
 pyclts==3.1.1

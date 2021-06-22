@@ -223,6 +223,3 @@ def normalize_list(list_of_strings, method, ud_form="NFKD", soundclass_system="a
 #     clts_system = clts.transcriptionsystem(soundclass_system)
 #     return clts.bipa.translate(segment, clts_system)
 
-
-# def bipa_base(segment):
-#     return clts.bipa.base[segment]
