@@ -86,16 +86,29 @@ def create_graph_course(run_data, fixed_params, variable_param, mode, stat, outp
         combined = iteration_dfs_concat.groupby(iteration_dfs_concat.index).mean()  # group by index
         course_df[param_setting] = combined
 
+    plot_graph_course(course_df, fixed_params, variable_param, mode, output_dir)
+    # TODO: possibly function intersection here later
+
+# Needed for function intersection
+# def pos_under_val(arr, val):
+#     previous_i = 0
+#     for i in reversed(range(len(arr))):
+#         if arr[i] > val:
+#             return previous_i
+#         previous_i = i
+#     return previous_i
+
+
+def plot_graph_course(course_df, fixed_params, variable_param, mode, output_dir):
     fig, ax = plt.subplots()
     steps_ix = course_df.index
     for param_setting in course_df.columns:
         ax.plot(steps_ix, course_df[param_setting], label=f"{variable_param}={param_setting}")
-
-    # # Add some text for labels, title and custom x-axis tick labels, etc.
+    # Add some text for labels, title and custom x-axis tick labels, etc.
     if mode == "internal":
-        ax.set_ylabel('% paradigm cells filled')
+        ax.set_ylabel('proportion paradigm cells filled')
     elif mode == "communicated":
-        ax.set_ylabel('% utterances non-empty')
+        ax.set_ylabel('proportion non-empty utterances')
     ax.set_title(f"{variable_param} ({mode})")
     # ax.set_xticks(x+1.5*width)
     # ax.set_xticklabels(labels)
