@@ -85,6 +85,8 @@ def create_graph_course(run_data, fixed_params, variable_param, mode, stat, outp
         # TODO: spread instead of mean
         combined = iteration_dfs_concat.groupby(iteration_dfs_concat.index).mean()  # group by index
         course_df[param_setting] = combined
+    # Drop first row of course df, because this is logging artefact
+    course_df = course_df.iloc[1:, :]
 
     plot_graph_course(course_df, fixed_params, variable_param, mode, output_dir)
     # TODO: possibly function intersection here later
@@ -136,9 +138,9 @@ def create_graph_end_state(run_data, fixed_params, variable_param, mode, stats, 
         # ax.bar_label(rects[stats_col], padding=3)
     # # Add some text for labels, title and custom x-axis tick labels, etc.
     if mode == "internal":
-        ax.set_ylabel('% paradigm cells filled')
+        ax.set_ylabel('proportion paradigm cells filled')
     elif mode == "communicated":
-        ax.set_ylabel('% utterances non-empty')
+        ax.set_ylabel('proportion utterances non-empty')
     ax.set_title(f"{variable_param} ({mode})")
     ax.set_xticks(x+1.5*width)
     ax.set_xticklabels(labels)
