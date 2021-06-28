@@ -36,6 +36,7 @@ GENERALIZE_PRODUCTION_L1 = 0.0
 GENERALIZE_PRODUCTION_L2 = 0.0
 GENERALIZE_UPDATE_L1 = 0.0
 GENERALIZE_UPDATE_L2 = 0.0
+ALWAYS_AFFIX = True
 
 # For evaluation script (not browser visualization)
 ITERATIONS = [3]
@@ -54,6 +55,7 @@ model_params = {
     "min_boundary_feature_dist": MIN_BOUNDARY_FEATURE_DIST,
     "reduction_hh": REDUCTION_HH,
     "negative_update": NEGATIVE_UPDATE,
+    "always_affix": ALWAYS_AFFIX,
     "generalize_production_l1": GENERALIZE_PRODUCTION_L1,
     "generalize_production_l2": GENERALIZE_PRODUCTION_L2,
     "generalize_update_l1": GENERALIZE_UPDATE_L1,

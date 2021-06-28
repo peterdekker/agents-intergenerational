@@ -6,7 +6,7 @@ from mesa.datacollection import DataCollector
 import numpy as np
 from collections import defaultdict
 
-from agents.config import N_AGENTS, DATA_FILE, MAX_RADIUS, STATS_AFTER_STEPS, RARE_STATS_AFTER_STEPS
+from agents.config import N_AGENTS, DATA_FILE, MAX_RADIUS, STATS_AFTER_STEPS  # , RARE_STATS_AFTER_STEPS
 from agents import stats
 from agents import misc
 from agents.agent import Agent
@@ -21,7 +21,7 @@ class Model(Model):
     def __init__(self, height, width, proportion_l2, suffix_prob,
                  capacity_l1, capacity_l2, drop_subject_prob,
                  min_boundary_feature_dist, reduction_hh,
-                 negative_update, generalize_production_l1,
+                 negative_update, always_affix, generalize_production_l1,
                  generalize_production_l2, generalize_update_l1,
                  generalize_update_l2):
         '''
@@ -51,6 +51,7 @@ class Model(Model):
         self.min_boundary_feature_dist = min_boundary_feature_dist
         self.reduction_hh = reduction_hh
         self.negative_update = negative_update
+        self.always_affix = always_affix
 
         self.schedule = RandomActivation(self)
         self.grid = SingleGrid(width, height, torus=True)

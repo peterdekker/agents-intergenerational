@@ -103,7 +103,7 @@ class Agent(Agent):
         #  - suffixing verb:
         #     -- transitive: do not use suffix
         #     -- intransitive: use suffix with probability, because it is not obligatory
-        if suffixing:
+        if self.model.always_affix or suffixing:
             # self.affixes[(lex_concept_gen, person_gen, "suffix")]
             suffixes = misc.retrieve_affixes_generalize(
                 lex_concept, person, "suffix", self.affixes, self.generalize_production,
@@ -113,8 +113,8 @@ class Agent(Agent):
             # (different from None, because listener will add empty suffix to its stack)
             # TODO: More elegant if len(sfxs) is always non-zero because there is always ""?
             if len(suffixes) > 0:
-                if transitivity == "intrans":
-                    if RG.random() < self.model.suffix_prob:
+                if self.model.always_affix or transitivity == "intrans":
+                    if self.model.always_affix or RG.random() < self.model.suffix_prob:
                         suffix = misc.affix_choice(suffixes)
                         suffix = misc.reduce_affix_hh("suffixing", suffix, listener, self.model.reduction_hh)
                         suffix = misc.reduce_affix_phonetic("suffixing", suffix, form,

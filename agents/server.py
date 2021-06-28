@@ -8,7 +8,7 @@ from agents import stats
 
 from agents.config import HEIGHT, WIDTH, PROPORTION_L2, SUFFIX_PROB, CAPACITY_L1, CAPACITY_L2, \
     DROP_SUBJECT_PROB, MIN_BOUNDARY_FEATURE_DIST, REDUCTION_HH, NEGATIVE_UPDATE, GENERALIZE_PRODUCTION_L1, \
-    GENERALIZE_PRODUCTION_L2, GENERALIZE_UPDATE_L1, GENERALIZE_UPDATE_L2
+    GENERALIZE_PRODUCTION_L2, GENERALIZE_UPDATE_L1, GENERALIZE_UPDATE_L2, ALWAYS_AFFIX
 
 
 def draw(agent):
@@ -55,6 +55,7 @@ model_params = {
                                                        MIN_BOUNDARY_FEATURE_DIST, 0, 10, 0.1),
     "reduction_hh": UserSettableParameter('checkbox', 'Reduction H&H', value=REDUCTION_HH),
     "negative_update": UserSettableParameter('checkbox', 'Negative update', value=NEGATIVE_UPDATE),
+    "always_affix": UserSettableParameter('checkbox', 'Always affix', value=ALWAYS_AFFIX),
     "generalize_production_l1": UserSettableParameter("slider", "Generalize production L1 prob",
                                                       GENERALIZE_PRODUCTION_L1, 0, 1, 0.1),
     "generalize_production_l2": UserSettableParameter("slider", "Generalize production L2 prob",
