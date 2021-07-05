@@ -207,12 +207,12 @@ def main():
                                   {"iterations": iterations_setting, "steps": steps_setting}}
             run_data = evaluate_model(fixed_params, {var_param: var_param_setting},
                                       iterations_setting, steps_setting, output_dir=OUTPUT_DIR)
-            create_graph_end_state(run_data, fixed_params_print, var_param,
-                                   mode="internal", stats=stats_internal, output_dir=OUTPUT_DIR)
+            # create_graph_end_state(run_data, fixed_params_print, var_param,
+            #                        mode="internal", stats=stats_internal, output_dir=OUTPUT_DIR)
             create_graph_end_state(run_data, fixed_params_print, var_param,
                                    mode="communicated", stats=stats_communicated, output_dir=OUTPUT_DIR)
-            create_graph_course(run_data, fixed_params_print, var_param,
-                                mode="internal", stat="prop_internal_suffix_l1", output_dir=OUTPUT_DIR)
+            # create_graph_course(run_data, fixed_params_print, var_param,
+            #                     mode="internal", stat="prop_internal_suffix_l1", output_dir=OUTPUT_DIR)
             create_graph_course(run_data, fixed_params_print, var_param,
                                 mode="communicated", stat="prop_communicated_suffix_l1", output_dir=OUTPUT_DIR)
     elif steps_graph:
@@ -228,8 +228,8 @@ def main():
             run_data_list.append(run_data)
         combined_run_data = pd.concat(run_data_list, ignore_index=True)
         fixed_params_print = {**fixed_params, **{"iterations": iterations_setting}}
-        create_graph_end_state(combined_run_data, fixed_params_print,
-                               "steps", mode="internal", stats=stats_internal)
+        # create_graph_end_state(combined_run_data, fixed_params_print,
+        #                        "steps", mode="internal", stats=stats_internal)
         create_graph_end_state(combined_run_data, fixed_params_print, "steps",
                                mode="communicated", stats=stats_communicated)
     else:

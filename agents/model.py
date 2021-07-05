@@ -21,7 +21,8 @@ class Model(Model):
     def __init__(self, height, width, proportion_l2, suffix_prob,
                  capacity_l1, capacity_l2, drop_subject_prob,
                  min_boundary_feature_dist, reduction_hh,
-                 negative_update, always_affix, generalize_production_l1,
+                 negative_update, always_affix, balance_prefix_suffix_verbs,
+                 generalize_production_l1,
                  generalize_production_l2, generalize_update_l1,
                  generalize_update_l2):
         '''
@@ -37,6 +38,8 @@ class Model(Model):
         assert min_boundary_feature_dist >= 0
         assert isinstance(reduction_hh, bool)
         assert isinstance(negative_update, bool)
+        assert isinstance(always_affix, bool)
+        assert isinstance(balance_prefix_suffix_verbs, bool)
         assert generalize_production_l1 >= 0 and generalize_production_l1 <= 1
         assert generalize_production_l2 >= 0 and generalize_production_l2 <= 1
         assert generalize_update_l1 >= 0 and generalize_update_l1 <= 1
@@ -58,7 +61,7 @@ class Model(Model):
         self.steps = 0
 
         # internal data object is created from data file
-        self.data = Data(DATA_FILE)
+        self.data = Data(DATA_FILE, balance_prefix_suffix_verbs)
 
         # Stats
         self.proportions_correct_interactions = []

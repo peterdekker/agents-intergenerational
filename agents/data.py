@@ -5,10 +5,17 @@ from agents.config import PERSONS
 
 
 class Data():
-    def __init__(self, data_file):
+    def __init__(self, data_file, balance_prefix_suffix_verbs):
         self.data = pd.read_csv(data_file, sep="\t").fillna(value="")
         # Filter on only cells which have Lewoingu form
         self.data = self.data[self.data["form_lewoingu"] != ""]
+
+        if balance_prefix_suffix_verbs:
+            prefixing = self.data[self.data["prefixing"] == 1]
+            n_prefixing = len(prefixing)
+            suffixing = self.data[self.data["suffixing"] == 1]
+            self.data = pd.concat([prefixing, suffixing.head(n_prefixing)])
+
         self.lex_concepts = list(self.data["concept"])
         self.lex_concepts_type = {"prefixing": [], "suffixing": []}
         self.persons = PERSONS
@@ -54,7 +61,3 @@ class Data():
 
         #print(f"Number of concept cells: {len(self.affixes.keys())}")
         # check double items: print([item for item, count in collections.Counter(self.concepts).items() if count > 1])
-
-
-# if __name__ == "__main__":
-#     d = Data(DATA_FILE)
