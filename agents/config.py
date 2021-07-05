@@ -71,4 +71,5 @@ evaluation_params = {
     "steps_graph": STEPS_GRAPH
 }
 
-bool_params = ["reduction_hh", "negative_update", "settings_graph", "steps_graph"]
+bool_params = ["reduction_hh", "negative_update", "always_affix",
+               "balance_prefix_suffix_verbs", "settings_graph", "steps_graph"]
