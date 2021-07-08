@@ -165,8 +165,7 @@ class Agent(Agent):
                                                             self.lex_concept_data,
                                                             self.affixes,
                                                             self.persons,
-                                                            signal,
-                                                            self.model.ambiguity)
+                                                            signal, self.model.fuzzy_match_affix)  # ,self.model.ambiguity)
 
         # We use directly existence/non-existence of object as criterion for transitivity
         transitivity = "trans" if self.signal_recv.object else "intrans"

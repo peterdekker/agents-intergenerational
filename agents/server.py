@@ -8,7 +8,7 @@ from agents import stats
 
 from agents.config import HEIGHT, WIDTH, PROPORTION_L2, SUFFIX_PROB, CAPACITY_L1, CAPACITY_L2, \
     DROP_SUBJECT_PROB, MIN_BOUNDARY_FEATURE_DIST, REDUCTION_HH, NEGATIVE_UPDATE, GENERALIZE_PRODUCTION_L1, \
-    GENERALIZE_PRODUCTION_L2, GENERALIZE_UPDATE_L1, GENERALIZE_UPDATE_L2, ALWAYS_AFFIX, BALANCE_PREFIX_SUFFIX_VERBS
+    GENERALIZE_PRODUCTION_L2, GENERALIZE_UPDATE_L1, GENERALIZE_UPDATE_L2, ALWAYS_AFFIX, BALANCE_PREFIX_SUFFIX_VERBS, FUZZY_MATCH_AFFIX
 
 
 def draw(agent):
@@ -56,7 +56,8 @@ model_params = {
     "reduction_hh": UserSettableParameter('checkbox', 'Reduction H&H', value=REDUCTION_HH),
     "negative_update": UserSettableParameter('checkbox', 'Negative update', value=NEGATIVE_UPDATE),
     "always_affix": UserSettableParameter('checkbox', 'Always affix', value=ALWAYS_AFFIX),
-    "balance_prefix_suffix_verbs": UserSettableParameter('checkbox', 'Always affix', value=BALANCE_PREFIX_SUFFIX_VERBS),
+    "balance_prefix_suffix_verbs": UserSettableParameter('checkbox', 'Balance prefix/suffix', value=BALANCE_PREFIX_SUFFIX_VERBS),
+    "fuzzy_match_affix": UserSettableParameter('checkbox', 'Fuzzy match affix', value=FUZZY_MATCH_AFFIX),
     "generalize_production_l1": UserSettableParameter("slider", "Generalize production L1 prob",
                                                       GENERALIZE_PRODUCTION_L1, 0, 1, 0.1),
     "generalize_production_l2": UserSettableParameter("slider", "Generalize production L2 prob",

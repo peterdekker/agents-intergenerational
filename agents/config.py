@@ -37,7 +37,8 @@ GENERALIZE_PRODUCTION_L2 = 0.0
 GENERALIZE_UPDATE_L1 = 0.0
 GENERALIZE_UPDATE_L2 = 0.0
 ALWAYS_AFFIX = True
-BALANCE_PREFIX_SUFFIX_VERBS = True
+BALANCE_PREFIX_SUFFIX_VERBS = False
+FUZZY_MATCH_AFFIX = True
 
 # For evaluation script (not browser visualization)
 ITERATIONS = [3]
@@ -57,6 +58,7 @@ model_params = {
     "reduction_hh": REDUCTION_HH,
     "negative_update": NEGATIVE_UPDATE,
     "always_affix": ALWAYS_AFFIX,
+    "fuzzy_match_affix": FUZZY_MATCH_AFFIX,
     "balance_prefix_suffix_verbs": BALANCE_PREFIX_SUFFIX_VERBS,
     "generalize_production_l1": GENERALIZE_PRODUCTION_L1,
     "generalize_production_l2": GENERALIZE_PRODUCTION_L2,
@@ -72,4 +74,4 @@ evaluation_params = {
 }
 
 bool_params = ["reduction_hh", "negative_update", "always_affix",
-               "balance_prefix_suffix_verbs", "settings_graph", "steps_graph"]
+               "balance_prefix_suffix_verbs",  "fuzzy_match_affix", "settings_graph", "steps_graph"]
