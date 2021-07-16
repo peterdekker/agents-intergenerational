@@ -52,6 +52,9 @@ def infer_person_from_signal(lex_concept, lex_concept_data, affixes, persons, si
 
     # Choose person, weighted by how many affixes are closest to received affix
     # (can be one possible person, so choice is trivial)
+    ##### CHANGE: NOT WEIGHTED ANYMORE
+    possible_persons = list(set(possible_persons))
+    #####
     inferred_person = RG.choice(possible_persons)
     return inferred_person
 
