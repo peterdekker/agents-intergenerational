@@ -4,7 +4,6 @@ from mesa.space import SingleGrid
 from mesa.datacollection import DataCollector
 
 import numpy as np
-from collections import defaultdict
 
 from agents.config import N_AGENTS, DATA_FILE, MAX_RADIUS, STATS_AFTER_STEPS, RARE_STATS_AFTER_STEPS
 from agents import stats
@@ -137,20 +136,28 @@ class Model(Model):
         self.datacollector.collect(self)
 
     def step(self):
-        self.steps += 1
         '''
         Run one step of the model.
         '''
-        # Reset correct interactions
-        self.correct_interactions = 0.0
+
+        # Create a new sublist for these stats, for every timestep. So they can be kept separate per timestep
+        # TODO: This list gets as many items as timesteps, to save memory possibly remove first elements at some point (although this takes O(n) time)
+        self.communicated_prefix_l1.append([])
+        self.communicated_suffix_l1.append([])
+        self.communicated_prefix_l2.append([])
+        self.communicated_suffix_l2.append([])
 
         self.schedule.step()
+        self.steps += 1
 
-        # Now compute proportion of correct interaction
-        self.proportion_correct_interactions = self.correct_interactions/float(N_AGENTS)
-        self.proportions_correct_interactions.append(self.proportion_correct_interactions)
-        self.avg_proportion_correct_interactions = np.mean(self.proportions_correct_interactions)
         if self.steps % STATS_AFTER_STEPS == 0:
+            # Now compute proportion of correct interaction
+            self.proportion_correct_interactions = self.correct_interactions/float(N_AGENTS)
+            self.proportions_correct_interactions.append(self.proportion_correct_interactions)
+            self.avg_proportion_correct_interactions = np.mean(self.proportions_correct_interactions)
+            # Reset correct interactions
+            self.correct_interactions = 0.0
+
             # Calculate and reset ambiguity every STAT_AFTER_STEPS_INTERACTIONS,
             # to do some averaging over steps
             # self.avg_ambiguity = {k: np.mean(v) for k, v in self.ambiguity.items()}
@@ -159,13 +166,9 @@ class Model(Model):
             agents = [a for a, x, y in self.grid.coord_iter()]
             agents_l1 = [a for a in agents if not a.is_l2()]
             agents_l2 = [a for a in agents if a.is_l2()]
-            # TODO: these vars can be calculated upon calling .collect(), by
+            # TODO: stats can be calculated upon calling .collect(), by
             # registering methods in datacollector. But then
             # no differentiation between stats calculation intervals is possible
-            self.prop_internal_prefix_l1 = stats.prop_internal(agents_l1, "prefix")
-            self.prop_internal_suffix_l1 = stats.prop_internal(agents_l1, "suffix")
-            self.prop_internal_prefix_l2 = stats.prop_internal(agents_l2, "prefix")
-            self.prop_internal_suffix_l2 = stats.prop_internal(agents_l2, "suffix")
 
             # Compute proportion non-empty cells in communicative measure
             self.prop_communicated_prefix_l1 = stats.calculate_proportion_communicated(
@@ -178,6 +181,11 @@ class Model(Model):
                 self.communicated_suffix_l2)
 
         if self.steps % RARE_STATS_AFTER_STEPS == 0:
+            self.prop_internal_prefix_l1 = stats.prop_internal(agents_l1, "prefix")
+            self.prop_internal_suffix_l1 = stats.prop_internal(agents_l1, "suffix")
+            self.prop_internal_prefix_l2 = stats.prop_internal(agents_l2, "prefix")
+            self.prop_internal_suffix_l2 = stats.prop_internal(agents_l2, "suffix")
+
             self.affixes_internal_prefix_l1 = stats.internal_affix_frequencies(agents_l1, "prefix")
             self.affixes_internal_suffix_l1 = stats.internal_affix_frequencies(agents_l1, "suffix")
             self.affixes_internal_prefix_l2 = stats.internal_affix_frequencies(agents_l2, "prefix")

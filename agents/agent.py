@@ -125,7 +125,7 @@ class Agent(Agent):
             #    return
             signal.suffix = suffix
 
-        stats.update_communicated_model_stats(self.model, prefix, suffix, prefixing, suffixing, self.l2)
+        stats.update_communicated_model_stats(self.model, prefix, suffix, prefixing, suffixing, self.l2, self.model.steps)
 
         # (3) Add context from sentence (subject and object), based on transivitity.
         if RG.random() >= self.model.drop_subject_prob:

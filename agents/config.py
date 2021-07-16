@@ -19,7 +19,11 @@ dst = Distance()
 RG = np.random.default_rng()
 
 STATS_AFTER_STEPS = 1
-RARE_STATS_AFTER_STEPS = 500 * STATS_AFTER_STEPS
+RARE_STATS_AFTER_STEPS = 500
+
+# Last n number of steps to take into account, when calculating communicated stat
+LAST_N_STEPS_COMMUNICATED = 20
+
 
 OUTPUT_DIR = f'output-{str(datetime.datetime.now()).replace(" ","-")}'
 

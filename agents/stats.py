@@ -1,5 +1,7 @@
+from agents.config import LAST_N_STEPS_COMMUNICATED
 import numpy as np
 from collections import defaultdict, Counter
+from itertools import chain
 
 
 def agent_proportion_filled_cells(agent, aff_pos):
@@ -64,22 +66,25 @@ def colour_str(c):
     return f"hsl({c[0]},{c[1]}%,{c[2]}%)"
 
 
-def update_communicated_model_stats(model, prefix, suffix, prefixing, suffixing, l2):
+def update_communicated_model_stats(model, prefix, suffix, prefixing, suffixing, l2, step):
     if prefixing:
         if l2:
-            model.communicated_prefix_l2.append(prefix)
+            model.communicated_prefix_l2[-1].append(prefix)
         else:
-            model.communicated_prefix_l1.append(prefix)
+            model.communicated_prefix_l1[-1].append(prefix)
 
     if suffixing:
         if l2:
-            model.communicated_suffix_l2.append(suffix)
+            model.communicated_suffix_l2[-1].append(suffix)
         else:
-            model.communicated_suffix_l1.append(suffix)
+            model.communicated_suffix_l1[-1].append(suffix)
 
 
 def calculate_proportion_communicated(communicated_list):
+    # Flatten list of last n steps
+    last_comm_list = list(chain.from_iterable(communicated_list[-LAST_N_STEPS_COMMUNICATED:]))
     # Calculate proportion non-empty communications
-    n_non_empty = len([s for s in communicated_list if s != ""])
-    n_total = len(communicated_list)
+    n_non_empty = len([s for s in last_comm_list if s != ""])
+    n_total = len(last_comm_list)
+    # Calculate proportion
     return n_non_empty/n_total if n_total > 0 else 0
