@@ -19,7 +19,7 @@ dst = Distance()
 RG = np.random.default_rng()
 
 STATS_AFTER_STEPS = 1
-RARE_STATS_AFTER_STEPS = 100 * STATS_AFTER_STEPS  # Should always be multiple of STATS_AFTER_STEPS
+RARE_STATS_AFTER_STEPS = 500 * STATS_AFTER_STEPS
 
 OUTPUT_DIR = f'output-{str(datetime.datetime.now()).replace(" ","-")}'
 

@@ -42,6 +42,8 @@ class Agent(Agent):
         elif init == "empty":
             self.affixes = defaultdict(list)
 
+        self.colours = stats.compute_colours(self)
+
     def step(self):
         '''
          Perform one interaction for this agent, with this agent as speaker

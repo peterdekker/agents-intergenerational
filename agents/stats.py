@@ -48,7 +48,12 @@ def internal_affix_frequencies(agents, aff_pos):
     return freq_dict
 
 
-def compute_colour(agent):
+def compute_colours_agents(agents):
+    for agent in agents:
+        agent.colours = compute_colours(agent)
+
+
+def compute_colours(agent):
     agg_prefix = agent_proportion_filled_cells(agent, "prefix") * 50
     agg_suffix = agent_proportion_filled_cells(agent, "suffix") * 50
     # HSL: H->0-360,  S->0-100%, L->100% L50% is maximum color, 100% is white

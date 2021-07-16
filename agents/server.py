@@ -4,7 +4,6 @@ from mesa.visualization.UserParam import UserSettableParameter
 
 from agents.model import Model
 from agents.textbarchart import TextBarChart
-from agents import stats
 
 from agents.config import HEIGHT, WIDTH, PROPORTION_L2, SUFFIX_PROB, CAPACITY_L1, CAPACITY_L2, \
     DROP_SUBJECT_PROB, MIN_BOUNDARY_FEATURE_DIST, REDUCTION_HH, NEGATIVE_UPDATE, GENERALIZE_PRODUCTION_L1, \
@@ -17,7 +16,7 @@ def draw(agent):
     '''
     if agent is None:
         return
-    colours = stats.compute_colour(agent)
+    colours = agent.colours
     portrayal = {"Shape": "circle", "r": 0.5, "Filled": "true", "Layer": 0}
     portrayal["Color"] = [colours["suffix"], colours["prefix"]]
     portrayal["stroke_color"] = "rgb(0,0,0)"

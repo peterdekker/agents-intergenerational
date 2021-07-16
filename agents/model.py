@@ -6,7 +6,7 @@ from mesa.datacollection import DataCollector
 import numpy as np
 from collections import defaultdict
 
-from agents.config import N_AGENTS, DATA_FILE, MAX_RADIUS, STATS_AFTER_STEPS  # , RARE_STATS_AFTER_STEPS
+from agents.config import N_AGENTS, DATA_FILE, MAX_RADIUS, STATS_AFTER_STEPS, RARE_STATS_AFTER_STEPS
 from agents import stats
 from agents import misc
 from agents.agent import Agent
@@ -63,7 +63,7 @@ class Model(Model):
         self.grid = SingleGrid(width, height, torus=True)
         self.steps = 0
 
-        # internal data object is created from data file
+        # Agent language model object is created from data file
         self.data = Data(DATA_FILE, balance_prefix_suffix_verbs)
 
         # Stats
@@ -177,10 +177,11 @@ class Model(Model):
             self.prop_communicated_suffix_l2 = stats.calculate_proportion_communicated(
                 self.communicated_suffix_l2)
 
-            # if self.steps % RARE_STATS_AFTER_STEPS == 0:
+        if self.steps % RARE_STATS_AFTER_STEPS == 0:
             self.affixes_internal_prefix_l1 = stats.internal_affix_frequencies(agents_l1, "prefix")
             self.affixes_internal_suffix_l1 = stats.internal_affix_frequencies(agents_l1, "suffix")
             self.affixes_internal_prefix_l2 = stats.internal_affix_frequencies(agents_l2, "prefix")
             self.affixes_internal_suffix_l2 = stats.internal_affix_frequencies(agents_l2, "suffix")
+            stats.compute_colours_agents(agents)
 
         self.datacollector.collect(self)
