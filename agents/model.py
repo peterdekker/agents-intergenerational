@@ -67,10 +67,9 @@ class Model(Model):
 
         # Stats
         self.proportions_correct_interactions = []
-        self.correct_interactions = 0.0
         self.proportion_correct_interactions = 0.0
         self.avg_proportion_correct_interactions = 0.0
-        #self.ambiguity = defaultdict(list)
+        # self.ambiguity = defaultdict(list)
         # self.avg_ambiguity = {}
 
         self.prop_internal_prefix_l1 = 0.0
@@ -141,22 +140,23 @@ class Model(Model):
         '''
 
         # Create a new sublist for these stats, for every timestep. So they can be kept separate per timestep
-        # TODO: This list gets as many items as timesteps, to save memory possibly remove first elements at some point (although this takes O(n) time)
+        # TODO: List gets as many items as timesteps, to save memory possibly remove first elements after
+        # reaching max len (although this takes O(n) time)
         self.communicated_prefix_l1.append([])
         self.communicated_suffix_l1.append([])
         self.communicated_prefix_l2.append([])
         self.communicated_suffix_l2.append([])
 
+        # Reset correct interactions
+        self.correct_interactions = 0
+
         self.schedule.step()
-        self.steps += 1
 
         if self.steps % STATS_AFTER_STEPS == 0:
             # Now compute proportion of correct interaction
             self.proportion_correct_interactions = self.correct_interactions/float(N_AGENTS)
             self.proportions_correct_interactions.append(self.proportion_correct_interactions)
             self.avg_proportion_correct_interactions = np.mean(self.proportions_correct_interactions)
-            # Reset correct interactions
-            self.correct_interactions = 0.0
 
             # Calculate and reset ambiguity every STAT_AFTER_STEPS_INTERACTIONS,
             # to do some averaging over steps
@@ -171,25 +171,26 @@ class Model(Model):
             # no differentiation between stats calculation intervals is possible
 
             # Compute proportion non-empty cells in communicative measure
-            self.prop_communicated_prefix_l1 = stats.calculate_proportion_communicated(
+            self.prop_communicated_prefix_l1 = stats.prop_communicated(
                 self.communicated_prefix_l1)
-            self.prop_communicated_prefix_l2 = stats.calculate_proportion_communicated(
+            self.prop_communicated_prefix_l2 = stats.prop_communicated(
                 self.communicated_prefix_l2)
-            self.prop_communicated_suffix_l1 = stats.calculate_proportion_communicated(
+            self.prop_communicated_suffix_l1 = stats.prop_communicated(
                 self.communicated_suffix_l1)
-            self.prop_communicated_suffix_l2 = stats.calculate_proportion_communicated(
+            self.prop_communicated_suffix_l2 = stats.prop_communicated(
                 self.communicated_suffix_l2)
 
         if self.steps % RARE_STATS_AFTER_STEPS == 0:
-            self.prop_internal_prefix_l1 = stats.prop_internal(agents_l1, "prefix")
-            self.prop_internal_suffix_l1 = stats.prop_internal(agents_l1, "suffix")
-            self.prop_internal_prefix_l2 = stats.prop_internal(agents_l2, "prefix")
-            self.prop_internal_suffix_l2 = stats.prop_internal(agents_l2, "suffix")
+            self.prop_internal_prefix_l1 = stats.prop_internal_filled_agents(agents_l1, "prefix")
+            self.prop_internal_suffix_l1 = stats.prop_internal_filled_agents(agents_l1, "suffix")
+            self.prop_internal_prefix_l2 = stats.prop_internal_filled_agents(agents_l2, "prefix")
+            self.prop_internal_suffix_l2 = stats.prop_internal_filled_agents(agents_l2, "suffix")
 
-            self.affixes_internal_prefix_l1 = stats.internal_affix_frequencies(agents_l1, "prefix")
-            self.affixes_internal_suffix_l1 = stats.internal_affix_frequencies(agents_l1, "suffix")
-            self.affixes_internal_prefix_l2 = stats.internal_affix_frequencies(agents_l2, "prefix")
-            self.affixes_internal_suffix_l2 = stats.internal_affix_frequencies(agents_l2, "suffix")
+            self.affixes_internal_prefix_l1 = stats.internal_affix_frequencies_agents(agents_l1, "prefix")
+            self.affixes_internal_suffix_l1 = stats.internal_affix_frequencies_agents(agents_l1, "suffix")
+            self.affixes_internal_prefix_l2 = stats.internal_affix_frequencies_agents(agents_l2, "prefix")
+            self.affixes_internal_suffix_l2 = stats.internal_affix_frequencies_agents(agents_l2, "suffix")
             stats.compute_colours_agents(agents)
 
         self.datacollector.collect(self)
+        self.steps += 1

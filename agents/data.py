@@ -25,7 +25,7 @@ class Data():
         data_reindexed = self.data[general_cols+person_affix_cols].set_index("concept")
         data_dict = data_reindexed.to_dict(orient="index")
         self.lex_concept_data = {}
-        self.affixes = {}  # defaultdict(list)
+        self.affixes = {}
 
         for lex_concept in self.lex_concepts:
             # TODO: possible to do all these transformations vectorized

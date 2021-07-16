@@ -4,7 +4,7 @@ from collections import defaultdict, Counter
 from itertools import chain
 
 
-def agent_proportion_filled_cells(agent, aff_pos):
+def prop_internal_filled(agent, aff_pos):
     total = 0
     filled = 0
     for lex_concept in agent.lex_concepts_type[f"{aff_pos}ing"]:
@@ -30,12 +30,12 @@ def agent_proportion_filled_cells(agent, aff_pos):
     return filled/total
 
 
-def prop_internal(agents, aff_pos):
-    filled_props = [agent_proportion_filled_cells(a, aff_pos) for a in agents]
+def prop_internal_filled_agents(agents, aff_pos):
+    filled_props = [prop_internal_filled(a, aff_pos) for a in agents]
     return np.mean(filled_props) if len(filled_props) > 0 else 0
 
 
-def agent_affix_frequencies(agent, aff_pos, freq_dict):
+def internal_affix_frequencies(agent, aff_pos, freq_dict):
     for lex_concept in agent.lex_concepts_type[f"{aff_pos}ing"]:
         for person in agent.persons:
             affix_list = agent.affixes[(lex_concept, person, aff_pos)]
@@ -43,10 +43,10 @@ def agent_affix_frequencies(agent, aff_pos, freq_dict):
                 freq_dict[f"'{aff}'-{person}"] += 1
 
 
-def internal_affix_frequencies(agents, aff_pos):
+def internal_affix_frequencies_agents(agents, aff_pos):
     freq_dict = defaultdict(int)
     for a in agents:
-        agent_affix_frequencies(a, aff_pos, freq_dict)
+        internal_affix_frequencies(a, aff_pos, freq_dict)
     return freq_dict
 
 
@@ -56,8 +56,8 @@ def compute_colours_agents(agents):
 
 
 def compute_colours(agent):
-    agg_prefix = agent_proportion_filled_cells(agent, "prefix") * 50
-    agg_suffix = agent_proportion_filled_cells(agent, "suffix") * 50
+    agg_prefix = prop_internal_filled(agent, "prefix") * 50
+    agg_suffix = prop_internal_filled(agent, "suffix") * 50
     # HSL: H->0-360,  S->0-100%, L->100% L50% is maximum color, 100% is white
     return {"prefix": colour_str([250, 80, agg_prefix]), "suffix": colour_str([250, 80, agg_suffix])}
 
@@ -80,7 +80,7 @@ def update_communicated_model_stats(model, prefix, suffix, prefixing, suffixing,
             model.communicated_suffix_l1[-1].append(suffix)
 
 
-def calculate_proportion_communicated(communicated_list):
+def prop_communicated(communicated_list):
     # Flatten list of last n steps
     last_comm_list = list(chain.from_iterable(communicated_list[-LAST_N_STEPS_COMMUNICATED:]))
     # Calculate proportion non-empty communications
