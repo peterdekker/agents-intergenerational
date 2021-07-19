@@ -1,7 +1,6 @@
 from mesa import Agent
 import copy
 from collections import defaultdict
-import numpy as np
 
 from agents.signal import Signal
 from agents.conceptmessage import ConceptMessage
@@ -125,7 +124,8 @@ class Agent(Agent):
             #    return
             signal.suffix = suffix
 
-        stats.update_communicated_model_stats(self.model, prefix, suffix, prefixing, suffixing, self.l2, self.model.steps)
+        stats.update_communicated_model_stats(
+            self.model, prefix, suffix, prefixing, suffixing, self.l2, self.model.steps)
 
         # (3) Add context from sentence (subject and object), based on transivitity.
         if RG.random() >= self.model.drop_subject_prob:
