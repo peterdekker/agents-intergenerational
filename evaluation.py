@@ -105,7 +105,7 @@ def plot_graph_course(course_df, fixed_params, variable_param, mode, output_dir)
     fig, ax = plt.subplots()
     steps_ix = course_df.index
     for param_setting in course_df.columns:
-        ax.plot(steps_ix, course_df[param_setting], label=f"{variable_param}={param_setting}")
+        ax.plot(steps_ix, course_df[param_setting], label=f"{variable_param}={param_setting}", linewidth=1.0)
     # Add some text for labels, title and custom x-axis tick labels, etc.
     if mode == "internal":
         ax.set_ylabel('proportion paradigm cells filled')
