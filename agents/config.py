@@ -42,7 +42,7 @@ GENERALIZE_UPDATE_L1 = 0.0
 GENERALIZE_UPDATE_L2 = 0.0
 ALWAYS_AFFIX = True
 BALANCE_PREFIX_SUFFIX_VERBS = False
-UNIQUE_AFFIX = False
+UNIQUE_AFFIX = True
 FUZZY_MATCH_AFFIX = False
 
 # For evaluation script (not browser visualization)
