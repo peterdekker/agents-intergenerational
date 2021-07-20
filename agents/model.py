@@ -20,7 +20,7 @@ class Model(Model):
     def __init__(self, height, width, proportion_l2, suffix_prob,
                  capacity_l1, capacity_l2, drop_subject_prob,
                  min_boundary_feature_dist, reduction_hh,
-                 negative_update, always_affix, balance_prefix_suffix_verbs,
+                 negative_update, always_affix, balance_prefix_suffix_verbs, unique_affix,
                  fuzzy_match_affix,
                  generalize_production_l1,
                  generalize_production_l2, generalize_update_l1,
@@ -41,6 +41,7 @@ class Model(Model):
         assert isinstance(always_affix, bool)
         assert isinstance(fuzzy_match_affix, bool)
         assert isinstance(balance_prefix_suffix_verbs, bool)
+        assert isinstance(unique_affix, bool)
         assert generalize_production_l1 >= 0 and generalize_production_l1 <= 1
         assert generalize_production_l2 >= 0 and generalize_production_l2 <= 1
         assert generalize_update_l1 >= 0 and generalize_update_l1 <= 1
@@ -63,7 +64,7 @@ class Model(Model):
         self.steps = 0
 
         # Agent language model object is created from data file
-        self.data = Data(DATA_FILE, balance_prefix_suffix_verbs)
+        self.data = Data(DATA_FILE, balance_prefix_suffix_verbs, unique_affix)
 
         # Stats
         self.proportions_correct_interactions = []

@@ -5,7 +5,8 @@ from agents.config import PERSONS
 
 
 class Data():
-    def __init__(self, data_file, balance_prefix_suffix_verbs):
+    def __init__(self, data_file, balance_prefix_suffix_verbs, unique_affix):
+        unique_affix_id = 0
         self.data = pd.read_csv(data_file, sep="\t").fillna(value="")
         # Filter on only cells which have Lewoingu form
         self.data = self.data[self.data["form_lewoingu"] != ""]
@@ -57,6 +58,13 @@ class Data():
                     affixes_processed = [a.strip(" -") for a in affix.split(",")]
                     if "" in affixes_processed:
                         affixes_processed.remove("")
+                    if unique_affix:
+                        affixes_processed_unique = []
+                        for a in affixes_processed:
+                            affixes_processed_unique.append(a+str(unique_affix_id))
+                            unique_affix_id += 1
+                        affixes_processed = affixes_processed_unique
+
                     self.affixes[(lex_concept, person, affix_type)] = affixes_processed
 
         #print(f"Number of concept cells: {len(self.affixes.keys())}")
