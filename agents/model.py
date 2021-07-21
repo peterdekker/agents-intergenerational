@@ -132,6 +132,10 @@ class Model(Model):
             self.grid.position_agent(agent, (x, y))
             self.schedule.add(agent)
 
+        self.agents = [a for a, x, y in self.grid.coord_iter()]
+        self.agents_l1 = [a for a in self.agents if not a.is_l2()]
+        self.agents_l2 = [a for a in self.agents if a.is_l2()]
+
         self.running = True
         self.datacollector.collect(self)
 
@@ -154,19 +158,12 @@ class Model(Model):
         self.schedule.step()
 
         if self.steps % STATS_AFTER_STEPS == 0:
-            # Now compute proportion of correct interaction
-            self.proportion_correct_interactions = self.correct_interactions/float(N_AGENTS)
-            self.proportions_correct_interactions.append(self.proportion_correct_interactions)
-            self.avg_proportion_correct_interactions = np.mean(self.proportions_correct_interactions)
 
             # Calculate and reset ambiguity every STAT_AFTER_STEPS_INTERACTIONS,
             # to do some averaging over steps
             # self.avg_ambiguity = {k: np.mean(v) for k, v in self.ambiguity.items()}
             # self.ambiguity = defaultdict(list)
 
-            agents = [a for a, x, y in self.grid.coord_iter()]
-            agents_l1 = [a for a in agents if not a.is_l2()]
-            agents_l2 = [a for a in agents if a.is_l2()]
             # TODO: stats can be calculated upon calling .collect(), by
             # registering methods in datacollector. But then
             # no differentiation between stats calculation intervals is possible
@@ -182,16 +179,25 @@ class Model(Model):
                 self.communicated_suffix_l2)
 
         if self.steps % RARE_STATS_AFTER_STEPS == 0:
-            self.prop_internal_prefix_l1 = stats.prop_internal_filled_agents(agents_l1, "prefix")
-            self.prop_internal_suffix_l1 = stats.prop_internal_filled_agents(agents_l1, "suffix")
-            self.prop_internal_prefix_l2 = stats.prop_internal_filled_agents(agents_l2, "prefix")
-            self.prop_internal_suffix_l2 = stats.prop_internal_filled_agents(agents_l2, "suffix")
+            self.prop_internal_prefix_l1 = stats.prop_internal_filled_agents(self.agents_l1, "prefix")
+            self.prop_internal_suffix_l1 = stats.prop_internal_filled_agents(self.agents_l1, "suffix")
+            self.prop_internal_prefix_l2 = stats.prop_internal_filled_agents(self.agents_l2, "prefix")
+            self.prop_internal_suffix_l2 = stats.prop_internal_filled_agents(self.agents_l2, "suffix")
 
-            self.affixes_internal_prefix_l1 = stats.internal_affix_frequencies_agents(agents_l1, "prefix")
-            self.affixes_internal_suffix_l1 = stats.internal_affix_frequencies_agents(agents_l1, "suffix")
-            self.affixes_internal_prefix_l2 = stats.internal_affix_frequencies_agents(agents_l2, "prefix")
-            self.affixes_internal_suffix_l2 = stats.internal_affix_frequencies_agents(agents_l2, "suffix")
-            stats.compute_colours_agents(agents)
+            self.affixes_internal_suffix_l1 = stats.internal_affix_frequencies_agents(
+                self.agents_l1, "suffix")
+            self.affixes_internal_prefix_l2 = stats.internal_affix_frequencies_agents(
+                self.agents_l2, "prefix")
+            self.affixes_internal_suffix_l2 = stats.internal_affix_frequencies_agents(
+                self.agents_l2, "suffix")
+            self.affixes_internal_prefix_l1 = stats.internal_affix_frequencies_agents(
+                self.agents_l1, "prefix")
+            stats.compute_colours_agents(self.agents)
+
+            # Now compute proportion of correct interaction
+            self.proportion_correct_interactions = self.correct_interactions/float(N_AGENTS)
+            self.proportions_correct_interactions.append(self.proportion_correct_interactions)
+            self.avg_proportion_correct_interactions = np.mean(self.proportions_correct_interactions)
 
         self.datacollector.collect(self)
         self.steps += 1

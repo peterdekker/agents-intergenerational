@@ -75,6 +75,12 @@ def evaluate_model(fixed_params, variable_params, iterations, steps, output_dir)
 
 
 def create_graph_course(run_data, fixed_params, variable_param, mode, stat, output_dir):
+    course_df = get_course_df(run_data, variable_param, stat)
+
+    plot_graph_course(course_df, fixed_params, variable_param, mode, output_dir)
+
+
+def get_course_df(run_data, variable_param, stat):
     course_df = pd.DataFrame()
     for param_setting, group in run_data.groupby(variable_param):
         iteration_dfs = []
@@ -87,8 +93,7 @@ def create_graph_course(run_data, fixed_params, variable_param, mode, stat, outp
         course_df[param_setting] = combined
     # Drop first row of course df, because this is logging artefact
     course_df = course_df.iloc[1:, :]
-
-    plot_graph_course(course_df, fixed_params, variable_param, mode, output_dir)
+    return course_df
     # TODO: possibly function intersection here later
 
 # Needed for function intersection
