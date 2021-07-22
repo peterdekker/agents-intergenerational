@@ -24,7 +24,7 @@ RARE_STATS_AFTER_STEPS = 1000
 # Last n number of steps to take into account, when calculating communicated stat
 #LAST_N_STEPS_COMMUNICATED = 1
 
-
+IMG_FORMAT = "png"
 OUTPUT_DIR = f'output-{str(datetime.datetime.now()).replace(" ","-")}'
 
 # Defaults for UserSettableParameters

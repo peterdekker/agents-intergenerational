@@ -3,7 +3,7 @@ from mesa.batchrunner import BatchRunner
 
 from agents.model import Model
 from agents import misc
-from agents.config import model_params, evaluation_params, bool_params, OUTPUT_DIR
+from agents.config import model_params, evaluation_params, bool_params, OUTPUT_DIR, IMG_FORMAT
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -74,23 +74,25 @@ def evaluate_model(fixed_params, variable_params, iterations, steps, output_dir)
     return run_data
 
 
-def create_graph_course(run_data, fixed_params, variable_param, mode, stat, output_dir):
-    course_df = get_course_df(run_data, variable_param, stat)
+def create_graph_course(run_data, fixed_params, variable_param, variable_param_settings, mode, stats, stat, output_dir):
+    course_df = get_course_df(run_data, variable_param, variable_param_settings, stats)
+    plot_graph_course(course_df, fixed_params, variable_param,
+                      variable_param_settings, stat, mode, output_dir)
 
-    plot_graph_course(course_df, fixed_params, variable_param, mode, output_dir)
 
-
-def get_course_df(run_data, variable_param, stat):
-    course_df = pd.DataFrame()
+def get_course_df(run_data, variable_param, variable_param_settings, stats):
+    multi_index = pd.MultiIndex.from_product([variable_param_settings, stats])
+    course_df = pd.DataFrame(columns=multi_index)
     for param_setting, group in run_data.groupby(variable_param):
         iteration_dfs = []
         for i, row in group.iterrows():
-            iteration_df = row["datacollector"].get_model_vars_dataframe()[stat]
+            iteration_df = row["datacollector"].get_model_vars_dataframe()[stats]
             iteration_dfs.append(iteration_df)
         iteration_dfs_concat = pd.concat(iteration_dfs)
         # TODO: spread instead of mean
         combined = iteration_dfs_concat.groupby(iteration_dfs_concat.index).mean()  # group by index
-        course_df[param_setting] = combined
+        for stat_col in combined:
+            course_df[param_setting, stat_col] = combined[stat_col]
     # Drop first row of course df, because this is logging artefact
     course_df = course_df.iloc[1:, :]
     return course_df
@@ -106,11 +108,12 @@ def get_course_df(run_data, variable_param, stat):
 #     return previous_i
 
 
-def plot_graph_course(course_df, fixed_params, variable_param, mode, output_dir):
+def plot_graph_course(course_df, fixed_params, variable_param, variable_param_settings, stat, mode, output_dir):
     fig, ax = plt.subplots()
     steps_ix = course_df.index
-    for param_setting in course_df.columns:
-        ax.plot(steps_ix, course_df[param_setting], label=f"{variable_param}={param_setting}", linewidth=1.0)
+    for param_setting in variable_param_settings:
+        ax.plot(steps_ix, course_df[param_setting, stat],
+                label=f"{variable_param}={param_setting}", linewidth=1.0)
     # Add some text for labels, title and custom x-axis tick labels, etc.
     if mode == "internal":
         ax.set_ylabel('proportion paradigm cells filled')
@@ -125,11 +128,15 @@ def plot_graph_course(course_df, fixed_params, variable_param, mode, output_dir)
     plt.subplots_adjust(bottom=0.2)
     plt.figtext(0.05, 0.03, graphtext, fontsize=8, ha="left")
     # bbox_inches="tight"
-    plt.savefig(os.path.join(output_dir, f"{variable_param}-{mode}-course.pdf"), format="pdf")
+    plt.savefig(os.path.join(output_dir, f"{variable_param}-{mode}-course.{IMG_FORMAT}"), format=IMG_FORMAT)
 
 
-def create_graph_end_state(run_data, fixed_params, variable_param, mode, stats, output_dir):
+def create_graph_end(run_data, fixed_params, variable_param, variable_param_settings, mode, stats, output_dir):
+    course_df = get_course_df(run_data, variable_param, variable_param_settings, stats)
+    print(course_df.tail(50).mean())
+
     run_data_means = run_data.groupby(variable_param).mean(numeric_only=True)
+    print(run_data_means)
     labels = run_data_means.index  # variable values
     x = np.arange(len(labels))  # the label locations
     width = 0.2  # the width of the bars
@@ -155,7 +162,7 @@ def create_graph_end_state(run_data, fixed_params, variable_param, mode, stats, 
     plt.subplots_adjust(bottom=0.2)
     plt.figtext(0.05, 0.03, graphtext, fontsize=8, ha="left")
     # bbox_inches="tight"
-    plt.savefig(os.path.join(output_dir, f"{variable_param}-{mode}-end.pdf"), format="pdf")
+    plt.savefig(os.path.join(output_dir, f"{variable_param}-{mode}-end.{IMG_FORMAT}"), format=IMG_FORMAT)
 
 
 def main():
@@ -202,7 +209,7 @@ def main():
 
     if settings_graph:
         # Try variable parameters one by one, while keeping all of the other parameters fixed
-        for var_param, var_param_setting in variable_params.items():
+        for var_param, var_param_settings in variable_params.items():
             assert len(iterations) == 1
             assert len(steps) == 1
             iterations_setting = iterations[0]
@@ -210,16 +217,17 @@ def main():
             fixed_params = {k: v for k, v in model_params.items() if k != var_param}
             fixed_params_print = {**fixed_params, **
                                   {"iterations": iterations_setting, "steps": steps_setting}}
-            run_data = evaluate_model(fixed_params, {var_param: var_param_setting},
+            run_data = evaluate_model(fixed_params, {var_param: var_param_settings},
                                       iterations_setting, steps_setting, output_dir=OUTPUT_DIR)
-            # create_graph_end_state(run_data, fixed_params_print, var_param,
+            # create_graph_end(run_data, fixed_params_print, var_param,
             #                        mode="internal", stats=stats_internal, output_dir=OUTPUT_DIR)
-            create_graph_end_state(run_data, fixed_params_print, var_param,
-                                   mode="communicated", stats=stats_communicated, output_dir=OUTPUT_DIR)
+            create_graph_end(run_data, fixed_params_print, var_param, var_param_settings,
+                             mode="communicated", stats=stats_communicated, output_dir=OUTPUT_DIR)
             # create_graph_course(run_data, fixed_params_print, var_param,
             #                     mode="internal", stat="prop_internal_suffix_l1", output_dir=OUTPUT_DIR)
-            create_graph_course(run_data, fixed_params_print, var_param,
-                                mode="communicated", stat="prop_communicated_suffix_l1", output_dir=OUTPUT_DIR)
+            create_graph_course(run_data, fixed_params_print, var_param, var_param_settings,
+                                mode="communicated", stats=stats_communicated.keys(),
+                                stat="prop_communicated_suffix_l1", output_dir=OUTPUT_DIR)
     elif steps_graph:
         # No variable parameters are used and no iterations are used. Only evaluate
         run_data_list = []
@@ -233,10 +241,10 @@ def main():
             run_data_list.append(run_data)
         combined_run_data = pd.concat(run_data_list, ignore_index=True)
         fixed_params_print = {**fixed_params, **{"iterations": iterations_setting}}
-        # create_graph_end_state(combined_run_data, fixed_params_print,
+        # create_graph_end(combined_run_data, fixed_params_print,
         #                        "steps", mode="internal", stats=stats_internal)
-        create_graph_end_state(combined_run_data, fixed_params_print, "steps",
-                               mode="communicated", stats=stats_communicated)
+        create_graph_end(combined_run_data, fixed_params_print, "steps",
+                         mode="communicated", stats=stats_communicated)
     else:
         # Evaluate all combinations of variable parameters
         # Only params not changed by user are fixed

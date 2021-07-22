@@ -17,6 +17,8 @@ import unicodedata as ud
 # import unidecode
 from ipapy.ipastring import IPAString
 
+from agents.config import IMG_FORMAT
+
 plt.rcParams['figure.figsize'] = [12, 6]
 
 
@@ -183,7 +185,7 @@ def reduce_plot(study_label, study_data, dr_label, dr, data_agg, language_groups
                                            row[f"{study_label}-{dr_label}-pc2"]))
     plt.title(f"{study_label} ({dr_label})")
     plt.legend()
-    plt.savefig(f"{study_label}-{dr_label}.pdf", format="pdf")
+    plt.savefig(f"{study_label}-{dr_label}.{IMG_FORMAT}", format=IMG_FORMAT)
     plt.show()
 
 
@@ -222,4 +224,3 @@ def normalize_list(list_of_strings, method, ud_form="NFKD", soundclass_system="a
 # def ipa_to_soundclass(segment, soundclass_system="asjp"):
 #     clts_system = clts.transcriptionsystem(soundclass_system)
 #     return clts.bipa.translate(segment, clts_system)
-
