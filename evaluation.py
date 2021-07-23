@@ -3,7 +3,7 @@ from mesa.batchrunner import BatchRunner
 
 from agents.model import Model
 from agents import misc
-from agents.config import model_params, evaluation_params, bool_params, OUTPUT_DIR, IMG_FORMAT
+from agents.config import model_params, evaluation_params, bool_params, OUTPUT_DIR, IMG_FORMAT, LAST_N_STEPS_END_GRAPH
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -89,8 +89,8 @@ def get_course_df(run_data, variable_param, variable_param_settings, stats):
             iteration_df = row["datacollector"].get_model_vars_dataframe()[stats]
             iteration_dfs.append(iteration_df)
         iteration_dfs_concat = pd.concat(iteration_dfs)
-        # TODO: spread instead of mean
-        combined = iteration_dfs_concat.groupby(iteration_dfs_concat.index).mean()  # group by index
+        # Group all iterations together for this index  # TODO: spread?
+        combined = iteration_dfs_concat.groupby(iteration_dfs_concat.index).mean()
         for stat_col in combined:
             course_df[param_setting, stat_col] = combined[stat_col]
     # Drop first row of course df, because this is logging artefact
@@ -133,11 +133,9 @@ def plot_graph_course(course_df, fixed_params, variable_param, variable_param_se
 
 def create_graph_end(run_data, fixed_params, variable_param, variable_param_settings, mode, stats, output_dir):
     course_df = get_course_df(run_data, variable_param, variable_param_settings, stats)
-    print(course_df.tail(50).mean())
-
-    run_data_means = run_data.groupby(variable_param).mean(numeric_only=True)
-    print(run_data_means)
-    labels = run_data_means.index  # variable values
+    course_tail_avg = course_df.tail(LAST_N_STEPS_END_GRAPH).mean()
+    #run_data_means = run_data.groupby(variable_param).mean(numeric_only=True)
+    labels = variable_param_settings  #run_data_means.index  # variable values
     x = np.arange(len(labels))  # the label locations
     width = 0.2  # the width of the bars
     fig, ax = plt.subplots()
@@ -145,9 +143,8 @@ def create_graph_end(run_data, fixed_params, variable_param, variable_param_sett
     for i, stat in enumerate(stats):
         stat_label = stat.replace(
             "prop_internal_", "") if mode == "internal" else stat.replace("prop_communicated_", "")
-        rects[stat] = ax.bar(x+i*width, run_data_means[stat],
+        rects[stat] = ax.bar(x+i*width, course_tail_avg[:,stat],
                              width=width, edgecolor="white", label=stat_label)
-        # ax.bar_label(rects[stats_col], padding=3)
     # # Add some text for labels, title and custom x-axis tick labels, etc.
     if mode == "internal":
         ax.set_ylabel('proportion paradigm cells filled')
@@ -157,11 +154,9 @@ def create_graph_end(run_data, fixed_params, variable_param, variable_param_sett
     ax.set_xticks(x+1.5*width)
     ax.set_xticklabels(labels)
     ax.legend()
-    # fig.tight_layout()
     graphtext = textwrap.fill(params_print(fixed_params), width=100)
     plt.subplots_adjust(bottom=0.2)
     plt.figtext(0.05, 0.03, graphtext, fontsize=8, ha="left")
-    # bbox_inches="tight"
     plt.savefig(os.path.join(output_dir, f"{variable_param}-{mode}-end.{IMG_FORMAT}"), format=IMG_FORMAT)
 
 

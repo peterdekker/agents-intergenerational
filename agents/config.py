@@ -23,6 +23,8 @@ RARE_STATS_AFTER_STEPS = 1000
 
 # Last n number of steps to take into account, when calculating communicated stat
 #LAST_N_STEPS_COMMUNICATED = 1
+# Last n number of steps to take into account, when calculating end state graph
+LAST_N_STEPS_END_GRAPH = 500
 
 IMG_FORMAT = "png"
 OUTPUT_DIR = f'output-{str(datetime.datetime.now()).replace(" ","-")}'
@@ -40,9 +42,9 @@ GENERALIZE_PRODUCTION_L1 = 0.0
 GENERALIZE_PRODUCTION_L2 = 0.0
 GENERALIZE_UPDATE_L1 = 0.0
 GENERALIZE_UPDATE_L2 = 0.0
-ALWAYS_AFFIX = True
+ALWAYS_AFFIX = False
 BALANCE_PREFIX_SUFFIX_VERBS = False
-UNIQUE_AFFIX = True
+UNIQUE_AFFIX = False
 FUZZY_MATCH_AFFIX = False
 
 # For evaluation script (not browser visualization)
