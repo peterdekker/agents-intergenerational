@@ -98,12 +98,13 @@ def reduce_affix_phonetic(verb_type, affix, form, min_boundary_feature_dist, lis
 
 
 def reduce_affix_hh(verb_type, affix, listener, reduction_hh):
-    affix_old = affix
+    #affix_old = affix
     if reduction_hh:
         if not listener.is_l2():
             if len(affix) > 0:
-                affix = affix[1:] if verb_type == "prefixing" else affix[:-1]
-                logging.debug(f"H&H: {affix_old} -> {affix}")
+                affix = ""
+                # affix = affix[1:] if verb_type == "prefixing" else affix[:-1]
+                # logging.debug(f"H&H: {affix_old} -> {affix}")
     return affix
 
 

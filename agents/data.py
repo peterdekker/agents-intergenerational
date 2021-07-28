@@ -58,6 +58,10 @@ class Data():
                     affixes_processed = [a.strip(" -") for a in affix.split(",")]
                     if "" in affixes_processed:
                         affixes_processed.remove("")
+                    ###
+                    # if len(affixes_processed) > 1:
+                    #     affixes_processed = [affixes_processed[0]]
+                    ###
                     if unique_affix:
                         affixes_processed_unique = []
                         for a in affixes_processed:
