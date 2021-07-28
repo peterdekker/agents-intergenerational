@@ -140,11 +140,12 @@ def create_graph_end(run_data, fixed_params, variable_param, variable_param_sett
     width = 0.2  # the width of the bars
     fig, ax = plt.subplots()
     rects = {}
+    colors = ["deepskyblue", "royalblue", "orange", "darkgoldenrod"]
     for i, stat in enumerate(stats):
         stat_label = stat.replace(
             "prop_internal_", "") if mode == "internal" else stat.replace("prop_communicated_", "")
         rects[stat] = ax.bar(x+i*width, course_tail_avg[:,stat],
-                             width=width, edgecolor="white", label=stat_label)
+                             width=width, edgecolor="white", label=stat_label, color=colors[i])
     # # Add some text for labels, title and custom x-axis tick labels, etc.
     if mode == "internal":
         ax.set_ylabel('proportion paradigm cells filled')
