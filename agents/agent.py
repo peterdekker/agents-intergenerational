@@ -104,7 +104,7 @@ class Agent(Agent):
         #  - suffixing verb:
         #     -- transitive: do not use suffix
         #     -- intransitive: use suffix with probability, because it is not obligatory
-        if self.model.always_affix or suffixing:
+        if suffixing:
             # self.affixes[(lex_concept_gen, person_gen, "suffix")]
             suffixes = misc.retrieve_affixes_generalize(
                 lex_concept, person, "suffix", self.affixes, self.generalize_production,
@@ -157,23 +157,23 @@ class Agent(Agent):
 
         signal_form = self.signal_recv.form
         # Do reverse lookup in forms dict to find accompanying concept
-        lex_concept = misc.lookup_lex_concept(signal_form, self.lex_concepts, self.lex_concept_data)
+        lex_concept_inferred = misc.lookup_lex_concept(signal_form, self.lex_concepts, self.lex_concept_data)
 
         # Infer person from subject
-        inferred_person = self.signal_recv.subject
-        if not inferred_person:
+        person_inferred = self.signal_recv.subject
+        if not person_inferred:
             # If person not inferred from context, try using affix
-            inferred_person = misc.infer_person_from_signal(lex_concept,
+            person_inferred = misc.infer_person_from_signal(lex_concept_inferred,
                                                             self.lex_concept_data,
                                                             self.affixes,
                                                             self.persons,
                                                             signal, self.model.fuzzy_match_affix)  # ,self.model.ambiguity)
 
         # We use directly existence/non-existence of object as criterion for transitivity
-        transitivity = "trans" if self.signal_recv.object else "intrans"
+        transitivity_inferred = "trans" if self.signal_recv.object else "intrans"
 
         self.concept_listener = ConceptMessage(
-            lex_concept=lex_concept, person=inferred_person, transitivity=transitivity)
+            lex_concept=lex_concept_inferred, person=person_inferred, transitivity=transitivity_inferred)
         logging.debug(f"Listener decodes concept: {self.concept_listener!s}")
 
         # Point to object

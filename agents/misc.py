@@ -118,7 +118,9 @@ def update_affix_list(prefix_recv, suffix_recv, affixes, lex_concepts_type, lex_
     lex_concept_listener = concept_listener.lex_concept
     person_listener = concept_listener.person
     for affix_type, affix_recv in [("prefix", prefix_recv), ("suffix", suffix_recv)]:
-        if affix_recv is None:
+        # TODO: This assumes listener has same concept matrix, and knows which
+        # verbs are prefixing/suffixing.
+        if lex_concept_listener not in lex_concepts_type[f"{affix_type}ing"]: #affix_recv is None:
             # If no affix for this verb type received (e.g. prefix), skip
             continue
         if RG.random() < generalize_update:
