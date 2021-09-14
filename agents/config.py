@@ -30,11 +30,13 @@ IMG_FORMAT = "png"
 OUTPUT_DIR = f'output-{str(datetime.datetime.now()).replace(" ","-")}'
 
 # Defaults for UserSettableParameters
+# Independent variable
 PROPORTION_L2 = 0.5
-SUFFIX_PROB = 0.5
+# Only crucial parameter
+DROP_SUBJECT_PROB = 0.5
+# Model expansions turned off by default
 CAPACITY_L1 = 50
 CAPACITY_L2 = 50
-DROP_SUBJECT_PROB = 0.5
 MIN_BOUNDARY_FEATURE_DIST = 0.0
 REDUCTION_HH = False
 NEGATIVE_UPDATE = False
@@ -42,10 +44,14 @@ GENERALIZE_PRODUCTION_L1 = 0.0
 GENERALIZE_PRODUCTION_L2 = 0.0
 GENERALIZE_UPDATE_L1 = 0.0
 GENERALIZE_UPDATE_L2 = 0.0
-ALWAYS_AFFIX = False
+FUZZY_MATCH_AFFIX = False
+# Always affix setting simplifies model and disables suffix_prob
+ALWAYS_AFFIX = True
+SUFFIX_PROB = 0.5
+# Settings to check which model results come from data artefacts
 BALANCE_PREFIX_SUFFIX_VERBS = False
 UNIQUE_AFFIX = False
-FUZZY_MATCH_AFFIX = False
+
 
 # For evaluation script (not browser visualization)
 ITERATIONS = [3]
@@ -78,8 +84,11 @@ evaluation_params = {
     "iterations": ITERATIONS,
     "steps": STEPS,
     "settings_graph": SETTINGS_GRAPH,
-    "steps_graph": STEPS_GRAPH
+    "steps_graph": STEPS_GRAPH,
+    "runlabel": ""
 }
 
 bool_params = ["reduction_hh", "negative_update", "always_affix",
                "balance_prefix_suffix_verbs", "unique_affix", "fuzzy_match_affix", "settings_graph", "steps_graph"]
+
+string_params = ["runlabel"]

@@ -3,7 +3,7 @@ from mesa.batchrunner import BatchRunner
 
 from agents.model import Model
 from agents import misc
-from agents.config import model_params, evaluation_params, bool_params, OUTPUT_DIR, IMG_FORMAT, LAST_N_STEPS_END_GRAPH
+from agents.config import model_params, evaluation_params, bool_params, string_params, OUTPUT_DIR, IMG_FORMAT, LAST_N_STEPS_END_GRAPH
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -171,6 +171,8 @@ def main():
     for param in evaluation_params:
         if param in bool_params:
             evaluation_group.add_argument(f'--{param}', action='store_true')
+        elif param in string_params:
+            evaluation_group.add_argument(f'--{param}', type=str, default=evaluation_params[param])
         else:
             evaluation_group.add_argument(f"--{param}", nargs="+", type=int, default=evaluation_params[param])
 
@@ -200,8 +202,10 @@ def main():
                 "With option --steps_graph, please supply one or multiple steps settings")
 
     print(f"Evaluating iterations {iterations} and steps {steps}")
-
-    misc.create_output_dir(OUTPUT_DIR)
+    output_dir_custom = OUTPUT_DIR
+    if args["runlabel"] != "":
+        output_dir_custom = f'{OUTPUT_DIR}-{args["runlabel"]}'
+    misc.create_output_dir(output_dir_custom)
 
     if settings_graph:
         # Try variable parameters one by one, while keeping all of the other parameters fixed
@@ -214,16 +218,16 @@ def main():
             fixed_params_print = {**fixed_params, **
                                   {"iterations": iterations_setting, "steps": steps_setting}}
             run_data = evaluate_model(fixed_params, {var_param: var_param_settings},
-                                      iterations_setting, steps_setting, output_dir=OUTPUT_DIR)
+                                      iterations_setting, steps_setting, output_dir=output_dir_custom)
             # create_graph_end(run_data, fixed_params_print, var_param,
-            #                        mode="internal", stats=stats_internal, output_dir=OUTPUT_DIR)
+            #                        mode="internal", stats=stats_internal, output_dir=output_dir_custom)
             create_graph_end(run_data, fixed_params_print, var_param, var_param_settings,
-                             mode="communicated", stats=stats_communicated, output_dir=OUTPUT_DIR)
+                             mode="communicated", stats=stats_communicated, output_dir=output_dir_custom)
             # create_graph_course(run_data, fixed_params_print, var_param,
-            #                     mode="internal", stat="prop_internal_suffix_l1", output_dir=OUTPUT_DIR)
+            #                     mode="internal", stat="prop_internal_suffix_l1", output_dir=output_dir_custom)
             create_graph_course(run_data, fixed_params_print, var_param, var_param_settings,
                                 mode="communicated", stats=stats_communicated.keys(),
-                                stat="prop_communicated_suffix_l1", output_dir=OUTPUT_DIR)
+                                stat="prop_communicated_suffix_l1", output_dir=output_dir_custom)
     elif steps_graph:
         # No variable parameters are used and no iterations are used. Only evaluate
         run_data_list = []
@@ -232,7 +236,7 @@ def main():
         for steps_setting in steps:
             fixed_params = model_params
             run_data = evaluate_model(fixed_params, {},
-                                      iterations_setting, steps_setting, OUTPUT_DIR)
+                                      iterations_setting, steps_setting, output_dir_custom)
             run_data["steps"] = steps_setting
             run_data_list.append(run_data)
         combined_run_data = pd.concat(run_data_list, ignore_index=True)
@@ -248,7 +252,7 @@ def main():
         for iterations_setting in iterations:
             for steps_setting in steps:
                 run_data = evaluate_model(fixed_params, variable_params,
-                                          iterations_setting, steps_setting, OUTPUT_DIR)
+                                          iterations_setting, steps_setting, output_dir_custom)
 
 
 if __name__ == "__main__":
