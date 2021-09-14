@@ -119,13 +119,14 @@ def plot_graph_course(course_df, fixed_params, variable_param, variable_param_se
         ax.set_ylabel('proportion paradigm cells filled')
     elif mode == "communicated":
         ax.set_ylabel('proportion non-empty utterances')
+    ax.set_xlabel(variable_param)
     ax.set_title(f"{variable_param} ({mode})")
     # ax.set_xticks(x+1.5*width)
     # ax.set_xticklabels(labels)
     ax.legend()
     # fig.tight_layout()
     graphtext = textwrap.fill(params_print(fixed_params), width=100)
-    plt.subplots_adjust(bottom=0.2)
+    plt.subplots_adjust(bottom=0.25)
     plt.figtext(0.05, 0.03, graphtext, fontsize=8, ha="left")
     # bbox_inches="tight"
     plt.savefig(os.path.join(output_dir, f"{variable_param}-{mode}-course.{IMG_FORMAT}"), format=IMG_FORMAT)
@@ -134,8 +135,8 @@ def plot_graph_course(course_df, fixed_params, variable_param, variable_param_se
 def create_graph_end(run_data, fixed_params, variable_param, variable_param_settings, mode, stats, output_dir):
     course_df = get_course_df(run_data, variable_param, variable_param_settings, stats)
     course_tail_avg = course_df.tail(LAST_N_STEPS_END_GRAPH).mean()
-    #run_data_means = run_data.groupby(variable_param).mean(numeric_only=True)
-    labels = variable_param_settings  #run_data_means.index  # variable values
+    # run_data_means = run_data.groupby(variable_param).mean(numeric_only=True)
+    labels = variable_param_settings  # run_data_means.index  # variable values
     x = np.arange(len(labels))  # the label locations
     width = 0.2  # the width of the bars
     fig, ax = plt.subplots()
@@ -151,12 +152,13 @@ def create_graph_end(run_data, fixed_params, variable_param, variable_param_sett
         ax.set_ylabel('proportion paradigm cells filled')
     elif mode == "communicated":
         ax.set_ylabel('proportion utterances non-empty')
+    ax.set_xlabel(variable_param)
     ax.set_title(f"{variable_param} ({mode})")
     ax.set_xticks(x+1.5*width)
     ax.set_xticklabels(labels)
     ax.legend()
     graphtext = textwrap.fill(params_print(fixed_params), width=100)
-    plt.subplots_adjust(bottom=0.2)
+    plt.subplots_adjust(bottom=0.25)
     plt.figtext(0.05, 0.03, graphtext, fontsize=8, ha="left")
     plt.savefig(os.path.join(output_dir, f"{variable_param}-{mode}-end.{IMG_FORMAT}"), format=IMG_FORMAT)
 
