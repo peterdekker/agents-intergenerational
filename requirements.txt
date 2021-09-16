@@ -8,10 +8,4 @@ distance
 panphon
 argparse
 ascii_graph
-# Phonology script
-requests
-nltk
-sklearn
-matplotlib
-ipapy
-pyclts==3.1.1
+
