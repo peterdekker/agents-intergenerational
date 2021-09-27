@@ -3,8 +3,5 @@ __pycache__
 *.tsv
 .vscode/
 env/
-lexirumah*
-*.png
 *.pdf
-*.tar.gz
-clts*
+*.png
