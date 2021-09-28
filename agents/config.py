@@ -33,7 +33,7 @@ OUTPUT_DIR = f'output-{str(datetime.datetime.now()).replace(" ","-")}'
 # Independent variable
 PROPORTION_L2 = 0.5
 # Only crucial parameter
-DROP_SUBJECT_PROB = 0.5
+PRONOUN_DROP_PROB = 0.5
 # Model expansions turned off by default
 CAPACITY_L1 = 50
 CAPACITY_L2 = 50
@@ -66,7 +66,7 @@ model_params = {
     "suffix_prob": SUFFIX_PROB,
     "capacity_l1": CAPACITY_L1,
     "capacity_l2": CAPACITY_L2,
-    "drop_subject_prob": DROP_SUBJECT_PROB,
+    "pronoun_drop_prob": PRONOUN_DROP_PROB,
     "min_boundary_feature_dist": MIN_BOUNDARY_FEATURE_DIST,
     "reduction_hh": REDUCTION_HH,
     "negative_update": NEGATIVE_UPDATE,

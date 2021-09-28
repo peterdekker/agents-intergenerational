@@ -128,7 +128,7 @@ class Agent(Agent):
             self.model, prefix, suffix, prefixing, suffixing, self.l2, self.model.steps)
 
         # (3) Add context from sentence (subject and object), based on transivitity.
-        if RG.random() >= self.model.drop_subject_prob:
+        if RG.random() >= self.model.pronoun_drop_prob:
             signal.subject = person
         if transitivity == "trans":
             signal.object = "OBJECT"

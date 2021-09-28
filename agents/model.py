@@ -18,7 +18,7 @@ class Model(Model):
     '''
 
     def __init__(self, height, width, proportion_l2, suffix_prob,
-                 capacity_l1, capacity_l2, drop_subject_prob,
+                 capacity_l1, capacity_l2, pronoun_drop_prob,
                  min_boundary_feature_dist, reduction_hh,
                  negative_update, always_affix, balance_prefix_suffix_verbs, unique_affix,
                  fuzzy_match_affix,
@@ -34,7 +34,7 @@ class Model(Model):
         assert suffix_prob >= 0 and suffix_prob <= 1
         assert capacity_l1 % 1 == 0
         assert capacity_l2 % 1 == 0
-        assert drop_subject_prob >= 0 and drop_subject_prob <= 1
+        assert pronoun_drop_prob >= 0 and pronoun_drop_prob <= 1
         assert min_boundary_feature_dist >= 0
         assert isinstance(reduction_hh, bool)
         assert isinstance(negative_update, bool)
@@ -52,7 +52,7 @@ class Model(Model):
         self.proportion_l2 = proportion_l2
         self.radius = MAX_RADIUS
         self.suffix_prob = suffix_prob
-        self.drop_subject_prob = drop_subject_prob
+        self.pronoun_drop_prob = pronoun_drop_prob
         self.min_boundary_feature_dist = min_boundary_feature_dist
         self.reduction_hh = reduction_hh
         self.negative_update = negative_update

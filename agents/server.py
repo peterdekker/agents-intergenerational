@@ -6,7 +6,7 @@ from agents.model import Model
 from agents.textbarchart import TextBarChart
 
 from agents.config import HEIGHT, WIDTH, PROPORTION_L2, SUFFIX_PROB, CAPACITY_L1, CAPACITY_L2, \
-    DROP_SUBJECT_PROB, MIN_BOUNDARY_FEATURE_DIST, REDUCTION_HH, NEGATIVE_UPDATE, GENERALIZE_PRODUCTION_L1, \
+    PRONOUN_DROP_PROB, MIN_BOUNDARY_FEATURE_DIST, REDUCTION_HH, NEGATIVE_UPDATE, GENERALIZE_PRODUCTION_L1, \
     GENERALIZE_PRODUCTION_L2, GENERALIZE_UPDATE_L1, GENERALIZE_UPDATE_L2, ALWAYS_AFFIX, BALANCE_PREFIX_SUFFIX_VERBS, \
     UNIQUE_AFFIX, FUZZY_MATCH_AFFIX
 
@@ -50,7 +50,7 @@ model_params = {
     "suffix_prob": UserSettableParameter("slider", "Suffix prob (intrans)", SUFFIX_PROB, 0.0, 1.0, 0.1),
     "capacity_l1": UserSettableParameter("slider", "Exemplar capacity L1", CAPACITY_L1, 0, 50, 1),
     "capacity_l2": UserSettableParameter("slider", "Exemplar capacity L2", CAPACITY_L2, 0, 50, 1),
-    "drop_subject_prob": UserSettableParameter("slider", "Drop subject prob", DROP_SUBJECT_PROB, 0, 1, 0.1),
+    "pronoun_drop_prob": UserSettableParameter("slider", "Pronoun drop prob", PRONOUN_DROP_PROB, 0, 1, 0.1),
     "min_boundary_feature_dist": UserSettableParameter("slider", "Min boundary feature dist",
                                                        MIN_BOUNDARY_FEATURE_DIST, 0, 10, 0.1),
     "reduction_hh": UserSettableParameter('checkbox', 'Reduction H&H', value=REDUCTION_HH),
