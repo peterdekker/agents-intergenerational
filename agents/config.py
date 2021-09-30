@@ -33,7 +33,7 @@ OUTPUT_DIR = f'output-{str(datetime.datetime.now()).replace(" ","-")}'
 # Independent variable
 PROPORTION_L2 = 0.5
 # Only crucial parameter
-PRONOUN_DROP_PROB = 0.5
+PRONOUN_DROP_PROB = 1.0
 # Model expansions turned off by default
 CAPACITY_L1 = 50
 CAPACITY_L2 = 50

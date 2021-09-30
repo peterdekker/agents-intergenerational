@@ -8,3 +8,5 @@ distance
 panphon
 argparse
 ascii_graph
+pycldf
+pyclts

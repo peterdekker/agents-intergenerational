@@ -5,3 +5,6 @@ __pycache__
 env/
 *.pdf
 *.png
+output*
+clts*
+*.tar.gz
