@@ -5,7 +5,8 @@ from mesa.datacollection import DataCollector
 
 import numpy as np
 
-from agents.config import N_AGENTS, DATA_FILE, MAX_RADIUS, STATS_AFTER_STEPS, RARE_STATS_AFTER_STEPS
+from agents.config import N_AGENTS, DATA_FILE, MAX_RADIUS, STATS_AFTER_STEPS, RARE_STATS_AFTER_STEPS,\
+                          CLTS_ARCHIVE_PATH, CLTS_ARCHIVE_URL, CLTS_PATH
 from agents import stats
 from agents import misc
 from agents.agent import Agent
@@ -19,7 +20,7 @@ class Model(Model):
 
     def __init__(self, height, width, proportion_l2, suffix_prob,
                  capacity_l1, capacity_l2, pronoun_drop_prob,
-                 min_boundary_feature_dist, reduction_hh,
+                 min_boundary_feature_dist, reduction_hh, reduction_prosody,
                  negative_update, always_affix, balance_prefix_suffix_verbs, unique_affix,
                  fuzzy_match_affix,
                  generalize_production_l1,
@@ -37,6 +38,7 @@ class Model(Model):
         assert pronoun_drop_prob >= 0 and pronoun_drop_prob <= 1
         assert min_boundary_feature_dist >= 0
         assert isinstance(reduction_hh, bool)
+        assert isinstance(reduction_prosody, bool)
         assert isinstance(negative_update, bool)
         assert isinstance(always_affix, bool)
         assert isinstance(fuzzy_match_affix, bool)
@@ -55,6 +57,7 @@ class Model(Model):
         self.pronoun_drop_prob = pronoun_drop_prob
         self.min_boundary_feature_dist = min_boundary_feature_dist
         self.reduction_hh = reduction_hh
+        self.reduction_prosody = reduction_prosody
         self.negative_update = negative_update
         self.always_affix = always_affix
         self.fuzzy_match_affix = fuzzy_match_affix
@@ -65,6 +68,7 @@ class Model(Model):
 
         # Agent language model object is created from data file
         self.data = Data(DATA_FILE, balance_prefix_suffix_verbs, unique_affix)
+        self.clts = misc.load_clts(CLTS_ARCHIVE_PATH, CLTS_ARCHIVE_URL, CLTS_PATH)
 
         # Stats
         self.proportions_correct_interactions = []

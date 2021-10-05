@@ -6,7 +6,7 @@ from agents.model import Model
 from agents.textbarchart import TextBarChart
 
 from agents.config import HEIGHT, WIDTH, PROPORTION_L2, SUFFIX_PROB, CAPACITY_L1, CAPACITY_L2, \
-    PRONOUN_DROP_PROB, MIN_BOUNDARY_FEATURE_DIST, REDUCTION_HH, NEGATIVE_UPDATE, GENERALIZE_PRODUCTION_L1, \
+    PRONOUN_DROP_PROB, MIN_BOUNDARY_FEATURE_DIST, REDUCTION_HH, REDUCTION_PROSODY, NEGATIVE_UPDATE, GENERALIZE_PRODUCTION_L1, \
     GENERALIZE_PRODUCTION_L2, GENERALIZE_UPDATE_L1, GENERALIZE_UPDATE_L2, ALWAYS_AFFIX, BALANCE_PREFIX_SUFFIX_VERBS, \
     UNIQUE_AFFIX, FUZZY_MATCH_AFFIX
 
@@ -54,6 +54,7 @@ model_params = {
     "min_boundary_feature_dist": UserSettableParameter("slider", "Min boundary feature dist",
                                                        MIN_BOUNDARY_FEATURE_DIST, 0, 10, 0.1),
     "reduction_hh": UserSettableParameter('checkbox', 'Reduction H&H', value=REDUCTION_HH),
+    "reduction_prosody": UserSettableParameter('checkbox', 'Reduction prosody', value=REDUCTION_PROSODY),
     "negative_update": UserSettableParameter('checkbox', 'Negative update', value=NEGATIVE_UPDATE),
     "always_affix": UserSettableParameter('checkbox', 'Always affix', value=ALWAYS_AFFIX),
     "balance_prefix_suffix_verbs": UserSettableParameter('checkbox', 'Balance prefix/suffix', value=BALANCE_PREFIX_SUFFIX_VERBS),

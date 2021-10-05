@@ -2,9 +2,15 @@ import numpy as np
 import logging
 import sys
 import datetime
+import os
 from panphon.distance import Distance
 
 logging.basicConfig(stream=sys.stderr, level=logging.ERROR)
+
+CURRENTDIR = os.path.dirname(os.path.realpath(__file__))
+CLTS_ARCHIVE_PATH = os.path.join(CURRENTDIR, "2.1.0.tar.gz")
+CLTS_ARCHIVE_URL = "https://github.com/cldf-clts/clts/archive/refs/tags/v2.1.0.tar.gz"
+CLTS_PATH = os.path.join(CURRENTDIR, "clts-2.1.0")
 
 HEIGHT = 6
 WIDTH = 6
@@ -39,6 +45,7 @@ CAPACITY_L1 = 50
 CAPACITY_L2 = 50
 MIN_BOUNDARY_FEATURE_DIST = 0.0
 REDUCTION_HH = False
+REDUCTION_PROSODY = False
 NEGATIVE_UPDATE = False
 GENERALIZE_PRODUCTION_L1 = 0.0
 GENERALIZE_PRODUCTION_L2 = 0.0
@@ -69,6 +76,7 @@ model_params = {
     "pronoun_drop_prob": PRONOUN_DROP_PROB,
     "min_boundary_feature_dist": MIN_BOUNDARY_FEATURE_DIST,
     "reduction_hh": REDUCTION_HH,
+    "reduction_prosody": REDUCTION_PROSODY,
     "negative_update": NEGATIVE_UPDATE,
     "always_affix": ALWAYS_AFFIX,
     "fuzzy_match_affix": FUZZY_MATCH_AFFIX,
@@ -88,7 +96,7 @@ evaluation_params = {
     "runlabel": ""
 }
 
-bool_params = ["reduction_hh", "negative_update", "always_affix",
+bool_params = ["reduction_hh", "reduction_prosody" "negative_update", "always_affix",
                "balance_prefix_suffix_verbs", "unique_affix", "fuzzy_match_affix", "settings_graph", "steps_graph"]
 
 string_params = ["runlabel"]

@@ -4,11 +4,40 @@ import numpy as np
 import os
 from itertools import chain
 
-from agents.config import dst, logging, RG
+from agents.config import dst, logging, RG, CURRENTDIR
 
 from collections import Counter
 
 # Returns list
+
+
+from pyclts import CLTS
+import requests
+import shutil
+
+
+def download_if_needed(archive_path, archive_url, file_path, label):
+    if not os.path.exists(file_path):
+        # Create parent dirs
+        #p = pathlib.Path(file_path)
+        #p.parent.mkdir(parents=True, exist_ok=True)
+        with open(archive_path, 'wb') as f:
+            print(f"Downloading {label} from {archive_url}")
+            try:
+                r = requests.get(archive_url, allow_redirects=True)
+            except requests.exceptions.RequestException as e:  # This is the correct syntax
+                raise SystemExit(e)
+            # Write downloaded content to file
+            f.write(r.content)
+            if archive_path.endswith(".tar.gz"):
+                print("Unpacking archive.")
+                shutil.unpack_archive(archive_path, CURRENTDIR)
+
+
+def load_clts(clts_archive_path, clts_archive_url, clts_path):
+    # Download CLTS
+    download_if_needed(clts_archive_path, clts_archive_url, clts_path, "CLTS")
+    return CLTS(clts_path)
 
 
 def most_common(lst):
@@ -83,7 +112,7 @@ def infer_possible_persons(affix_type, affix_signal, persons, affixes, lex_conce
     return possible_persons
 
 
-def reduce_affix_phonetic(verb_type, affix, form, min_boundary_feature_dist, listener):
+def reduce_boundary_feature_dist(verb_type, affix, form, min_boundary_feature_dist, listener):
     if min_boundary_feature_dist > 0.0:
         form_border_phoneme = 0 if verb_type == "prefixing" else -1
         affix_border_phoneme = -1 if verb_type == "prefixing" else 0
@@ -97,7 +126,30 @@ def reduce_affix_phonetic(verb_type, affix, form, min_boundary_feature_dist, lis
     return affix
 
 
-def reduce_affix_hh(verb_type, affix, listener, reduction_hh):
+def reduce_prosody(verb_type, affix, form, reduction_prosody, listener, clts):
+    if reduction_prosody:
+        # form_border_phoneme = 0 if verb_type == "prefixing" else -1
+        # affix_border_phoneme = -1 if verb_type == "prefixing" else 0
+        # affix_slice = affix[affix_border_phoneme] if len(affix) > 0 else affix
+        # feature_dist = dst.weighted_feature_edit_distance(form[form_border_phoneme], affix_slice)
+        # # Sounds have to be different enough
+        # if feature_dist < min_boundary_feature_dist:
+        #     affix = ""
+        #     # if len(affix) > 0:
+        #     #     affix = affix[1:] if verb_type == "prefixing" else affix[:-1]
+        
+        inflected_form = affix+form if verb_type == "prefixing" else form+affix
+        #print(inflected_form)
+        spaced_form = " ".join(list(inflected_form))
+        cv_pattern = clts.bipa.translate(spaced_form, clts.soundclass("cv")).replace(" ", "")
+        #print(cv_pattern)
+        if "CC" in cv_pattern:
+            #print("CONSONANT CLUSTER!")
+            affix = ""
+    return affix
+
+
+def reduce_hh(verb_type, affix, listener, reduction_hh):
     #affix_old = affix
     if reduction_hh:
         if not listener.is_l2():

@@ -1,6 +1,5 @@
 
 from pyclts import CLTS
-from pyclts.models import Vowel, Consonant
 import os
 import requests
 import shutil
@@ -38,18 +37,18 @@ def download_if_needed(archive_path, archive_url, file_path, label):
 def load_clts():
     # Download CLTS
     download_if_needed(CLTS_ARCHIVE_PATH, CLTS_ARCHIVE_URL, CLTS_PATH, "CLTS")
+    return CLTS(CLTS_PATH)
 
 
-load_clts()
-clts = CLTS(CLTS_PATH)
+clts = load_clts()
 for vt in ["prefixing", "suffixing"]:
     print("prefixing")
     for form in verb_forms[vt]:
         for aff in affixes[vt]:
-            inflected_form = aff+form if vt=="prefixing" else form+aff
+            inflected_form = aff+form if vt == "prefixing" else form+aff
             print(inflected_form)
             spaced_form = " ".join(list(inflected_form))
-            cv_pattern = clts.bipa.translate(spaced_form, clts.soundclass("cv")).replace(" ","")
+            cv_pattern = clts.bipa.translate(spaced_form, clts.soundclass("cv")).replace(" ", "")
             print(cv_pattern)
             if "CC" in cv_pattern:
                 print("CONSONANT CLUSTER!")
