@@ -3,7 +3,7 @@ from mesa.batchrunner import BatchRunner
 
 from agents.model import Model
 from agents import misc
-from agents.config import model_params, evaluation_params, bool_params, string_params, OUTPUT_DIR, IMG_FORMAT, LAST_N_STEPS_END_GRAPH
+from agents.config import model_params_script, evaluation_params, bool_params, string_params, OUTPUT_DIR, IMG_FORMAT, LAST_N_STEPS_END_GRAPH
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -166,7 +166,7 @@ def create_graph_end(run_data, fixed_params, variable_param, variable_param_sett
 def main():
     parser = argparse.ArgumentParser(description='Run agent model from terminal.')
     model_group = parser.add_argument_group('model', 'Model parameters')
-    for param in model_params:
+    for param in model_params_script:
         model_group.add_argument(f"--{param}", nargs="+",
                                  type=str2bool if param in bool_params else float)
     evaluation_group = parser.add_argument_group('evaluation', 'Evaluation parameters')
@@ -180,7 +180,7 @@ def main():
 
     # Parse arguments
     args = vars(parser.parse_args())
-    variable_params = {k: v for k, v in args.items() if k in model_params and v is not None}
+    variable_params = {k: v for k, v in args.items() if k in model_params_script and v is not None}
     iterations = args["iterations"]
     steps = args["steps"]
     settings_graph = args["settings_graph"]
@@ -216,7 +216,7 @@ def main():
             assert len(steps) == 1
             iterations_setting = iterations[0]
             steps_setting = steps[0]
-            fixed_params = {k: v for k, v in model_params.items() if k != var_param}
+            fixed_params = {k: v for k, v in model_params_script.items() if k != var_param}
             fixed_params_print = {**fixed_params, **
                                   {"iterations": iterations_setting, "steps": steps_setting}}
             run_data = evaluate_model(fixed_params, {var_param: var_param_settings},
@@ -236,7 +236,7 @@ def main():
         assert len(iterations) == 1
         iterations_setting = iterations[0]
         for steps_setting in steps:
-            fixed_params = model_params
+            fixed_params = model_params_script
             run_data = evaluate_model(fixed_params, {},
                                       iterations_setting, steps_setting, output_dir_custom)
             run_data["steps"] = steps_setting
@@ -250,7 +250,7 @@ def main():
     else:
         # Evaluate all combinations of variable parameters
         # Only params not changed by user are fixed
-        fixed_params = {k: v for k, v in model_params.items() if k not in variable_params}
+        fixed_params = {k: v for k, v in model_params_script.items() if k not in variable_params}
         for iterations_setting in iterations:
             for steps_setting in steps:
                 run_data = evaluate_model(fixed_params, variable_params,

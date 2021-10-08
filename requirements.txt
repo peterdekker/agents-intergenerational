@@ -10,3 +10,4 @@ argparse
 ascii_graph
 pycldf
 pyclts
+pytest
