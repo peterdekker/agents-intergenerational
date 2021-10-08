@@ -4,7 +4,7 @@ from mesa.visualization.modules import CanvasGrid, ChartModule
 from agents.model import Model
 from agents.textbarchart import TextBarChart
 
-from agents.config import model_params_ui
+from agents.config import HEIGHT, WIDTH, model_params_ui
 
 
 def draw(agent):
