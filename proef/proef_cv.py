@@ -42,13 +42,15 @@ def load_clts():
 
 clts = load_clts()
 for vt in ["prefixing", "suffixing"]:
-    print("prefixing")
+    print(vt)
     for form in verb_forms[vt]:
-        for aff in affixes[vt]:
-            inflected_form = aff+form if vt == "prefixing" else form+aff
-            print(inflected_form)
-            spaced_form = " ".join(list(inflected_form))
-            cv_pattern = clts.bipa.translate(spaced_form, clts.soundclass("cv")).replace(" ", "")
-            print(cv_pattern)
-            if "CC" in cv_pattern:
-                print("CONSONANT CLUSTER!")
+        #for aff in affixes[vt]:
+        #inflected_form = aff+form if vt == "prefixing" else form+aff
+        inflected_form = form
+        print(inflected_form)
+        spaced_form = " ".join(list(inflected_form))
+        cv_pattern = clts.bipa.translate(spaced_form, clts.soundclass("cv")).replace(" ", "")
+        print(cv_pattern)
+        if "CC" in cv_pattern:
+            print("CONSONANT CLUSTER!")
+    print()
