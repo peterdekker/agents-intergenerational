@@ -10,7 +10,7 @@ from agents import stats
 
 
 class Agent(Agent):
-    def __init__(self, pos, model, data, init, capacity, generalize_production, generalize_update, l2):
+    def __init__(self, pos, model, data, init, capacity, generalize_production, generalize_update, reduction_prosody, l2):
         '''
          Create a new speech agent.
 
@@ -24,6 +24,7 @@ class Agent(Agent):
         self.capacity = capacity
         self.generalize_production = generalize_production
         self.generalize_update = generalize_update
+        self.reduction_prosody = reduction_prosody
         self.l2 = l2
 
         # These vars are not deep copies, because they will not be altered by agents
@@ -99,7 +100,7 @@ class Agent(Agent):
                                                                  self.model.min_boundary_feature_dist,
                                                                  listener)
                 prefix = misc.reduce_prosody("prefixing", prefix, form,
-                                                   self.model.reduction_prosody, listener, self.model.clts)
+                                                   self.reduction_prosody, listener, self.model.clts)
             # else:
             #    return
             signal.prefix = prefix
@@ -125,7 +126,7 @@ class Agent(Agent):
                                                                          self.model.min_boundary_feature_dist,
                                                                          listener)
                         suffix = misc.reduce_prosody("suffixing", suffix, form,
-                                                           self.model.reduction_prosody, listener, self.model.clts)
+                                                           self.reduction_prosody, listener, self.model.clts)
             # else:
             #    return
             signal.suffix = suffix

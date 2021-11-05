@@ -20,7 +20,7 @@ class Model(Model):
 
     def __init__(self, height, width, proportion_l2, suffix_prob,
                  capacity_l1, capacity_l2, pronoun_drop_prob,
-                 min_boundary_feature_dist, reduction_hh, reduction_prosody,
+                 min_boundary_feature_dist, reduction_hh, reduction_prosody_l1, reduction_prosody_l2,
                  negative_update, always_affix, balance_prefix_suffix_verbs, unique_affix,
                  fuzzy_match_affix,
                  generalize_production_l1,
@@ -38,7 +38,8 @@ class Model(Model):
         assert pronoun_drop_prob >= 0 and pronoun_drop_prob <= 1
         assert min_boundary_feature_dist >= 0
         assert isinstance(reduction_hh, bool)
-        assert isinstance(reduction_prosody, bool)
+        assert isinstance(reduction_prosody_l1, bool)
+        assert isinstance(reduction_prosody_l2, bool)
         assert isinstance(negative_update, bool)
         assert isinstance(always_affix, bool)
         assert isinstance(fuzzy_match_affix, bool)
@@ -57,7 +58,6 @@ class Model(Model):
         self.pronoun_drop_prob = pronoun_drop_prob
         self.min_boundary_feature_dist = min_boundary_feature_dist
         self.reduction_hh = reduction_hh
-        self.reduction_prosody = reduction_prosody
         self.negative_update = negative_update
         self.always_affix = always_affix
         self.fuzzy_match_affix = fuzzy_match_affix
@@ -132,7 +132,8 @@ class Model(Model):
             agent = Agent((x, y), self, self.data, init="empty" if l2[i] else "data",
                           capacity=capacity_l2 if l2[i] else capacity_l1, l2=l2[i],
                           generalize_production=generalize_production_l2 if l2[i] else generalize_production_l1,
-                          generalize_update=generalize_update_l2 if l2[i] else generalize_update_l1,)
+                          generalize_update=generalize_update_l2 if l2[i] else generalize_update_l1,
+                          reduction_prosody=reduction_prosody_l2 if l2[i] else reduction_prosody_l1)
             self.grid.position_agent(agent, (x, y))
             self.schedule.add(agent)
 
