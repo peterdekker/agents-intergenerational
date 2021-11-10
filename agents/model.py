@@ -6,7 +6,7 @@ from mesa.datacollection import DataCollector
 import numpy as np
 
 from agents.config import N_AGENTS, DATA_FILE, MAX_RADIUS, STATS_AFTER_STEPS, RARE_STATS_AFTER_STEPS,\
-                          CLTS_ARCHIVE_PATH, CLTS_ARCHIVE_URL, CLTS_PATH
+                          CLTS_ARCHIVE_PATH, CLTS_ARCHIVE_URL, CLTS_PATH, COMM_SUCCESS_AFTER_STEPS
 from agents import stats
 from agents import misc
 from agents.agent import Agent
@@ -198,7 +198,7 @@ class Model(Model):
             self.affixes_internal_prefix_l1 = stats.internal_affix_frequencies_agents(
                 self.agents_l1, "prefix")
             stats.compute_colours_agents(self.agents)
-
+        if self.steps % COMM_SUCCESS_AFTER_STEPS == 0:
             # Now compute proportion of correct interaction
             self.proportion_correct_interactions = self.correct_interactions/float(N_AGENTS)
             self.proportions_correct_interactions.append(self.proportion_correct_interactions)
