@@ -11,3 +11,4 @@ ascii_graph
 pycldf
 pyclts
 pytest
+seaborn

@@ -8,6 +8,7 @@ from agents.config import model_params_script, evaluation_params, bool_params, s
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+import seaborn as sns
 
 import textwrap
 import os
@@ -79,59 +80,6 @@ def create_graph_course(run_data, fixed_params, variable_param, variable_param_s
     plot_graph_course(course_df, fixed_params, variable_param,
                       variable_param_settings, stat, mode, output_dir)
 
-
-def get_course_df(run_data, variable_param, variable_param_settings, stats):
-    multi_index = pd.MultiIndex.from_product([variable_param_settings, stats])
-    course_df = pd.DataFrame(columns=multi_index)
-    for param_setting, group in run_data.groupby(variable_param):
-        iteration_dfs = []
-        for i, row in group.iterrows():
-            iteration_df = row["datacollector"].get_model_vars_dataframe()[stats]
-            iteration_dfs.append(iteration_df)
-        iteration_dfs_concat = pd.concat(iteration_dfs)
-        # Group all iterations together for this index  # TODO: spread?
-        combined = iteration_dfs_concat.groupby(iteration_dfs_concat.index).mean()
-        for stat_col in combined:
-            course_df[param_setting, stat_col] = combined[stat_col]
-    # Drop first row of course df, because this is logging artefact
-    course_df = course_df.iloc[1:, :]
-    return course_df
-    # TODO: possibly function intersection here later
-
-# Needed for function intersection
-# def pos_under_val(arr, val):
-#     previous_i = 0
-#     for i in reversed(range(len(arr))):
-#         if arr[i] > val:
-#             return previous_i
-#         previous_i = i
-#     return previous_i
-
-
-def plot_graph_course(course_df, fixed_params, variable_param, variable_param_settings, stat, mode, output_dir):
-    fig, ax = plt.subplots()
-    steps_ix = course_df.index
-    for param_setting in variable_param_settings:
-        ax.plot(steps_ix, course_df[param_setting, stat],
-                label=f"{variable_param}={param_setting}", linewidth=1.0)
-    # Add some text for labels, title and custom x-axis tick labels, etc.
-    if mode == "internal":
-        ax.set_ylabel('proportion paradigm cells filled')
-    elif mode == "communicated":
-        ax.set_ylabel('proportion non-empty utterances')
-    ax.set_xlabel(variable_param)
-    ax.set_title(f"{variable_param} ({mode})")
-    # ax.set_xticks(x+1.5*width)
-    # ax.set_xticklabels(labels)
-    ax.legend()
-    # fig.tight_layout()
-    graphtext = textwrap.fill(params_print(fixed_params), width=100)
-    plt.subplots_adjust(bottom=0.25)
-    plt.figtext(0.05, 0.03, graphtext, fontsize=8, ha="left")
-    # bbox_inches="tight"
-    plt.savefig(os.path.join(output_dir, f"{variable_param}-{mode}-course.{IMG_FORMAT}"), format=IMG_FORMAT)
-
-
 def create_graph_end(run_data, fixed_params, variable_param, variable_param_settings, mode, stats, output_dir):
     course_df = get_course_df(run_data, variable_param, variable_param_settings, stats)
     course_tail_avg = course_df.tail(LAST_N_STEPS_END_GRAPH).mean()
@@ -161,6 +109,134 @@ def create_graph_end(run_data, fixed_params, variable_param, variable_param_sett
     plt.subplots_adjust(bottom=0.25)
     plt.figtext(0.05, 0.03, graphtext, fontsize=8, ha="left")
     plt.savefig(os.path.join(output_dir, f"{variable_param}-{mode}-end.{IMG_FORMAT}"), format=IMG_FORMAT)
+
+
+def get_course_df(run_data, variable_param, variable_param_settings, stats):
+    multi_index = pd.MultiIndex.from_product([variable_param_settings, stats])
+    course_df = pd.DataFrame(columns=multi_index)
+    for param_setting, group in run_data.groupby(variable_param):
+        iteration_dfs = []
+        for i, row in group.iterrows():
+            iteration_df = row["datacollector"].get_model_vars_dataframe()[stats]
+            iteration_dfs.append(iteration_df)
+        iteration_dfs_concat = pd.concat(iteration_dfs)
+        # Group all iterations together for this index  # TODO: spread?
+        combined = iteration_dfs_concat.groupby(iteration_dfs_concat.index).mean()
+        for stat_col in combined:
+            course_df[param_setting, stat_col] = combined[stat_col]
+    # Drop first row of course df, because this is logging artefact
+    course_df = course_df.iloc[1:, :]
+    return course_df
+    # TODO: possibly function intersection here later
+
+
+def plot_graph_course(course_df, fixed_params, variable_param, variable_param_settings, stat, mode, output_dir):
+    fig, ax = plt.subplots()
+    steps_ix = course_df.index
+    for param_setting in variable_param_settings:
+        ax.plot(steps_ix, course_df[param_setting, stat],
+                label=f"{variable_param}={param_setting}", linewidth=1.0)
+    # Add some text for labels, title and custom x-axis tick labels, etc.
+    if mode == "internal":
+        ax.set_ylabel('proportion paradigm cells filled')
+    elif mode == "communicated":
+        ax.set_ylabel('proportion non-empty utterances')
+    ax.set_xlabel(variable_param)
+    ax.set_title(f"{variable_param} ({mode})")
+    # ax.set_xticks(x+1.5*width)
+    # ax.set_xticklabels(labels)
+    ax.legend()
+    # fig.tight_layout()
+    graphtext = textwrap.fill(params_print(fixed_params), width=100)
+    plt.subplots_adjust(bottom=0.25)
+    plt.figtext(0.05, 0.03, graphtext, fontsize=8, ha="left")
+    # bbox_inches="tight"
+    plt.savefig(os.path.join(output_dir, f"{variable_param}-{mode}-course.{IMG_FORMAT}"), format=IMG_FORMAT)
+
+
+def create_graph_course_sb(run_data, fixed_params, variable_param, variable_param_settings, mode, stats, stat, output_dir):
+    course_df = get_course_df_sb(run_data, variable_param, variable_param_settings, stats)
+    plot_graph_course_sb(course_df, fixed_params, variable_param,
+                      variable_param_settings, stat, mode, output_dir)
+
+
+def create_graph_end_sb(run_data, fixed_params, variable_param, variable_param_settings, mode, stats, output_dir):
+    course_df = get_course_df_sb(run_data, variable_param, variable_param_settings, stats)
+    plot_graph_end_sb(fixed_params, variable_param, variable_param_settings, mode, stats, output_dir, course_df)
+
+def plot_graph_end_sb(fixed_params, variable_param, variable_param_settings, mode, stats, output_dir, course_df):
+    n_steps = fixed_params["steps"]
+    # We want all the index labels above a certain number (the tail),
+    # but the indices are non-unique (because of multiple runs), so slice does not work
+    course_tail = course_df.loc[course_df.index > n_steps-LAST_N_STEPS_END_GRAPH]
+    #print(course_tail)
+    sns.barplot(x=variable_param, data=course_tail)
+    # labels = variable_param_settings  # run_data_means.index  # variable values
+    # x = np.arange(len(labels))  # the label locations
+    # width = 0.2  # the width of the bars
+    # fig, ax = plt.subplots()
+    # rects = {}
+    # colors = ["deepskyblue", "royalblue", "orange", "darkgoldenrod"]
+    # for i, stat in enumerate(stats):
+    #     stat_label = stat.replace(
+    #         "prop_internal_", "") if mode == "internal" else stat.replace("prop_communicated_", "")
+    #     rects[stat] = ax.bar(x+i*width, course_tail_avg[:,stat],
+    #                          width=width, edgecolor="white", label=stat_label, color=colors[i])
+    # # # Add some text for labels, title and custom x-axis tick labels, etc.
+    # if mode == "internal":
+    #     ax.set_ylabel('proportion paradigm cells filled')
+    # elif mode == "communicated":
+    #     ax.set_ylabel('proportion utterances non-empty')
+    # ax.set_xlabel(variable_param)
+    # ax.set_title(f"{variable_param} ({mode})")
+    # ax.set_xticks(x+1.5*width)
+    # ax.set_xticklabels(labels)
+    # ax.legend()
+    # graphtext = textwrap.fill(params_print(fixed_params), width=100)
+    # plt.subplots_adjust(bottom=0.25)
+    # plt.figtext(0.05, 0.03, graphtext, fontsize=8, ha="left")
+    plt.savefig(os.path.join(output_dir, f"{variable_param}-{mode}-end-sb.{IMG_FORMAT}"), format=IMG_FORMAT)
+
+
+def get_course_df_sb(run_data, variable_param, variable_param_settings, stats):
+    iteration_dfs = []
+    for i, row in run_data.iterrows():
+        iteration_df = row["datacollector"].get_model_vars_dataframe()[stats]
+        iteration_df[variable_param] = row[variable_param]
+        # Drop all rows with index 0, since this is a logging artefact
+        iteration_df = iteration_df.drop(0)
+        iteration_dfs.append(iteration_df)
+    course_df = pd.concat(iteration_dfs)
+    return course_df
+
+
+def plot_graph_course_sb(course_df, fixed_params, variable_param, variable_param_settings, stat, mode, output_dir):
+    course_only_stat = course_df.pivot(index=course_df.index, columns = "proportion_l2", values =stat)
+    print(course_only_stat)
+    sns.lineplot(data=course_only_stat)
+
+    # fig, ax = plt.subplots()
+    # steps_ix = course_df.index
+    # for param_setting in variable_param_settings:
+    #     ax.plot(steps_ix, course_df[param_setting, stat],
+    #             label=f"{variable_param}={param_setting}", linewidth=1.0)
+    # # Add some text for labels, title and custom x-axis tick labels, etc.
+    # if mode == "internal":
+    #     ax.set_ylabel('proportion paradigm cells filled')
+    # elif mode == "communicated":
+    #     ax.set_ylabel('proportion non-empty utterances')
+    # ax.set_xlabel(variable_param)
+    # ax.set_title(f"{variable_param} ({mode})")
+    # # ax.set_xticks(x+1.5*width)
+    # # ax.set_xticklabels(labels)
+    # ax.legend()
+    # # fig.tight_layout()
+    # graphtext = textwrap.fill(params_print(fixed_params), width=100)
+    # plt.subplots_adjust(bottom=0.25)
+    # plt.figtext(0.05, 0.03, graphtext, fontsize=8, ha="left")
+    # # bbox_inches="tight"
+    plt.savefig(os.path.join(output_dir, f"{variable_param}-{mode}-course-sb.{IMG_FORMAT}"), format=IMG_FORMAT)
+
 
 
 def main():
@@ -221,13 +297,15 @@ def main():
                                   {"iterations": iterations_setting, "steps": steps_setting}}
             run_data = evaluate_model(fixed_params, {var_param: var_param_settings},
                                       iterations_setting, steps_setting, output_dir=output_dir_custom)
-            # create_graph_end(run_data, fixed_params_print, var_param,
-            #                        mode="internal", stats=stats_internal, output_dir=output_dir_custom)
-            create_graph_end(run_data, fixed_params_print, var_param, var_param_settings,
+            # create_graph_end(run_data, fixed_params_print, var_param, var_param_settings,
+            #                  mode="communicated", stats=stats_communicated, output_dir=output_dir_custom)
+            # create_graph_course(run_data, fixed_params_print, var_param, var_param_settings,
+            #                     mode="communicated", stats=stats_communicated.keys(),
+            #                     stat="prop_communicated_suffix_l1", output_dir=output_dir_custom)
+            #Seaborn
+            create_graph_end_sb(run_data, fixed_params_print, var_param, var_param_settings,
                              mode="communicated", stats=stats_communicated, output_dir=output_dir_custom)
-            # create_graph_course(run_data, fixed_params_print, var_param,
-            #                     mode="internal", stat="prop_internal_suffix_l1", output_dir=output_dir_custom)
-            create_graph_course(run_data, fixed_params_print, var_param, var_param_settings,
+            create_graph_course_sb(run_data, fixed_params_print, var_param, var_param_settings,
                                 mode="communicated", stats=stats_communicated.keys(),
                                 stat="prop_communicated_suffix_l1", output_dir=output_dir_custom)
     elif steps_graph:
