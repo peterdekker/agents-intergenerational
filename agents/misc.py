@@ -4,7 +4,7 @@ import numpy as np
 import os
 from itertools import chain
 
-from agents.config import dst, logging, RG, CURRENTDIR
+from agents.config import dst, logging, RG, CURRENTDIR, GENERALIZE_ONLY_LEX_CONCEPTS
 
 from collections import Counter
 
@@ -178,7 +178,7 @@ def update_affix_list(prefix_recv, suffix_recv, affixes, lex_concepts_type, lex_
         if RG.random() < generalize_update:
             # Generalization: update all concepts
             lex_concepts = lex_concepts_type[f"{affix_type}ing"]  # [lex_concept_listener]
-            persons = persons_all  # [person_listener]
+            persons = [person_listener] if GENERALIZE_ONLY_LEX_CONCEPTS else persons_all
         else:
             # Normal update: do not generalize
             lex_concepts = [lex_concept_listener]
@@ -223,7 +223,7 @@ def retrieve_affixes_generalize(lex_concept, person, verb_type, affixes, general
         #                                                                     lex_concept_data)
         # return affixes[(lex_concept_gen, person_gen, verb_type)]
 
-        affixes_verb_type = {(l, p, t): affixes[(l, p, t)] for (l, p, t) in affixes.keys() if t == verb_type}
+        affixes_verb_type = {(l, p, t): affixes[(l, p, t)] for (l, p, t) in affixes.keys() if t == verb_type and (not GENERALIZE_ONLY_LEX_CONCEPTS or p == person)}
         affixes_all = list(chain.from_iterable(affixes_verb_type.values()))
 
         return affixes_all

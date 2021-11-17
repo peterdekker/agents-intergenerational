@@ -37,6 +37,8 @@ LAST_N_STEPS_END_GRAPH = 500
 IMG_FORMAT = "png"
 OUTPUT_DIR = f'output-{str(datetime.datetime.now()).replace(" ","-")}'
 
+GENERALIZE_ONLY_LEX_CONCEPTS = True
+
 # Defaults for UserSettableParameters
 # Independent variable
 PROPORTION_L2 = 0.5
@@ -53,7 +55,7 @@ NEGATIVE_UPDATE = False
 GENERALIZE_PRODUCTION_L1 = 0.0
 GENERALIZE_PRODUCTION_L2 = 0.0
 GENERALIZE_UPDATE_L1 = 0.0
-GENERALIZE_UPDATE_L2 = 0.5
+GENERALIZE_UPDATE_L2 = 0.0
 FUZZY_MATCH_AFFIX = False
 # Always affix setting simplifies model and disables suffix_prob
 ALWAYS_AFFIX = True

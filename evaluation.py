@@ -297,17 +297,17 @@ def main():
                                   {"iterations": iterations_setting, "steps": steps_setting}}
             run_data = evaluate_model(fixed_params, {var_param: var_param_settings},
                                       iterations_setting, steps_setting, output_dir=output_dir_custom)
-            # create_graph_end(run_data, fixed_params_print, var_param, var_param_settings,
-            #                  mode="communicated", stats=stats_communicated, output_dir=output_dir_custom)
-            # create_graph_course(run_data, fixed_params_print, var_param, var_param_settings,
-            #                     mode="communicated", stats=stats_communicated.keys(),
-            #                     stat="prop_communicated_suffix_l1", output_dir=output_dir_custom)
-            #Seaborn
-            create_graph_end_sb(run_data, fixed_params_print, var_param, var_param_settings,
+            create_graph_end(run_data, fixed_params_print, var_param, var_param_settings,
                              mode="communicated", stats=stats_communicated, output_dir=output_dir_custom)
-            create_graph_course_sb(run_data, fixed_params_print, var_param, var_param_settings,
+            create_graph_course(run_data, fixed_params_print, var_param, var_param_settings,
                                 mode="communicated", stats=stats_communicated.keys(),
                                 stat="prop_communicated_suffix_l1", output_dir=output_dir_custom)
+            #Seaborn
+            # create_graph_end_sb(run_data, fixed_params_print, var_param, var_param_settings,
+            #                  mode="communicated", stats=stats_communicated, output_dir=output_dir_custom)
+            # create_graph_course_sb(run_data, fixed_params_print, var_param, var_param_settings,
+            #                     mode="communicated", stats=stats_communicated.keys(),
+            #                     stat="prop_communicated_suffix_l1", output_dir=output_dir_custom)
     elif steps_graph:
         # No variable parameters are used and no iterations are used. Only evaluate
         run_data_list = []
