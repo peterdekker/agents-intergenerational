@@ -69,8 +69,7 @@ UNIQUE_AFFIX = False
 # For evaluation script (not browser visualization)
 ITERATIONS = [3]
 STEPS = [5000]
-SETTINGS_GRAPH = False
-STEPS_GRAPH = False
+
 
 
 model_params = {
@@ -107,12 +106,10 @@ model_params_script = {k:v["script"] for k,v in model_params.items()}
 evaluation_params = {
     "iterations": ITERATIONS,
     "steps": STEPS,
-    "settings_graph": SETTINGS_GRAPH,
-    "steps_graph": STEPS_GRAPH,
     "runlabel": ""
 }
 
 bool_params = ["reduction_hh", "reduction_prosody_l1", "reduction_prosody_l2", "negative_update", "always_affix",
-               "balance_prefix_suffix_verbs", "unique_affix", "fuzzy_match_affix", "settings_graph", "steps_graph"]
+               "balance_prefix_suffix_verbs", "unique_affix", "fuzzy_match_affix"]
 
 string_params = ["runlabel"]

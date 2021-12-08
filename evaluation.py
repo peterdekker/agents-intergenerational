@@ -53,7 +53,7 @@ def evaluate_model(fixed_params, variable_params, iterations, steps, output_dir)
         fixed_params,
         iterations=iterations,
         max_steps=steps,
-        model_reporters={**stats, **{"datacollector": lambda m: m.datacollector}}
+        model_reporters={"datacollector": lambda m: m.datacollector}
     )
 
     batch_run.run_all()
@@ -259,25 +259,15 @@ def main():
     variable_params = {k: v for k, v in args.items() if k in model_params_script and v is not None}
     iterations = args["iterations"]
     steps = args["steps"]
-    settings_graph = args["settings_graph"]
-    steps_graph = args["steps_graph"]
 
-    if settings_graph:
-        if (len(iterations) != 1 or len(steps) != 1):
-            raise ValueError(
-                "With option --settings_graph, only supply one iterations setting and one steps setting (or none for default).")
-        if (len(variable_params) == 0):
-            raise ValueError(
-                "With option --settings_graph, please supply one or more variable parameters.")
 
-    if steps_graph:
-        if (len(variable_params) != 0 or len(iterations) != 1):
-            raise ValueError(
-                "With option --steps_graph, please do not supply variable parameters. Also, supply only one iterations setting, or none for default.")
-        if (len(steps) == 0):
-            # This does not happen easily in practice, because of default value
-            raise ValueError(
-                "With option --steps_graph, please supply one or multiple steps settings")
+    if (len(iterations) != 1 or len(steps) != 1):
+        raise ValueError(
+            "Only supply one iterations setting and one steps setting (or none for default).")
+    if (len(variable_params) == 0):
+        raise ValueError(
+            "Pease supply one or more variable parameters.")
+
 
     print(f"Evaluating iterations {iterations} and steps {steps}")
     output_dir_custom = OUTPUT_DIR
@@ -285,54 +275,36 @@ def main():
         output_dir_custom = f'{OUTPUT_DIR}-{args["runlabel"]}'
     misc.create_output_dir(output_dir_custom)
 
-    if settings_graph:
-        # Try variable parameters one by one, while keeping all of the other parameters fixed
-        for var_param, var_param_settings in variable_params.items():
-            assert len(iterations) == 1
-            assert len(steps) == 1
-            iterations_setting = iterations[0]
-            steps_setting = steps[0]
-            fixed_params = {k: v for k, v in model_params_script.items() if k != var_param}
-            fixed_params_print = {**fixed_params, **
-                                  {"iterations": iterations_setting, "steps": steps_setting}}
-            run_data = evaluate_model(fixed_params, {var_param: var_param_settings},
-                                      iterations_setting, steps_setting, output_dir=output_dir_custom)
-            create_graph_end(run_data, fixed_params_print, var_param, var_param_settings,
-                             mode="communicated", stats=stats_communicated, output_dir=output_dir_custom)
-            create_graph_course(run_data, fixed_params_print, var_param, var_param_settings,
-                                mode="communicated", stats=stats_communicated.keys(),
-                                stat="prop_communicated_suffix_l1", output_dir=output_dir_custom)
-            #Seaborn
-            # create_graph_end_sb(run_data, fixed_params_print, var_param, var_param_settings,
-            #                  mode="communicated", stats=stats_communicated, output_dir=output_dir_custom)
-            # create_graph_course_sb(run_data, fixed_params_print, var_param, var_param_settings,
-            #                     mode="communicated", stats=stats_communicated.keys(),
-            #                     stat="prop_communicated_suffix_l1", output_dir=output_dir_custom)
-    elif steps_graph:
-        # No variable parameters are used and no iterations are used. Only evaluate
-        run_data_list = []
+    # Try variable parameters one by one, while keeping all of the other parameters fixed
+    for var_param, var_param_settings in variable_params.items():
         assert len(iterations) == 1
+        assert len(steps) == 1
         iterations_setting = iterations[0]
-        for steps_setting in steps:
-            fixed_params = model_params_script
-            run_data = evaluate_model(fixed_params, {},
-                                      iterations_setting, steps_setting, output_dir_custom)
-            run_data["steps"] = steps_setting
-            run_data_list.append(run_data)
-        combined_run_data = pd.concat(run_data_list, ignore_index=True)
-        fixed_params_print = {**fixed_params, **{"iterations": iterations_setting}}
-        # create_graph_end(combined_run_data, fixed_params_print,
-        #                        "steps", mode="internal", stats=stats_internal)
-        create_graph_end(combined_run_data, fixed_params_print, "steps",
-                         mode="communicated", stats=stats_communicated)
-    else:
-        # Evaluate all combinations of variable parameters
-        # Only params not changed by user are fixed
-        fixed_params = {k: v for k, v in model_params_script.items() if k not in variable_params}
-        for iterations_setting in iterations:
-            for steps_setting in steps:
-                run_data = evaluate_model(fixed_params, variable_params,
-                                          iterations_setting, steps_setting, output_dir_custom)
+        steps_setting = steps[0]
+        fixed_params = {k: v for k, v in model_params_script.items() if k != var_param}
+        fixed_params_print = {**fixed_params, **
+                                {"iterations": iterations_setting, "steps": steps_setting}}
+        run_data = evaluate_model(fixed_params, {var_param: var_param_settings},
+                                    iterations_setting, steps_setting, output_dir=output_dir_custom)
+        create_graph_end(run_data, fixed_params_print, var_param, var_param_settings,
+                            mode="communicated", stats=stats_communicated, output_dir=output_dir_custom)
+        create_graph_course(run_data, fixed_params_print, var_param, var_param_settings,
+                            mode="communicated", stats=stats_communicated.keys(),
+                            stat="prop_communicated_suffix_l1", output_dir=output_dir_custom)
+        #Seaborn
+        # create_graph_end_sb(run_data, fixed_params_print, var_param, var_param_settings,
+        #                  mode="communicated", stats=stats_communicated, output_dir=output_dir_custom)
+        # create_graph_course_sb(run_data, fixed_params_print, var_param, var_param_settings,
+        #                     mode="communicated", stats=stats_communicated.keys(),
+        #                     stat="prop_communicated_suffix_l1", output_dir=output_dir_custom)
+    # else:
+    #     # Evaluate all combinations of variable parameters
+    #     # Only params not changed by user are fixed
+    #     fixed_params = {k: v for k, v in model_params_script.items() if k not in variable_params}
+    #     for iterations_setting in iterations:
+    #         for steps_setting in steps:
+    #             run_data = evaluate_model(fixed_params, variable_params,
+    #                                       iterations_setting, steps_setting, output_dir_custom)
 
 
 if __name__ == "__main__":
