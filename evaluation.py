@@ -67,7 +67,6 @@ def evaluate_model(fixed_params, variable_params, iterations, steps, output_dir)
     # run_data_communicated.to_csv(f"evaluation-communicated-{iterations}-{steps}.tsv", sep="\t")
 
     run_data = batch_run.get_model_vars_dataframe()
-    run_data.to_csv(os.path.join(output_dir, f"evaluation-{iterations}-{steps}.tsv"), sep="\t")
 
     # print()
     # print(run_data)
@@ -157,7 +156,7 @@ def plot_graph_course(course_df, fixed_params, variable_param, variable_param_se
 def create_graph_course_sb(run_data, fixed_params, variable_param, variable_param_settings, mode, stats, stat, output_dir):
     course_df = get_course_df_sb(run_data, variable_param, variable_param_settings, stats)
     plot_graph_course_sb(course_df, fixed_params, variable_param,
-                      variable_param_settings, stat, mode, output_dir)
+                        variable_param_settings, [stat], mode, output_dir, "")
 
 
 def create_graph_end_sb(run_data, fixed_params, variable_param, variable_param_settings, mode, stats, output_dir):
@@ -207,36 +206,20 @@ def get_course_df_sb(run_data, variable_param, variable_param_settings, stats):
         iteration_df = iteration_df.drop(0)
         iteration_dfs.append(iteration_df)
     course_df = pd.concat(iteration_dfs)
+    # Old index (with duplicates because of different param settings and runs) becomes explicit column 'timesteps'
+    course_df = course_df.reset_index().rename(columns={"index":"timesteps"})
     return course_df
 
+def plot_graph_course_sb(course_df, fixed_params, variable_param, variable_param_settings, stats, mode, output_dir, label):
+    print(course_df)
+    y_label = "proportion utterances non-empty" if mode=="communicated" else "proportion paradigm cells filled"
+    df_melted = course_df.melt(id_vars=["timesteps",variable_param], value_vars = stats, value_name = y_label, var_name="statistic")
+    print(df_melted)
+    print(variable_param)
+    sns.lineplot(data=df_melted, x="timesteps", y=y_label, hue=variable_param)
 
-def plot_graph_course_sb(course_df, fixed_params, variable_param, variable_param_settings, stat, mode, output_dir):
-    course_only_stat = course_df.pivot(index=course_df.index, columns = "proportion_l2", values =stat)
-    print(course_only_stat)
-    sns.lineplot(data=course_only_stat)
-
-    # fig, ax = plt.subplots()
-    # steps_ix = course_df.index
-    # for param_setting in variable_param_settings:
-    #     ax.plot(steps_ix, course_df[param_setting, stat],
-    #             label=f"{variable_param}={param_setting}", linewidth=1.0)
-    # # Add some text for labels, title and custom x-axis tick labels, etc.
-    # if mode == "internal":
-    #     ax.set_ylabel('proportion paradigm cells filled')
-    # elif mode == "communicated":
-    #     ax.set_ylabel('proportion non-empty utterances')
-    # ax.set_xlabel(variable_param)
-    # ax.set_title(f"{variable_param} ({mode})")
-    # # ax.set_xticks(x+1.5*width)
-    # # ax.set_xticklabels(labels)
-    # ax.legend()
-    # # fig.tight_layout()
-    # graphtext = textwrap.fill(params_print(fixed_params), width=100)
-    # plt.subplots_adjust(bottom=0.25)
-    # plt.figtext(0.05, 0.03, graphtext, fontsize=8, ha="left")
-    # # bbox_inches="tight"
-    plt.savefig(os.path.join(output_dir, f"{variable_param}-{mode}-course-sb.{IMG_FORMAT}"), format=IMG_FORMAT)
-
+    plt.savefig(os.path.join(output_dir, f"{variable_param}-{label}-{mode}-course.{IMG_FORMAT}"), format=IMG_FORMAT, dpi=300)
+    plt.clf()
 
 
 def main():
@@ -286,17 +269,17 @@ def main():
                                 {"iterations": iterations_setting, "steps": steps_setting}}
         run_data = evaluate_model(fixed_params, {var_param: var_param_settings},
                                     iterations_setting, steps_setting, output_dir=output_dir_custom)
-        create_graph_end(run_data, fixed_params_print, var_param, var_param_settings,
-                            mode="communicated", stats=stats_communicated, output_dir=output_dir_custom)
-        create_graph_course(run_data, fixed_params_print, var_param, var_param_settings,
-                            mode="communicated", stats=stats_communicated.keys(),
-                            stat="prop_communicated_suffix_l1", output_dir=output_dir_custom)
-        #Seaborn
-        # create_graph_end_sb(run_data, fixed_params_print, var_param, var_param_settings,
-        #                  mode="communicated", stats=stats_communicated, output_dir=output_dir_custom)
-        # create_graph_course_sb(run_data, fixed_params_print, var_param, var_param_settings,
+        # create_graph_end(run_data, fixed_params_print, var_param, var_param_settings,
+        #                     mode="communicated", stats=stats_communicated.keys(), output_dir=output_dir_custom)
+        # create_graph_course(run_data, fixed_params_print, var_param, var_param_settings,
         #                     mode="communicated", stats=stats_communicated.keys(),
         #                     stat="prop_communicated_suffix_l1", output_dir=output_dir_custom)
+        #Seaborn
+        # create_graph_end_sb(run_data, fixed_params_print, var_param, var_param_settings,
+        #                  mode="communicated", stats=stats_communicated.keys(), output_dir=output_dir_custom)
+        create_graph_course_sb(run_data, fixed_params_print, var_param, var_param_settings,
+                            mode="communicated", stats=stats_communicated.keys(),
+                            stat="prop_communicated_suffix_l1", output_dir=output_dir_custom)
     # else:
     #     # Evaluate all combinations of variable parameters
     #     # Only params not changed by user are fixed
