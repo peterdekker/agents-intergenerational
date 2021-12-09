@@ -5,7 +5,7 @@ from mesa.datacollection import DataCollector
 
 import numpy as np
 
-from agents.config import N_AGENTS, DATA_FILE, MAX_RADIUS, STATS_AFTER_STEPS, RARE_STATS_AFTER_STEPS,\
+from agents.config import N_AGENTS, DATA_FILE, MAX_RADIUS, COMMUNICATED_STATS_AFTER_STEPS, RARE_STATS_AFTER_STEPS,\
                           CLTS_ARCHIVE_PATH, CLTS_ARCHIVE_URL, CLTS_PATH, COMM_SUCCESS_AFTER_STEPS
 from agents import stats
 from agents import misc
@@ -149,20 +149,12 @@ class Model(Model):
         Run one step of the model.
         '''
 
-        # Create a new sublist for these stats, for every timestep. So they can be kept separate per timestep
-        # TODO: List gets as many items as timesteps, to save memory possibly remove first elements after
-        # reaching max len (although this takes O(n) time)
-        self.communicated_prefix_l1.append([])
-        self.communicated_suffix_l1.append([])
-        self.communicated_prefix_l2.append([])
-        self.communicated_suffix_l2.append([])
-
         # Reset correct interactions
         self.correct_interactions = 0
 
         self.schedule.step()
 
-        if self.steps % STATS_AFTER_STEPS == 0:
+        if self.steps % COMMUNICATED_STATS_AFTER_STEPS == 0:
 
             # TODO: stats can be calculated upon calling .collect(), by
             # registering methods in datacollector. But then

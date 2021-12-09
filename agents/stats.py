@@ -68,21 +68,22 @@ def colour_str(c):
 def update_communicated_model_stats(model, prefix, suffix, prefixing, suffixing, l2, step):
     if prefixing:
         if l2:
-            model.communicated_prefix_l2[-1].append(prefix)
+            model.communicated_prefix_l2.append(prefix)
         else:
-            model.communicated_prefix_l1[-1].append(prefix)
+            model.communicated_prefix_l1.append(prefix)
 
     if suffixing:
         if l2:
-            model.communicated_suffix_l2[-1].append(suffix)
+            model.communicated_suffix_l2.append(suffix)
         else:
-            model.communicated_suffix_l1[-1].append(suffix)
+            model.communicated_suffix_l1.append(suffix)
 
 
 def prop_communicated(communicated_list):
-    last_comm_list = communicated_list[-1]
     # Calculate proportion non-empty communications
-    n_non_empty = len([s for s in last_comm_list if s != ""])
-    n_total = len(last_comm_list)
+    n_non_empty = len([s for s in communicated_list if s != ""])
+    n_total = len(communicated_list)
+    # Clear communicated list, so new proportion is calculated for next COMMUNICATED_STATS_AFTER_STEPS timesteps
+    communicated_list.clear()
     # Calculate proportion
     return n_non_empty/n_total if n_total > 0 else 0

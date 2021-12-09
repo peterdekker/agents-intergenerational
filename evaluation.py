@@ -3,7 +3,7 @@ from mesa.batchrunner import BatchRunner
 
 from agents.model import Model
 from agents import misc
-from agents.config import model_params_script, evaluation_params, bool_params, string_params, OUTPUT_DIR, IMG_FORMAT
+from agents.config import model_params_script, evaluation_params, bool_params, string_params, OUTPUT_DIR, IMG_FORMAT, ROLLING_AVG_WINDOW
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -13,18 +13,21 @@ import seaborn as sns
 import textwrap
 import os
 
-stats_internal = {"prop_internal_prefix_l1": lambda m: m.prop_internal_prefix_l1,
-                  "prop_internal_suffix_l1": lambda m: m.prop_internal_suffix_l1,
-                  "prop_internal_prefix_l2": lambda m: m.prop_internal_prefix_l2,
-                  "prop_internal_suffix_l2": lambda m: m.prop_internal_suffix_l2}
+# stats_internal = {"prop_internal_prefix_l1": lambda m: m.prop_internal_prefix_l1,
+#                   "prop_internal_suffix_l1": lambda m: m.prop_internal_suffix_l1,
+#                   "prop_internal_prefix_l2": lambda m: m.prop_internal_prefix_l2,
+#                   "prop_internal_suffix_l2": lambda m: m.prop_internal_suffix_l2}
 
 
-stats_communicated = {"prop_communicated_prefix_l1": lambda m: m.prop_communicated_prefix_l1,
-                      "prop_communicated_suffix_l1": lambda m: m.prop_communicated_suffix_l1,
-                      "prop_communicated_prefix_l2": lambda m: m.prop_communicated_prefix_l2,
-                      "prop_communicated_suffix_l2": lambda m: m.prop_communicated_suffix_l2}
+# stats_communicated = {"prop_communicated_prefix_l1": lambda m: m.prop_communicated_prefix_l1,
+#                       "prop_communicated_suffix_l1": lambda m: m.prop_communicated_suffix_l1,
+#                       "prop_communicated_prefix_l2": lambda m: m.prop_communicated_prefix_l2,
+#                       "prop_communicated_suffix_l2": lambda m: m.prop_communicated_suffix_l2}
 
-stats = {**stats_internal, **stats_communicated}
+stats_internal = ["prop_internal_prefix_l1", "prop_internal_suffix_l1", "prop_internal_prefix_l2", "prop_internal_suffix_l2"]
+stats_communicated = ["prop_communicated_prefix_l1", "prop_communicated_suffix_l1", "prop_communicated_prefix_l2", "prop_communicated_suffix_l2"]
+
+#stats = {**stats_internal, **stats_communicated}
 
 
 def str2bool(v):
@@ -58,19 +61,7 @@ def evaluate_model(fixed_params, variable_params, iterations, steps, output_dir)
 
     batch_run.run_all()
 
-    # cols_internal = list(variable_params.keys()) + list(stats_internal.keys())
-    # run_data_internal = batch_run.get_model_vars_dataframe()[cols_internal]
-    # run_data_internal.to_csv(f"evaluation-internal-{iterations}-{steps}.tsv", sep="\t")
-
-    # cols_communicated = list(variable_params.keys()) + list(stats_communicated.keys())
-    # run_data_communicated = batch_run.get_model_vars_dataframe()[cols_communicated]
-    # run_data_communicated.to_csv(f"evaluation-communicated-{iterations}-{steps}.tsv", sep="\t")
-
     run_data = batch_run.get_model_vars_dataframe()
-
-    # print()
-    # print(run_data)
-    # print("\n")
     return run_data
 
 
@@ -153,7 +144,7 @@ def plot_graph_course(course_df, fixed_params, variable_param, variable_param_se
     plt.savefig(os.path.join(output_dir, f"{variable_param}-{mode}-course.{IMG_FORMAT}"), format=IMG_FORMAT)
 
 
-def create_graph_end_sb(course_df, fixed_params, variable_param, variable_param_settings, mode, stats, output_dir):
+def create_graph_end_sb(course_df, fixed_params, variable_param, variable_param_settings, mode, stats, output_dir, label):
     n_steps = fixed_params["steps"]
     y_label = "proportion utterances non-empty" if mode=="communicated" else "proportion paradigm cells filled"
     df_melted = course_df.melt(id_vars=["timesteps",variable_param], value_vars = stats, value_name = y_label, var_name="statistic")
@@ -186,20 +177,22 @@ def create_graph_end_sb(course_df, fixed_params, variable_param, variable_param_
     # graphtext = textwrap.fill(params_print(fixed_params), width=100)
     # plt.subplots_adjust(bottom=0.25)
     # plt.figtext(0.05, 0.03, graphtext, fontsize=8, ha="left")
-    plt.savefig(os.path.join(output_dir, f"{variable_param}-{mode}-end-sb.{IMG_FORMAT}"), format=IMG_FORMAT, dpi=300)
+    plt.savefig(os.path.join(output_dir, f"{variable_param}-{label}-{mode}-end.{IMG_FORMAT}"), format=IMG_FORMAT, dpi=300)
 
 
-def get_course_df_sb(run_data, variable_param, variable_param_settings, stats):
+def get_course_df_sb(run_data, variable_param, variable_param_settings, stats, mode, output_dir):
     iteration_dfs = []
     for i, row in run_data.iterrows():
         iteration_df = row["datacollector"].get_model_vars_dataframe()[stats]
         iteration_df[variable_param] = row[variable_param]
+        iteration_df["run"] = row["Run"]
         # Drop all rows with index 0, since this is a logging artefact
         iteration_df = iteration_df.drop(0)
         iteration_dfs.append(iteration_df)
     course_df = pd.concat(iteration_dfs)
     # Old index (with duplicates because of different param settings and runs) becomes explicit column 'timesteps'
     course_df = course_df.reset_index().rename(columns={"index":"timesteps"})
+    course_df.to_csv(os.path.join(output_dir, f"{variable_param}-{mode}-raw.csv"))
     return course_df
 
 def create_graph_course_sb(course_df, fixed_params, variable_param, variable_param_settings, stats, mode, output_dir, label):
@@ -212,6 +205,11 @@ def create_graph_course_sb(course_df, fixed_params, variable_param, variable_par
     plt.savefig(os.path.join(output_dir, f"{variable_param}-{label}-{mode}-course.{IMG_FORMAT}"), format=IMG_FORMAT, dpi=300)
     plt.clf()
 
+def rolling_avg(df, window, variable_param, stats):
+    # run is unique for combination of run + variable_param, so no need to group also on variable param
+    df_rolling = df.copy(deep=True)
+    df_rolling[stats] = df.groupby(["run"])[stats].rolling(window=window, min_periods=1).mean().reset_index(level="run",drop=True)
+    return df_rolling
 
 def main():
     parser = argparse.ArgumentParser(description='Run agent model from terminal.')
@@ -261,14 +259,18 @@ def main():
         run_data = evaluate_model(fixed_params, {var_param: var_param_settings},
                                     iterations_setting, steps_setting, output_dir=output_dir_custom)
         # create_graph_end(run_data, fixed_params_print, var_param, var_param_settings,
-        #                     mode="communicated", stats=stats_communicated.keys(), output_dir=output_dir_custom)
+        #                     mode="communicated", stats=stats_communicated, output_dir=output_dir_custom)
         # create_graph_course(run_data, fixed_params_print, var_param, var_param_settings,
-        #                     mode="communicated", stats=stats_communicated.keys(),
+        #                     mode="communicated", stats=stats_communicated,
         #                     stat="prop_communicated_suffix_l1", output_dir=output_dir_custom)
         #Seaborn
-        course_df = get_course_df_sb(run_data, var_param, var_param_settings, stats_communicated.keys())
-        create_graph_course_sb(course_df, fixed_params_print, var_param, var_param_settings, ["prop_communicated_suffix_l1"], "communicated", output_dir_custom, "")
-        create_graph_end_sb(course_df, fixed_params_print, var_param, var_param_settings, "communicated", stats_communicated.keys(), output_dir_custom)
+        course_df = get_course_df_sb(run_data, var_param, var_param_settings, stats_communicated, "communicated", output_dir_custom)
+        create_graph_course_sb(course_df, fixed_params_print, var_param, var_param_settings, ["prop_communicated_suffix_l1"], "communicated", output_dir_custom, "raw")
+        create_graph_end_sb(course_df, fixed_params_print, var_param, var_param_settings, "communicated", stats_communicated, output_dir_custom, "raw")
+
+        course_df_rolling = rolling_avg(course_df, ROLLING_AVG_WINDOW, var_param, stats_communicated)
+        create_graph_course_sb(course_df_rolling, fixed_params_print, var_param, var_param_settings, ["prop_communicated_suffix_l1"], "communicated", output_dir_custom, "rolling")
+        create_graph_end_sb(course_df_rolling, fixed_params_print, var_param, var_param_settings, "communicated", stats_communicated, output_dir_custom, "rolling")
 
     # else:
     #     # Evaluate all combinations of variable parameters

@@ -25,9 +25,10 @@ PERSONS = ['1sg', '2sg', '3sg', '1pl.incl', '1pl.excl', '2pl', '3pl']
 dst = Distance()
 RG = np.random.default_rng()
 
-STATS_AFTER_STEPS = 1
+COMMUNICATED_STATS_AFTER_STEPS = 1
 RARE_STATS_AFTER_STEPS = 1000
 COMM_SUCCESS_AFTER_STEPS = 50
+ROLLING_AVG_WINDOW =20
 
 IMG_FORMAT = "png"
 OUTPUT_DIR = f'output-{str(datetime.datetime.now()).replace(" ","-")}'
