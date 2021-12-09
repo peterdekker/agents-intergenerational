@@ -3,7 +3,7 @@ from mesa.batchrunner import BatchRunner
 
 from agents.model import Model
 from agents import misc
-from agents.config import model_params_script, evaluation_params, bool_params, string_params, OUTPUT_DIR, IMG_FORMAT, LAST_N_STEPS_END_GRAPH
+from agents.config import model_params_script, evaluation_params, bool_params, string_params, OUTPUT_DIR, IMG_FORMAT
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -153,23 +153,15 @@ def plot_graph_course(course_df, fixed_params, variable_param, variable_param_se
     plt.savefig(os.path.join(output_dir, f"{variable_param}-{mode}-course.{IMG_FORMAT}"), format=IMG_FORMAT)
 
 
-def create_graph_course_sb(run_data, fixed_params, variable_param, variable_param_settings, mode, stats, stat, output_dir):
-    course_df = get_course_df_sb(run_data, variable_param, variable_param_settings, stats)
-    plot_graph_course_sb(course_df, fixed_params, variable_param,
-                        variable_param_settings, [stat], mode, output_dir, "")
-
-
-def create_graph_end_sb(run_data, fixed_params, variable_param, variable_param_settings, mode, stats, output_dir):
-    course_df = get_course_df_sb(run_data, variable_param, variable_param_settings, stats)
-    plot_graph_end_sb(fixed_params, variable_param, variable_param_settings, mode, stats, output_dir, course_df)
-
-def plot_graph_end_sb(fixed_params, variable_param, variable_param_settings, mode, stats, output_dir, course_df):
+def create_graph_end_sb(course_df, fixed_params, variable_param, variable_param_settings, mode, stats, output_dir):
     n_steps = fixed_params["steps"]
-    # We want all the index labels above a certain number (the tail),
-    # but the indices are non-unique (because of multiple runs), so slice does not work
-    course_tail = course_df.loc[course_df.index > n_steps-LAST_N_STEPS_END_GRAPH]
-    #print(course_tail)
-    sns.barplot(x=variable_param, data=course_tail)
+    y_label = "proportion utterances non-empty" if mode=="communicated" else "proportion paradigm cells filled"
+    df_melted = course_df.melt(id_vars=["timesteps",variable_param], value_vars = stats, value_name = y_label, var_name="statistic")
+
+
+    # Use last iteration as data
+    df_tail = df_melted[df_melted["timesteps"] == n_steps]
+    sns.barplot(data=df_tail, x=variable_param, y=y_label, hue="statistic")
     # labels = variable_param_settings  # run_data_means.index  # variable values
     # x = np.arange(len(labels))  # the label locations
     # width = 0.2  # the width of the bars
@@ -194,7 +186,7 @@ def plot_graph_end_sb(fixed_params, variable_param, variable_param_settings, mod
     # graphtext = textwrap.fill(params_print(fixed_params), width=100)
     # plt.subplots_adjust(bottom=0.25)
     # plt.figtext(0.05, 0.03, graphtext, fontsize=8, ha="left")
-    plt.savefig(os.path.join(output_dir, f"{variable_param}-{mode}-end-sb.{IMG_FORMAT}"), format=IMG_FORMAT)
+    plt.savefig(os.path.join(output_dir, f"{variable_param}-{mode}-end-sb.{IMG_FORMAT}"), format=IMG_FORMAT, dpi=300)
 
 
 def get_course_df_sb(run_data, variable_param, variable_param_settings, stats):
@@ -210,12 +202,11 @@ def get_course_df_sb(run_data, variable_param, variable_param_settings, stats):
     course_df = course_df.reset_index().rename(columns={"index":"timesteps"})
     return course_df
 
-def plot_graph_course_sb(course_df, fixed_params, variable_param, variable_param_settings, stats, mode, output_dir, label):
-    print(course_df)
+def create_graph_course_sb(course_df, fixed_params, variable_param, variable_param_settings, stats, mode, output_dir, label):
+    n_steps = fixed_params["steps"]
     y_label = "proportion utterances non-empty" if mode=="communicated" else "proportion paradigm cells filled"
     df_melted = course_df.melt(id_vars=["timesteps",variable_param], value_vars = stats, value_name = y_label, var_name="statistic")
     print(df_melted)
-    print(variable_param)
     sns.lineplot(data=df_melted, x="timesteps", y=y_label, hue=variable_param)
 
     plt.savefig(os.path.join(output_dir, f"{variable_param}-{label}-{mode}-course.{IMG_FORMAT}"), format=IMG_FORMAT, dpi=300)
@@ -275,11 +266,10 @@ def main():
         #                     mode="communicated", stats=stats_communicated.keys(),
         #                     stat="prop_communicated_suffix_l1", output_dir=output_dir_custom)
         #Seaborn
-        # create_graph_end_sb(run_data, fixed_params_print, var_param, var_param_settings,
-        #                  mode="communicated", stats=stats_communicated.keys(), output_dir=output_dir_custom)
-        create_graph_course_sb(run_data, fixed_params_print, var_param, var_param_settings,
-                            mode="communicated", stats=stats_communicated.keys(),
-                            stat="prop_communicated_suffix_l1", output_dir=output_dir_custom)
+        course_df = get_course_df_sb(run_data, var_param, var_param_settings, stats_communicated.keys())
+        create_graph_course_sb(course_df, fixed_params_print, var_param, var_param_settings, ["prop_communicated_suffix_l1"], "communicated", output_dir_custom, "")
+        create_graph_end_sb(course_df, fixed_params_print, var_param, var_param_settings, "communicated", stats_communicated.keys(), output_dir_custom)
+
     # else:
     #     # Evaluate all combinations of variable parameters
     #     # Only params not changed by user are fixed

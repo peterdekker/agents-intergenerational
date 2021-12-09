@@ -80,8 +80,6 @@ def update_communicated_model_stats(model, prefix, suffix, prefixing, suffixing,
 
 
 def prop_communicated(communicated_list):
-    # Flatten list of last n steps
-    #last_comm_list = list(chain.from_iterable(communicated_list[-LAST_N_STEPS_COMMUNICATED:]))
     last_comm_list = communicated_list[-1]
     # Calculate proportion non-empty communications
     n_non_empty = len([s for s in last_comm_list if s != ""])

@@ -164,11 +164,6 @@ class Model(Model):
 
         if self.steps % STATS_AFTER_STEPS == 0:
 
-            # Calculate and reset ambiguity every STAT_AFTER_STEPS_INTERACTIONS,
-            # to do some averaging over steps
-            # self.avg_ambiguity = {k: np.mean(v) for k, v in self.ambiguity.items()}
-            # self.ambiguity = defaultdict(list)
-
             # TODO: stats can be calculated upon calling .collect(), by
             # registering methods in datacollector. But then
             # no differentiation between stats calculation intervals is possible
