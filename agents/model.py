@@ -22,7 +22,6 @@ class Model(Model):
                  capacity_l1, capacity_l2, pronoun_drop_prob,
                  min_boundary_feature_dist, reduction_hh, reduction_prosody_l1, reduction_prosody_l2,
                  negative_update, always_affix, balance_prefix_suffix_verbs, unique_affix,
-                 fuzzy_match_affix,
                  generalize_production_l1,
                  generalize_production_l2, generalize_update_l1,
                  generalize_update_l2):
@@ -42,7 +41,6 @@ class Model(Model):
         assert isinstance(reduction_prosody_l2, bool)
         assert isinstance(negative_update, bool)
         assert isinstance(always_affix, bool)
-        assert isinstance(fuzzy_match_affix, bool)
         assert isinstance(balance_prefix_suffix_verbs, bool)
         assert isinstance(unique_affix, bool)
         assert generalize_production_l1 >= 0 and generalize_production_l1 <= 1
@@ -60,7 +58,6 @@ class Model(Model):
         self.reduction_hh = reduction_hh
         self.negative_update = negative_update
         self.always_affix = always_affix
-        self.fuzzy_match_affix = fuzzy_match_affix
 
         self.schedule = RandomActivation(self)
         self.grid = SingleGrid(width, height, torus=True)

@@ -30,10 +30,10 @@ RARE_STATS_AFTER_STEPS = 1000
 COMM_SUCCESS_AFTER_STEPS = 50
 ROLLING_AVG_WINDOW =50
 
-IMG_FORMAT = "png"
+IMG_FORMAT = "pdf"
 OUTPUT_DIR = f'output-{str(datetime.datetime.now()).replace(" ","-")}'
 
-GENERALIZE_LEX_CONCEPTS = False
+GENERALIZE_LEX_CONCEPTS = True
 GENERALIZE_PERSONS = True
 
 # Defaults for UserSettableParameters
@@ -42,18 +42,17 @@ PROPORTION_L2 = 0.5
 # Only crucial parameter
 PRONOUN_DROP_PROB = 1.0
 # Model expansions turned off by default
-CAPACITY_L1 = 50
-CAPACITY_L2 = 50
+CAPACITY_L1 = 0 # (0=off)
+CAPACITY_L2 = 0
 MIN_BOUNDARY_FEATURE_DIST = 0.0
 REDUCTION_HH = False
 REDUCTION_PROSODY_L1 = False
 REDUCTION_PROSODY_L2 = False
 NEGATIVE_UPDATE = False
 GENERALIZE_PRODUCTION_L1 = 0.0
-GENERALIZE_PRODUCTION_L2 = 0.5
+GENERALIZE_PRODUCTION_L2 = 0.0
 GENERALIZE_UPDATE_L1 = 0.0
 GENERALIZE_UPDATE_L2 = 0.0
-FUZZY_MATCH_AFFIX = False
 # Always affix setting simplifies model and disables suffix_prob
 ALWAYS_AFFIX = True
 SUFFIX_PROB = 0.5
@@ -63,8 +62,8 @@ UNIQUE_AFFIX = False
 
 
 # For evaluation script (not browser visualization)
-ITERATIONS = [3]
-STEPS = [5000]
+ITERATIONS = [20]
+STEPS = [8000]
 
 
 
@@ -85,7 +84,6 @@ model_params = {
     "always_affix": {"ui": UserSettableParameter('checkbox', 'Always affix', value=ALWAYS_AFFIX), "script": ALWAYS_AFFIX},
     "balance_prefix_suffix_verbs": {"ui": UserSettableParameter('checkbox', 'Balance prefix/suffix', value=BALANCE_PREFIX_SUFFIX_VERBS), "script": BALANCE_PREFIX_SUFFIX_VERBS},
     "unique_affix": {"ui": UserSettableParameter('checkbox', 'Unique affix', value=UNIQUE_AFFIX), "script": UNIQUE_AFFIX},
-    "fuzzy_match_affix": {"ui": UserSettableParameter('checkbox', 'Fuzzy match affix', value=FUZZY_MATCH_AFFIX), "script": FUZZY_MATCH_AFFIX},
     "generalize_production_l1": {"ui": UserSettableParameter("slider", "Generalize production L1 prob",
                                                       GENERALIZE_PRODUCTION_L1, 0, 1, 0.1), "script": GENERALIZE_PRODUCTION_L1},
     "generalize_production_l2": {"ui": UserSettableParameter("slider", "Generalize production L2 prob",
@@ -106,6 +104,6 @@ evaluation_params = {
 }
 
 bool_params = ["reduction_hh", "reduction_prosody_l1", "reduction_prosody_l2", "negative_update", "always_affix",
-               "balance_prefix_suffix_verbs", "unique_affix", "fuzzy_match_affix"]
+               "balance_prefix_suffix_verbs", "unique_affix"]
 
 string_params = ["runlabel"]

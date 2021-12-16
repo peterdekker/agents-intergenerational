@@ -60,7 +60,7 @@ def lookup_lex_concept(signal_form, lex_concepts, lex_concept_data):
 
 
 # , ambiguity):
-def infer_person_from_signal(lex_concept, lex_concept_data, affixes, persons, signal, fuzzy_match_affix):
+def infer_person_from_signal(lex_concept, lex_concept_data, affixes, persons, signal):
     logging.debug("Person not given via context, inferring from affix.")
     # TODO: This assumes listener has same concept matrix, and knows which
     # verbs are prefixing/suffixing
@@ -68,11 +68,11 @@ def infer_person_from_signal(lex_concept, lex_concept_data, affixes, persons, si
     possible_persons = []
     if lex_concept_data[lex_concept]["prefixing"]:
         possible_persons += infer_possible_persons("prefix", signal.prefix, persons,
-                                                   affixes, lex_concept, fuzzy_match_affix)  # , ambiguity)
+                                                   affixes, lex_concept)
     if lex_concept_data[lex_concept]["suffixing"]:
         possible_persons += infer_possible_persons("suffix",
                                                    signal.suffix, persons,
-                                                   affixes, lex_concept, fuzzy_match_affix)  # , ambiguity)
+                                                   affixes, lex_concept)
 
     # If no possible persons (because no affix, or empty internal suffixes=L2),
     # pick person randomly from all persons
@@ -87,7 +87,7 @@ def infer_person_from_signal(lex_concept, lex_concept_data, affixes, persons, si
 
 
 # , ambiguity):
-def infer_possible_persons(affix_type, affix_signal, persons, affixes, lex_concept, fuzzy_match_affix):
+def infer_possible_persons(affix_type, affix_signal, persons, affixes, lex_concept):
     # Calculate distances of internal affixes to received affix,
     # to find candidate persons
     possible_persons = []
@@ -95,18 +95,9 @@ def infer_possible_persons(affix_type, affix_signal, persons, affixes, lex_conce
     for p in persons:
         affixes_person = affixes[(lex_concept, p, affix_type)]
         for affix_internal in affixes_person:
-            if fuzzy_match_affix:
-                # Add all internal affixes which have closest distance to signal
-                dist = editdistance.eval(affix_signal, affix_internal)
-                if dist <= lowest_dist:
-                    if dist < lowest_dist:
-                        lowest_dist = dist
-                        possible_persons = []
-                    possible_persons.append(p)
-            else:
-                # Add all internal affixes which exactly match signal
-                if affix_internal == affix_signal:
-                    possible_persons.append(p)
+            # Add all internal affixes which exactly match signal
+            if affix_internal == affix_signal:
+                possible_persons.append(p)
     #persons_ambig = len(possible_persons) if len(possible_persons) > 0 else len(persons)
     # ambiguity[f"'{affix_signal}'-{affix_type}"].append(persons_ambig)
     return possible_persons
@@ -197,10 +188,8 @@ def update_affix_list(prefix_recv, suffix_recv, affixes, lex_concepts_type, lex_
                 else:
                     # Positive update
                     affix_list.append(affix_recv)
-                # if not l2:
-                #     logging.debug(
-                #         f"{affix_type.capitalize()}es after update: {affix_list}")
-                enforce_capacity(affix_list, capacity)
+                if capacity != 0: # capacity 0 means: do not enforce capacity
+                    enforce_capacity(affix_list, capacity)
 
 
 def spread_l2_agents(proportion_l2, n_agents):
