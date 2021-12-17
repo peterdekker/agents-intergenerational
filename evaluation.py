@@ -185,7 +185,7 @@ def create_graph_end_sb(course_df, fixed_params, variable_param, variable_param_
 
     # Use last iteration as data
     df_tail = df_melted[df_melted["timesteps"] == n_steps]
-    sns.barplot(data=df_tail, x="timesteps", y=y_label, hue=variable_param)
+    sns.barplot(data=df_tail, x=variable_param, y=y_label, hue="statistic")
     # labels = variable_param_settings  # run_data_means.index  # variable values
     # x = np.arange(len(labels))  # the label locations
     # width = 0.2  # the width of the bars

@@ -28,7 +28,7 @@ RG = np.random.default_rng()
 COMMUNICATED_STATS_AFTER_STEPS = 1
 RARE_STATS_AFTER_STEPS = 1000
 COMM_SUCCESS_AFTER_STEPS = 50
-ROLLING_AVG_WINDOW =50
+ROLLING_AVG_WINDOW =100
 
 IMG_FORMAT = "pdf"
 OUTPUT_DIR = f'output-{str(datetime.datetime.now()).replace(" ","-")}'
