@@ -28,7 +28,7 @@ RG = np.random.default_rng()
 COMMUNICATED_STATS_AFTER_STEPS = 1
 RARE_STATS_AFTER_STEPS = 1000
 COMM_SUCCESS_AFTER_STEPS = 50
-ROLLING_AVG_WINDOW =100
+ROLLING_AVG_WINDOW = 100
 
 IMG_FORMAT = "pdf"
 OUTPUT_DIR = f'output-{str(datetime.datetime.now()).replace(" ","-")}'
@@ -42,7 +42,7 @@ PROPORTION_L2 = 0.5
 # Only crucial parameter
 PRONOUN_DROP_PROB = 1.0
 # Model expansions turned off by default
-CAPACITY_L1 = 0 # (0=off)
+CAPACITY_L1 = 0  # (0=off)
 CAPACITY_L2 = 0
 MIN_BOUNDARY_FEATURE_DIST = 0.0
 REDUCTION_HH = False
@@ -66,7 +66,6 @@ ITERATIONS = [20]
 STEPS = [8000]
 
 
-
 model_params = {
     "height": {"ui": HEIGHT, "script": HEIGHT},
     "width": {"ui": WIDTH, "script": WIDTH},
@@ -76,7 +75,7 @@ model_params = {
     "capacity_l2": {"ui": UserSettableParameter("slider", "Exemplar capacity L2", CAPACITY_L2, 0, 50, 1), "script": CAPACITY_L2},
     "pronoun_drop_prob": {"ui": UserSettableParameter("slider", "Pronoun drop prob", PRONOUN_DROP_PROB, 0, 1, 0.1), "script": PRONOUN_DROP_PROB},
     "min_boundary_feature_dist": {"ui": UserSettableParameter("slider", "Min boundary feature dist",
-                                                       MIN_BOUNDARY_FEATURE_DIST, 0, 10, 0.1), "script": MIN_BOUNDARY_FEATURE_DIST},
+                                                              MIN_BOUNDARY_FEATURE_DIST, 0, 10, 0.1), "script": MIN_BOUNDARY_FEATURE_DIST},
     "reduction_hh": {"ui": UserSettableParameter('checkbox', 'Reduction H&H', value=REDUCTION_HH), "script": REDUCTION_HH},
     "reduction_prosody_l1": {"ui": UserSettableParameter('checkbox', 'Reduction prosody L1', value=REDUCTION_PROSODY_L1), "script": REDUCTION_PROSODY_L1},
     "reduction_prosody_l2": {"ui": UserSettableParameter('checkbox', 'Reduction prosody L2', value=REDUCTION_PROSODY_L2), "script": REDUCTION_PROSODY_L2},
@@ -85,17 +84,17 @@ model_params = {
     "balance_prefix_suffix_verbs": {"ui": UserSettableParameter('checkbox', 'Balance prefix/suffix', value=BALANCE_PREFIX_SUFFIX_VERBS), "script": BALANCE_PREFIX_SUFFIX_VERBS},
     "unique_affix": {"ui": UserSettableParameter('checkbox', 'Unique affix', value=UNIQUE_AFFIX), "script": UNIQUE_AFFIX},
     "generalize_production_l1": {"ui": UserSettableParameter("slider", "Generalize production L1 prob",
-                                                      GENERALIZE_PRODUCTION_L1, 0, 1, 0.1), "script": GENERALIZE_PRODUCTION_L1},
+                                                             GENERALIZE_PRODUCTION_L1, 0, 1, 0.1), "script": GENERALIZE_PRODUCTION_L1},
     "generalize_production_l2": {"ui": UserSettableParameter("slider", "Generalize production L2 prob",
-                                                      GENERALIZE_PRODUCTION_L2, 0, 1, 0.1), "script": GENERALIZE_PRODUCTION_L2},
+                                                             GENERALIZE_PRODUCTION_L2, 0, 1, 0.1), "script": GENERALIZE_PRODUCTION_L2},
     "generalize_update_l1": {"ui": UserSettableParameter("slider", "Generalize update L1 prob",
-                                                  GENERALIZE_UPDATE_L1, 0, 1, 0.01), "script": GENERALIZE_UPDATE_L1},
+                                                         GENERALIZE_UPDATE_L1, 0, 1, 0.01), "script": GENERALIZE_UPDATE_L1},
     "generalize_update_l2": {"ui": UserSettableParameter("slider", "Generalize update L2 prob",
-                                                  GENERALIZE_UPDATE_L2, 0, 1, 0.01), "script": GENERALIZE_UPDATE_L2},
+                                                         GENERALIZE_UPDATE_L2, 0, 1, 0.01), "script": GENERALIZE_UPDATE_L2},
 }
 
-model_params_ui = {k:v["ui"] for k,v in model_params.items()}
-model_params_script = {k:v["script"] for k,v in model_params.items()}
+model_params_ui = {k: v["ui"] for k, v in model_params.items()}
+model_params_script = {k: v["script"] for k, v in model_params.items()}
 
 evaluation_params = {
     "iterations": ITERATIONS,

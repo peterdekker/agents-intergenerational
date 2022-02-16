@@ -134,11 +134,9 @@ class Agent(Agent):
         stats.update_communicated_model_stats(
             self.model, prefix, suffix, prefixing, suffixing, self.l2, self.model.steps)
 
-        # (3) Add context from sentence (subject and object), based on transivitity.
+        # (3) Add context from sentence (subject)
         if RG.random() >= self.model.pronoun_drop_prob:
             signal.subject = person
-        if transitivity == "trans":
-            signal.object = "OBJECT"
 
         # Send signal.
         logging.debug(f"Speaker sends signal: {signal!s}")
@@ -176,14 +174,12 @@ class Agent(Agent):
                                                             self.persons,
                                                             signal)
 
-        # We use directly existence/non-existence of object as criterion for transitivity
-        transitivity_inferred = "trans" if self.signal_recv.object else "intrans"
 
         self.concept_listener = ConceptMessage(
-            lex_concept=lex_concept_inferred, person=person_inferred, transitivity=transitivity_inferred)
+            lex_concept=lex_concept_inferred, person=person_inferred)
         logging.debug(f"Listener decodes concept: {self.concept_listener!s}")
 
-        # Point to object
+        # Point to inferred concept
         return self.concept_listener
 
     def receive_feedback(self, feedback_speaker):
