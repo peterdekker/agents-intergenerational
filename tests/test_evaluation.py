@@ -15,4 +15,4 @@ def test_evaluation_with_stats():
     # Run as many steps of the simulation to get stats
     misc.create_output_dir(OUTPUT_DIR)
     evaluation.evaluate_model(fixed_params=model_params_script, variable_params={},
-                              iterations=1, steps=STATS_AFTER_STEPS, output_dir=OUTPUT_DIR)
+                              iterations=1, steps=RARE_STATS_AFTER_STEPS, output_dir=OUTPUT_DIR)
