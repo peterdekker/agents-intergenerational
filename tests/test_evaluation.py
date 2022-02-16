@@ -1,6 +1,6 @@
 
 import evaluation
-from agents.config import model_params_script, STATS_AFTER_STEPS, OUTPUT_DIR
+from agents.config import model_params_script, RARE_STATS_AFTER_STEPS, OUTPUT_DIR
 from agents import misc
 
 
