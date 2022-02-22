@@ -55,8 +55,8 @@ class Model(Model):
         self.radius = MAX_RADIUS
         self.suffix_prob = suffix_prob
         self.pronoun_drop_prob = pronoun_drop_prob
-        #self.min_boundary_feature_dist = min_boundary_feature_dist
-        #self.reduction_hh = reduction_hh
+        # self.min_boundary_feature_dist = min_boundary_feature_dist
+        # self.reduction_hh = reduction_hh
         self.negative_update = negative_update
         self.always_affix = always_affix
 
