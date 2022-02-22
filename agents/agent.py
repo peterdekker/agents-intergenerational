@@ -93,12 +93,12 @@ class Agent(Agent):
             # TODO: More elegant if len is always non-zero because there is always ""?
             if len(prefixes) > 0:
                 prefix = misc.affix_choice(prefixes)
-                # Drop affix based on estimated intelligibility for listener (H&H)
-                prefix = misc.reduce_hh("prefixing", prefix, listener, self.model.reduction_hh)
-                # Drop affix based on phonetic distance between stem/affix boundary phonemes
-                prefix = misc.reduce_boundary_feature_dist("prefixing", prefix, form,
-                                                                 self.model.min_boundary_feature_dist,
-                                                                 listener)
+                # # Drop affix based on estimated intelligibility for listener (H&H)
+                # prefix = misc.reduce_hh("prefixing", prefix, listener, self.model.reduction_hh)
+                # # Drop affix based on phonetic distance between stem/affix boundary phonemes
+                # prefix = misc.reduce_boundary_feature_dist("prefixing", prefix, form,
+                #                                                  self.model.min_boundary_feature_dist,
+                #                                                  listener)
                 prefix = misc.reduce_prosody("prefixing", prefix, form,
                                                    self.reduction_prosody, listener, self.model.clts)
             # else:
@@ -121,10 +121,10 @@ class Agent(Agent):
                 if self.model.always_affix or transitivity == "intrans":
                     if self.model.always_affix or RG.random() < self.model.suffix_prob:
                         suffix = misc.affix_choice(suffixes)
-                        suffix = misc.reduce_hh("suffixing", suffix, listener, self.model.reduction_hh)
-                        suffix = misc.reduce_boundary_feature_dist("suffixing", suffix, form,
-                                                                         self.model.min_boundary_feature_dist,
-                                                                         listener)
+                        # suffix = misc.reduce_hh("suffixing", suffix, listener, self.model.reduction_hh)
+                        # suffix = misc.reduce_boundary_feature_dist("suffixing", suffix, form,
+                        #                                                  self.model.min_boundary_feature_dist,
+                        #                                                  listener)
                         suffix = misc.reduce_prosody("suffixing", suffix, form,
                                                            self.reduction_prosody, listener, self.model.clts)
             # else:

@@ -103,19 +103,28 @@ def infer_possible_persons(affix_type, affix_signal, persons, affixes, lex_conce
     return possible_persons
 
 
-def reduce_boundary_feature_dist(verb_type, affix, form, min_boundary_feature_dist, listener):
-    if min_boundary_feature_dist > 0.0:
-        form_border_phoneme = 0 if verb_type == "prefixing" else -1
-        affix_border_phoneme = -1 if verb_type == "prefixing" else 0
-        affix_slice = affix[affix_border_phoneme] if len(affix) > 0 else affix
-        feature_dist = dst.weighted_feature_edit_distance(form[form_border_phoneme], affix_slice)
-        # Sounds have to be different enough
-        if feature_dist < min_boundary_feature_dist:
-            affix = ""
-            # if len(affix) > 0:
-            #     affix = affix[1:] if verb_type == "prefixing" else affix[:-1]
-    return affix
+# def reduce_boundary_feature_dist(verb_type, affix, form, min_boundary_feature_dist, listener):
+#     if min_boundary_feature_dist > 0.0:
+#         form_border_phoneme = 0 if verb_type == "prefixing" else -1
+#         affix_border_phoneme = -1 if verb_type == "prefixing" else 0
+#         affix_slice = affix[affix_border_phoneme] if len(affix) > 0 else affix
+#         feature_dist = dst.weighted_feature_edit_distance(form[form_border_phoneme], affix_slice)
+#         # Sounds have to be different enough
+#         if feature_dist < min_boundary_feature_dist:
+#             affix = ""
+#             # if len(affix) > 0:
+#             #     affix = affix[1:] if verb_type == "prefixing" else affix[:-1]
+#     return affix
 
+# def reduce_hh(verb_type, affix, listener, reduction_hh):
+#     #affix_old = affix
+#     if reduction_hh:
+#         if not listener.is_l2():
+#             if len(affix) > 0:
+#                 # affix = ""
+#                 affix = affix[1:] if verb_type == "prefixing" else affix[:-1]
+#                 # logging.debug(f"H&H: {affix_old} -> {affix}")
+#     return affix
 
 def reduce_prosody(verb_type, affix, form, reduction_prosody, listener, clts):
     if reduction_prosody:
@@ -137,17 +146,6 @@ def reduce_prosody(verb_type, affix, form, reduction_prosody, listener, clts):
         if "CC" in cv_pattern:
             #print("CONSONANT CLUSTER!")
             affix = ""
-    return affix
-
-
-def reduce_hh(verb_type, affix, listener, reduction_hh):
-    #affix_old = affix
-    if reduction_hh:
-        if not listener.is_l2():
-            if len(affix) > 0:
-                # affix = ""
-                affix = affix[1:] if verb_type == "prefixing" else affix[:-1]
-                # logging.debug(f"H&H: {affix_old} -> {affix}")
     return affix
 
 
