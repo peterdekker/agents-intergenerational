@@ -91,7 +91,6 @@ def infer_possible_persons(affix_type, affix_signal, persons, affixes, lex_conce
     # Calculate distances of internal affixes to received affix,
     # to find candidate persons
     possible_persons = []
-    lowest_dist = 1000
     for p in persons:
         affixes_person = affixes[(lex_concept, p, affix_type)]
         for affix_internal in affixes_person:
