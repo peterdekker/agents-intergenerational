@@ -44,8 +44,8 @@ PRONOUN_DROP_PROB = 1.0
 # Model expansions turned off by default
 CAPACITY_L1 = 0  # (0=off)
 CAPACITY_L2 = 0
-#MIN_BOUNDARY_FEATURE_DIST = 0.0
-#REDUCTION_HH = False
+# MIN_BOUNDARY_FEATURE_DIST = 0.0
+# REDUCTION_HH = False
 REDUCTION_PROSODY_L1 = False
 REDUCTION_PROSODY_L2 = False
 NEGATIVE_UPDATE = False
@@ -74,9 +74,9 @@ model_params = {
     "capacity_l1": {"ui": UserSettableParameter("slider", "Exemplar capacity L1", CAPACITY_L1, 0, 50, 1), "script": CAPACITY_L1},
     "capacity_l2": {"ui": UserSettableParameter("slider", "Exemplar capacity L2", CAPACITY_L2, 0, 50, 1), "script": CAPACITY_L2},
     "pronoun_drop_prob": {"ui": UserSettableParameter("slider", "Pronoun drop prob", PRONOUN_DROP_PROB, 0, 1, 0.1), "script": PRONOUN_DROP_PROB},
-    #"min_boundary_feature_dist": {"ui": UserSettableParameter("slider", "Min boundary feature dist",
+    # "min_boundary_feature_dist": {"ui": UserSettableParameter("slider", "Min boundary feature dist",
     #                                                          MIN_BOUNDARY_FEATURE_DIST, 0, 10, 0.1), "script": MIN_BOUNDARY_FEATURE_DIST},
-    #"reduction_hh": {"ui": UserSettableParameter('checkbox', 'Reduction H&H', value=REDUCTION_HH), "script": REDUCTION_HH},
+    # "reduction_hh": {"ui": UserSettableParameter('checkbox', 'Reduction H&H', value=REDUCTION_HH), "script": REDUCTION_HH},
     "reduction_prosody_l1": {"ui": UserSettableParameter('checkbox', 'Reduction prosody L1', value=REDUCTION_PROSODY_L1), "script": REDUCTION_PROSODY_L1},
     "reduction_prosody_l2": {"ui": UserSettableParameter('checkbox', 'Reduction prosody L2', value=REDUCTION_PROSODY_L2), "script": REDUCTION_PROSODY_L2},
     "negative_update": {"ui": UserSettableParameter('checkbox', 'Negative update', value=NEGATIVE_UPDATE), "script": NEGATIVE_UPDATE},

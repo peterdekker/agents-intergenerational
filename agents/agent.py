@@ -100,7 +100,7 @@ class Agent(Agent):
                 #                                                  self.model.min_boundary_feature_dist,
                 #                                                  listener)
                 prefix = misc.reduce_prosody("prefixing", prefix, form,
-                                                   self.reduction_prosody, listener, self.model.clts)
+                                             self.reduction_prosody, listener, self.model.clts)
             # else:
             #    return
             signal.prefix = prefix
@@ -126,7 +126,7 @@ class Agent(Agent):
                         #                                                  self.model.min_boundary_feature_dist,
                         #                                                  listener)
                         suffix = misc.reduce_prosody("suffixing", suffix, form,
-                                                           self.reduction_prosody, listener, self.model.clts)
+                                                     self.reduction_prosody, listener, self.model.clts)
             # else:
             #    return
             signal.suffix = suffix
@@ -173,7 +173,6 @@ class Agent(Agent):
                                                             self.affixes,
                                                             self.persons,
                                                             signal)
-
 
         self.concept_listener = ConceptMessage(
             lex_concept=lex_concept_inferred, person=person_inferred)
