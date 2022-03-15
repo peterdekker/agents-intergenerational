@@ -136,12 +136,12 @@ def reduce_prosody(verb_type, affix, form, reduction_prosody, listener, clts):
         #     affix = ""
         #     # if len(affix) > 0:
         #     #     affix = affix[1:] if verb_type == "prefixing" else affix[:-1]
-        
+
         inflected_form = affix+form if verb_type == "prefixing" else form+affix
-        #print(inflected_form)
+        # print(inflected_form)
         spaced_form = " ".join(list(inflected_form))
         cv_pattern = clts.bipa.translate(spaced_form, clts.soundclass("cv")).replace(" ", "")
-        #print(cv_pattern)
+        # print(cv_pattern)
         if "CC" in cv_pattern:
             #print("CONSONANT CLUSTER!")
             affix = ""
@@ -160,12 +160,13 @@ def update_affix_list(prefix_recv, suffix_recv, affixes, lex_concepts_type, lex_
     for affix_type, affix_recv in [("prefix", prefix_recv), ("suffix", suffix_recv)]:
         # TODO: This assumes listener has same concept matrix, and knows which
         # verbs are prefixing/suffixing.
-        if lex_concept_listener not in lex_concepts_type[f"{affix_type}ing"]: #affix_recv is None:
+        if lex_concept_listener not in lex_concepts_type[f"{affix_type}ing"]:  # affix_recv is None:
             # If no affix for this verb type received (e.g. prefix), skip
             continue
         if RG.random() < generalize_update:
             # Generalization: update all concepts
-            lex_concepts = lex_concepts_type[f"{affix_type}ing"] if GENERALIZE_LEX_CONCEPTS else [lex_concept_listener]
+            lex_concepts = lex_concepts_type[f"{affix_type}ing"] if GENERALIZE_LEX_CONCEPTS else [
+                lex_concept_listener]
             persons = persons_all if GENERALIZE_PERSONS else [person_listener]
         else:
             # Normal update: do not generalize
@@ -185,7 +186,7 @@ def update_affix_list(prefix_recv, suffix_recv, affixes, lex_concepts_type, lex_
                 else:
                     # Positive update
                     affix_list.append(affix_recv)
-                if capacity != 0: # capacity 0 means: do not enforce capacity
+                if capacity != 0:  # capacity 0 means: do not enforce capacity
                     enforce_capacity(affix_list, capacity)
 
 
@@ -209,7 +210,8 @@ def retrieve_affixes_generalize(lex_concept, person, verb_type, affixes, general
         #                                                                     lex_concept_data)
         # return affixes[(lex_concept_gen, person_gen, verb_type)]
 
-        affixes_verb_type = {(l, p, t): affixes[(l, p, t)] for (l, p, t) in affixes.keys() if t == verb_type and (GENERALIZE_PERSONS or p == person) and (GENERALIZE_LEX_CONCEPTS or l == lex_concept)}
+        affixes_verb_type = {(l, p, t): affixes[(l, p, t)] for (l, p, t) in affixes.keys() if t == verb_type and (
+            GENERALIZE_PERSONS or p == person) and (GENERALIZE_LEX_CONCEPTS or l == lex_concept)}
         affixes_all = list(chain.from_iterable(affixes_verb_type.values()))
 
         return affixes_all
