@@ -169,13 +169,12 @@ def get_course_df_sb(run_data, variable_param, variable_param_settings, stats, m
     return course_df
 
 
-def create_graph_course_sb(course_df, fixed_params, variable_param, variable_param_settings, stats, output_dir, label, runlabel):
+def create_graph_course_sb(course_df, variable_param, stats, output_dir, label, runlabel):
     # n_steps = fixed_params["steps"]
     y_label = "proportion utterances non-empty"
     # y_label = "proportion utterances non-empty" if mode=="communicated" else "proportion paradigm cells filled"
     df_melted = course_df.melt(id_vars=["timesteps", variable_param],
                                value_vars=stats, value_name=y_label, var_name="statistic")
-    print(df_melted)
     sns.lineplot(data=df_melted, x="timesteps", y=y_label, hue=variable_param)
 
     plt.savefig(os.path.join(
@@ -183,14 +182,14 @@ def create_graph_course_sb(course_df, fixed_params, variable_param, variable_par
     plt.clf()
 
 
-def create_graph_end_sb(course_df, fixed_params, variable_param, variable_param_settings, stats, output_dir, label, runlabel):
-    n_steps = fixed_params["steps"]
+def create_graph_end_sb(course_df, variable_param, stats, output_dir, label, runlabel):
     y_label = "proportion utterances non-empty"
     # y_label = "proportion utterances non-empty" if mode=="communicated" else "proportion paradigm cells filled"
     df_melted = course_df.melt(id_vars=["timesteps", variable_param],
                                value_vars=stats, value_name=y_label, var_name="statistic")
 
     # Use last iteration as data
+    n_steps = max(course_df["timesteps"])
     df_tail = df_melted[df_melted["timesteps"] == n_steps]
     sns.lineplot(data=df_tail, x=variable_param, y=y_label, hue="statistic")
     plt.savefig(os.path.join(
@@ -218,50 +217,69 @@ def main():
     variable_params = {k: v for k, v in args.items() if k in model_params_script and v is not None}
     iterations = args["iterations"]
     steps = args["steps"]
-
-    if (len(iterations) != 1 or len(steps) != 1):
-        raise ValueError(
-            "Only supply one iterations setting and one steps setting (or none for default).")
-    if (len(variable_params) == 0):
-        raise ValueError(
-            "Pease supply one or more variable parameters.")
-
-    print(f"Evaluating iterations {iterations} and steps {steps}")
-    output_dir_custom = OUTPUT_DIR
     runlabel = args["runlabel"]
+    plot_from_raw = args["plot_from_raw"]
+    plot_from_raw_on = args["plot_from_raw"] != ""
+        
+    output_dir_custom = OUTPUT_DIR
     if runlabel != "":
         output_dir_custom = f'{OUTPUT_DIR}-{runlabel}'
     misc.create_output_dir(output_dir_custom)
 
-    # Try variable parameters one by one, while keeping all of the other parameters fixed
-    for var_param, var_param_settings in variable_params.items():
-        assert len(iterations) == 1
-        assert len(steps) == 1
-        iterations_setting = iterations[0]
-        steps_setting = steps[0]
-        fixed_params = {k: v for k, v in model_params_script.items() if k != var_param}
-        fixed_params_print = {**fixed_params, **
-                              {"iterations": iterations_setting, "steps": steps_setting}}
-        run_data = evaluate_model(fixed_params, {var_param: var_param_settings},
-                                  iterations_setting, steps_setting, output_dir=output_dir_custom)
-        # create_graph_end(run_data, fixed_params_print, var_param, var_param_settings,
-        #                     mode="communicated", stats=stats_communicated, output_dir=output_dir_custom)
-        # create_graph_course(run_data, fixed_params_print, var_param, var_param_settings,
-        #                     mode="communicated", stats=stats_communicated,
-        #                     stat="prop_communicated_suffix_l1", output_dir=output_dir_custom)
-        # Seaborn
-        course_df = get_course_df_sb(run_data, var_param, var_param_settings,
-                                     stats_communicated, "communicated", output_dir_custom)
-        create_graph_course_sb(course_df, fixed_params_print, var_param, var_param_settings, [
-                               "prop_communicated_suffix_l1"], output_dir_custom, "raw", runlabel)
-        create_graph_end_sb(course_df, fixed_params_print, var_param, var_param_settings,
+    if plot_from_raw_on:
+        course_df_import = pd.read_csv(plot_from_raw, index_col=0)
+        print(course_df_import)
+        # Assume in the imported file, variable parameter was proportion L2
+        var_param = "proportion_l2"
+        create_graph_course_sb(course_df_import, var_param, [
+            "prop_communicated_suffix_l1"], output_dir_custom, "raw", runlabel)
+        create_graph_end_sb(course_df_import, var_param, 
                             stats_communicated, output_dir_custom, "raw", runlabel)
 
-        course_df_rolling = rolling_avg(course_df, ROLLING_AVG_WINDOW, var_param, stats_communicated)
-        create_graph_course_sb(course_df_rolling, fixed_params_print, var_param, var_param_settings, [
-                               "prop_communicated_suffix_l1"], output_dir_custom, "rolling", runlabel)
-        create_graph_end_sb(course_df_rolling, fixed_params_print, var_param,
-                            var_param_settings, stats_communicated, output_dir_custom, "rolling", runlabel)
+        course_df_rolling = rolling_avg(course_df_import, ROLLING_AVG_WINDOW, var_param, stats_communicated)
+        create_graph_course_sb(course_df_rolling, var_param, [
+            "prop_communicated_suffix_l1"], output_dir_custom, "rolling", runlabel)
+        create_graph_end_sb(course_df_rolling, var_param,
+                            stats_communicated, output_dir_custom, "rolling", runlabel)
+
+    # If we are running the model, not just plotting from results file
+    if not plot_from_raw_on:
+        if (len(iterations) != 1 or len(steps) != 1):
+            raise ValueError(
+                "Only supply one iterations setting and one steps setting (or none for default).")
+        if (len(variable_params) == 0):
+            raise ValueError(
+                "Pease supply one or more variable parameters.")
+        print(f"Evaluating iterations {iterations} and steps {steps}")
+        # Try variable parameters one by one, while keeping all of the other parameters fixed
+        for var_param, var_param_settings in variable_params.items():
+            assert len(iterations) == 1
+            assert len(steps) == 1
+            iterations_setting = iterations[0]
+            steps_setting = steps[0]
+            fixed_params = {k: v for k, v in model_params_script.items() if k != var_param}
+            fixed_params_print = {**fixed_params, **
+                                  {"iterations": iterations_setting, "steps": steps_setting}}
+            run_data = evaluate_model(fixed_params, {var_param: var_param_settings},
+                                      iterations_setting, steps_setting, output_dir=output_dir_custom)
+            # create_graph_end(run_data, fixed_params_print, var_param, var_param_settings,
+            #                     mode="communicated", stats=stats_communicated, output_dir=output_dir_custom)
+            # create_graph_course(run_data, fixed_params_print, var_param, var_param_settings,
+            #                     mode="communicated", stats=stats_communicated,
+            #                     stat="prop_communicated_suffix_l1", output_dir=output_dir_custom)
+            # Seaborn
+            course_df = get_course_df_sb(run_data, var_param, var_param_settings,
+                                         stats_communicated, "communicated", output_dir_custom)
+            create_graph_course_sb(course_df, var_param, [
+                "prop_communicated_suffix_l1"], output_dir_custom, "raw", runlabel)
+            create_graph_end_sb(course_df, var_param,
+                                stats_communicated, output_dir_custom, "raw", runlabel)
+
+            course_df_rolling = rolling_avg(course_df, ROLLING_AVG_WINDOW, var_param, stats_communicated)
+            create_graph_course_sb(course_df_rolling, fixed_params_print, var_param, var_param_settings, [
+                "prop_communicated_suffix_l1"], output_dir_custom, "rolling", runlabel)
+            create_graph_end_sb(course_df_rolling, var_param,
+                                stats_communicated, output_dir_custom, "rolling", runlabel)
 
     # else:
     #     # Evaluate all combinations of variable parameters

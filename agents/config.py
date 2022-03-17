@@ -99,10 +99,11 @@ model_params_script = {k: v["script"] for k, v in model_params.items()}
 evaluation_params = {
     "iterations": ITERATIONS,
     "steps": STEPS,
-    "runlabel": ""
+    "runlabel": "",
+    "plot_from_raw": ""
 }
 
 bool_params = ["reduction_hh", "reduction_prosody_l1", "reduction_prosody_l2", "negative_update", "always_affix",
                "balance_prefix_suffix_verbs", "unique_affix"]
 
-string_params = ["runlabel"]
+string_params = ["runlabel", "plot_from_raw"]
