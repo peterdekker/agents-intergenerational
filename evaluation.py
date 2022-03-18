@@ -258,10 +258,10 @@ def main():
             iterations_setting = iterations[0]
             steps_setting = steps[0]
             fixed_params = {k: v for k, v in model_params_script.items() if k != var_param}
-            fixed_params_print = {**fixed_params, **
-                                  {"iterations": iterations_setting, "steps": steps_setting}}
             run_data = evaluate_model(fixed_params, {var_param: var_param_settings},
                                       iterations_setting, steps_setting, output_dir=output_dir_custom)
+            # fixed_params_print = {**fixed_params, **
+            #                       {"iterations": iterations_setting, "steps": steps_setting}}
             # create_graph_end(run_data, fixed_params_print, var_param, var_param_settings,
             #                     mode="communicated", stats=stats_communicated, output_dir=output_dir_custom)
             # create_graph_course(run_data, fixed_params_print, var_param, var_param_settings,
@@ -276,7 +276,7 @@ def main():
                                 stats_communicated, output_dir_custom, "raw", runlabel)
 
             course_df_rolling = rolling_avg(course_df, ROLLING_AVG_WINDOW, var_param, stats_communicated)
-            create_graph_course_sb(course_df_rolling, fixed_params_print, var_param, var_param_settings, [
+            create_graph_course_sb(course_df_rolling, var_param, [
                 "prop_communicated_suffix_l1"], output_dir_custom, "rolling", runlabel)
             create_graph_end_sb(course_df_rolling, var_param,
                                 stats_communicated, output_dir_custom, "rolling", runlabel)
