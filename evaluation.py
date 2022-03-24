@@ -145,7 +145,7 @@ def evaluate_model(fixed_params, variable_params, iterations, steps, output_dir)
 #     # TODO: possibly function intersection here later
 
 
-def rolling_avg(df, window, variable_param, stats):
+def rolling_avg(df, window, stats):
     # run is unique for combination of run + variable_param, so no need to group also on variable param
     df_rolling = df.copy(deep=True)
     df_rolling[stats] = df.groupby(["run"])[stats].rolling(
@@ -153,7 +153,7 @@ def rolling_avg(df, window, variable_param, stats):
     return df_rolling
 
 
-def get_course_df_sb(run_data, variable_param, variable_param_settings, stats, mode, output_dir):
+def get_course_df_sb(run_data, variable_param, stats, mode, output_dir):
     iteration_dfs = []
     for i, row in run_data.iterrows():
         iteration_df = row["datacollector"].get_model_vars_dataframe()[stats]
@@ -220,7 +220,7 @@ def main():
     runlabel = args["runlabel"]
     plot_from_raw = args["plot_from_raw"]
     plot_from_raw_on = args["plot_from_raw"] != ""
-        
+
     output_dir_custom = OUTPUT_DIR
     if runlabel != "":
         output_dir_custom = f'{OUTPUT_DIR}-{runlabel}'
@@ -232,10 +232,10 @@ def main():
         var_param = "proportion_l2"
         create_graph_course_sb(course_df_import, var_param, [
             "prop_communicated_suffix_l1"], output_dir_custom, "raw", runlabel)
-        create_graph_end_sb(course_df_import, var_param, 
+        create_graph_end_sb(course_df_import, var_param,
                             stats_communicated, output_dir_custom, "raw", runlabel)
 
-        course_df_rolling = rolling_avg(course_df_import, ROLLING_AVG_WINDOW, var_param, stats_communicated)
+        course_df_rolling = rolling_avg(course_df_import, ROLLING_AVG_WINDOW, stats_communicated)
         create_graph_course_sb(course_df_rolling, var_param, [
             "prop_communicated_suffix_l1"], output_dir_custom, "rolling", runlabel)
         create_graph_end_sb(course_df_rolling, var_param,
@@ -267,14 +267,14 @@ def main():
             #                     mode="communicated", stats=stats_communicated,
             #                     stat="prop_communicated_suffix_l1", output_dir=output_dir_custom)
             # Seaborn
-            course_df = get_course_df_sb(run_data, var_param, var_param_settings,
-                                         stats_communicated, "communicated", output_dir_custom)
+            course_df = get_course_df_sb(run_data, var_param, stats_communicated,
+                                         "communicated", output_dir_custom)
             create_graph_course_sb(course_df, var_param, [
                 "prop_communicated_suffix_l1"], output_dir_custom, "raw", runlabel)
             create_graph_end_sb(course_df, var_param,
                                 stats_communicated, output_dir_custom, "raw", runlabel)
 
-            course_df_rolling = rolling_avg(course_df, ROLLING_AVG_WINDOW, var_param, stats_communicated)
+            course_df_rolling = rolling_avg(course_df, ROLLING_AVG_WINDOW, stats_communicated)
             create_graph_course_sb(course_df_rolling, var_param, [
                 "prop_communicated_suffix_l1"], output_dir_custom, "rolling", runlabel)
             create_graph_end_sb(course_df_rolling, var_param,
