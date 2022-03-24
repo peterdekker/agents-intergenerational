@@ -228,7 +228,6 @@ def main():
 
     if plot_from_raw_on:
         course_df_import = pd.read_csv(plot_from_raw, index_col=0)
-        print(course_df_import)
         # Assume in the imported file, variable parameter was proportion L2
         var_param = "proportion_l2"
         create_graph_course_sb(course_df_import, var_param, [
