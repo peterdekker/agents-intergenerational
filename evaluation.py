@@ -201,7 +201,7 @@ def main():
     parser = argparse.ArgumentParser(description='Run agent model from terminal.')
     model_group = parser.add_argument_group('model', 'Model parameters')
     for param in model_params_script:
-        model_group.add_argument(f"--{param}", nargs="+",
+        model_group.add_argument(f"--{param}",
                                  type=str2bool if param in bool_params else float)
     evaluation_group = parser.add_argument_group('evaluation', 'Evaluation parameters')
     for param in evaluation_params:
@@ -214,7 +214,6 @@ def main():
 
     # Parse arguments
     args = vars(parser.parse_args())
-    variable_params = {k: v for k, v in args.items() if k in model_params_script and v is not None}
     iterations = args["iterations"]
     steps = args["steps"]
     runlabel = args["runlabel"]
@@ -246,48 +245,33 @@ def main():
         if (len(iterations) != 1 or len(steps) != 1):
             raise ValueError(
                 "Only supply one iterations setting and one steps setting (or none for default).")
-        if (len(variable_params) == 0):
-            raise ValueError(
-                "Pease supply one or more variable parameters.")
         print(f"Evaluating iterations {iterations} and steps {steps}")
-        # Try variable parameters one by one, while keeping all of the other parameters fixed
-        for var_param, var_param_settings in variable_params.items():
-            assert len(iterations) == 1
-            assert len(steps) == 1
-            iterations_setting = iterations[0]
-            steps_setting = steps[0]
-            fixed_params = {k: v for k, v in model_params_script.items() if k != var_param}
-            run_data = evaluate_model(fixed_params, {var_param: var_param_settings},
-                                      iterations_setting, steps_setting, output_dir=output_dir_custom)
-            # fixed_params_print = {**fixed_params, **
-            #                       {"iterations": iterations_setting, "steps": steps_setting}}
-            # create_graph_end(run_data, fixed_params_print, var_param, var_param_settings,
-            #                     mode="communicated", stats=stats_communicated, output_dir=output_dir_custom)
-            # create_graph_course(run_data, fixed_params_print, var_param, var_param_settings,
-            #                     mode="communicated", stats=stats_communicated,
-            #                     stat="prop_communicated_suffix_l1", output_dir=output_dir_custom)
-            # Seaborn
-            course_df = get_course_df_sb(run_data, var_param, stats_communicated,
-                                         "communicated", output_dir_custom)
-            create_graph_course_sb(course_df, var_param, [
-                "prop_communicated_suffix_l1"], output_dir_custom, "raw", runlabel)
-            create_graph_end_sb(course_df, var_param,
-                                stats_communicated, output_dir_custom, "raw", runlabel)
+        # Use proportion L2 as variable (independent) param, set given params as fixed params.
+        var_param = "proportion_l2"
+        var_param_settings = [0.0, 0.25, 0.5, 0.75]
+        assert len(iterations) == 1
+        assert len(steps) == 1
+        iterations_setting = iterations[0]
+        steps_setting = steps[0]
 
-            course_df_rolling = rolling_avg(course_df, ROLLING_AVG_WINDOW, stats_communicated)
-            create_graph_course_sb(course_df_rolling, var_param, [
-                "prop_communicated_suffix_l1"], output_dir_custom, "rolling", runlabel)
-            create_graph_end_sb(course_df_rolling, var_param,
-                                stats_communicated, output_dir_custom, "rolling", runlabel)
+        given_params = {k: v for k, v in args.items() if k in model_params_script and v is not None}
+        fixed_params = {
+            k: (v if k not in given_params else given_params[k]) for k, v in model_params_script.items()}
+        run_data = evaluate_model(fixed_params, {var_param: var_param_settings},
+                                  iterations_setting, steps_setting, output_dir=output_dir_custom)
+        # Seaborn
+        course_df = get_course_df_sb(run_data, var_param, stats_communicated,
+                                     "communicated", output_dir_custom)
+        create_graph_course_sb(course_df, var_param, [
+            "prop_communicated_suffix_l1"], output_dir_custom, "raw", runlabel)
+        create_graph_end_sb(course_df, var_param,
+                            stats_communicated, output_dir_custom, "raw", runlabel)
 
-    # else:
-    #     # Evaluate all combinations of variable parameters
-    #     # Only params not changed by user are fixed
-    #     fixed_params = {k: v for k, v in model_params_script.items() if k not in variable_params}
-    #     for iterations_setting in iterations:
-    #         for steps_setting in steps:
-    #             run_data = evaluate_model(fixed_params, variable_params,
-    #                                       iterations_setting, steps_setting, output_dir_custom)
+        course_df_rolling = rolling_avg(course_df, ROLLING_AVG_WINDOW, stats_communicated)
+        create_graph_course_sb(course_df_rolling, var_param, [
+            "prop_communicated_suffix_l1"], output_dir_custom, "rolling", runlabel)
+        create_graph_end_sb(course_df_rolling, var_param,
+                            stats_communicated, output_dir_custom, "rolling", runlabel)
 
 
 if __name__ == "__main__":
