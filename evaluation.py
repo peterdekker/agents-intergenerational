@@ -47,7 +47,7 @@ def params_print(params):
     return "".join([f"{k}: {v}   " for k, v in params.items()])
 
 
-def evaluate_model(fixed_params, variable_params, iterations, steps, output_dir):
+def evaluate_model(fixed_params, variable_params, iterations, steps):
     print(f"- Running batch: {iterations} iterations of {steps} steps")
     print(f"  Variable parameters: {params_print(variable_params)}")
     print(f"  Fixed parameters: {params_print(fixed_params)}")
@@ -256,9 +256,9 @@ def main():
 
         given_params = {k: v for k, v in args.items() if k in model_params_script and v is not None}
         fixed_params = {
-            k: (v if k not in given_params else given_params[k]) for k, v in model_params_script.items()}
+            k: (v if k not in given_params else given_params[k]) for k, v in model_params_script.items() if k != var_param}
         run_data = evaluate_model(fixed_params, {var_param: var_param_settings},
-                                  iterations_setting, steps_setting, output_dir=output_dir_custom)
+                                  iterations_setting, steps_setting)
         # Seaborn
         course_df = get_course_df_sb(run_data, var_param, stats_communicated,
                                      "communicated", output_dir_custom)
