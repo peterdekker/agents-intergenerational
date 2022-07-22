@@ -59,6 +59,7 @@ SUFFIX_PROB = 0.5
 # Settings to check which model results come from data artefacts
 BALANCE_PREFIX_SUFFIX_VERBS = False
 UNIQUE_AFFIX = False
+SEND_EMPTY_IF_NONE = True
 
 
 # For evaluation script (not browser visualization)
@@ -83,6 +84,7 @@ model_params = {
     "always_affix": {"ui": UserSettableParameter('checkbox', 'Always affix', value=ALWAYS_AFFIX), "script": ALWAYS_AFFIX},
     "balance_prefix_suffix_verbs": {"ui": UserSettableParameter('checkbox', 'Balance prefix/suffix', value=BALANCE_PREFIX_SUFFIX_VERBS), "script": BALANCE_PREFIX_SUFFIX_VERBS},
     "unique_affix": {"ui": UserSettableParameter('checkbox', 'Unique affix', value=UNIQUE_AFFIX), "script": UNIQUE_AFFIX},
+    "send_empty_if_none": {"ui": UserSettableParameter('checkbox', 'Send empty if none', value=SEND_EMPTY_IF_NONE), "script": SEND_EMPTY_IF_NONE},
     "generalize_production_l1": {"ui": UserSettableParameter("slider", "Generalize production L1 prob",
                                                              GENERALIZE_PRODUCTION_L1, 0, 1, 0.1), "script": GENERALIZE_PRODUCTION_L1},
     "generalize_production_l2": {"ui": UserSettableParameter("slider", "Generalize production L2 prob",
@@ -104,6 +106,6 @@ evaluation_params = {
 }
 
 bool_params = ["reduction_hh", "reduction_prosody_l1", "reduction_prosody_l2", "negative_update", "always_affix",
-               "balance_prefix_suffix_verbs", "unique_affix"]
+               "balance_prefix_suffix_verbs", "unique_affix", "send_empty_if_none"]
 
 string_params = ["runlabel", "plot_from_raw"]

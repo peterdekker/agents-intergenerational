@@ -22,7 +22,7 @@ class Model(Model):
                  capacity_l1, capacity_l2, pronoun_drop_prob,
                  #min_boundary_feature_dist, reduction_hh, 
                  reduction_prosody_l1, reduction_prosody_l2,
-                 negative_update, always_affix, balance_prefix_suffix_verbs, unique_affix,
+                 negative_update, always_affix, balance_prefix_suffix_verbs, unique_affix, send_empty_if_none,
                  generalize_production_l1,
                  generalize_production_l2, generalize_update_l1,
                  generalize_update_l2):
@@ -44,6 +44,7 @@ class Model(Model):
         assert isinstance(always_affix, bool)
         assert isinstance(balance_prefix_suffix_verbs, bool)
         assert isinstance(unique_affix, bool)
+        assert isinstance(send_empty_if_none, bool)
         assert generalize_production_l1 >= 0 and generalize_production_l1 <= 1
         assert generalize_production_l2 >= 0 and generalize_production_l2 <= 1
         assert generalize_update_l1 >= 0 and generalize_update_l1 <= 1
@@ -59,6 +60,8 @@ class Model(Model):
         # self.reduction_hh = reduction_hh
         self.negative_update = negative_update
         self.always_affix = always_affix
+        self.send_empty_if_none = send_empty_if_none
+
 
         self.schedule = RandomActivation(self)
         self.grid = SingleGrid(width, height, torus=True)

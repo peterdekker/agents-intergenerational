@@ -80,6 +80,8 @@ class Agent(Agent):
 
         prefixing = self.lex_concept_data[lex_concept]["prefixing"]
         suffixing = self.lex_concept_data[lex_concept]["suffixing"]
+        prefix=None
+        suffix=None
         # (2) Based on verb and transitivity, add prefix or suffix:
         #  - prefixing verb:
         #     -- regardless of transitive or intransitive: use prefix
@@ -100,7 +102,7 @@ class Agent(Agent):
                 prefix = misc.reduce_prosody("prefixing", prefix, form,
                                              self.reduction_prosody, listener, self.model.clts)
             else:
-                if self.send_empty_if_none:
+                if self.model.send_empty_if_none:
                     prefix = ""
                 else:
                     # Without option on: just skip this whole interaction. Only listen for this concept until it gets filled with at least one form.
@@ -130,7 +132,7 @@ class Agent(Agent):
                         suffix = misc.reduce_prosody("suffixing", suffix, form,
                                                      self.reduction_prosody, listener, self.model.clts)
             else:
-                if self.send_empty_if_none:
+                if self.model.send_empty_if_none:
                     suffix = ""
                 else:
                     # Without option on: just skip this whole interaction. Only listen for this concept until it gets filled with at least one form.
