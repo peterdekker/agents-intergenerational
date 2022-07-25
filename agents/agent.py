@@ -10,7 +10,7 @@ from agents import stats
 
 
 class Agent(Agent):
-    def __init__(self, pos, model, data, init, capacity, generalize_production, generalize_update, reduction_prosody, l2):
+    def __init__(self, pos, model, data, init, capacity, generalize_production, generalize_update, reduction_phonotactics, l2):
         '''
          Create a new speech agent.
 
@@ -24,7 +24,7 @@ class Agent(Agent):
         self.capacity = capacity
         self.generalize_production = generalize_production
         self.generalize_update = generalize_update
-        self.reduction_prosody = reduction_prosody
+        self.reduction_phonotactics = reduction_phonotactics
         self.l2 = l2
 
         # These vars are not deep copies, because they will not be altered by agents
@@ -99,8 +99,8 @@ class Agent(Agent):
                 # prefix = misc.reduce_boundary_feature_dist("prefixing", prefix, form,
                 #                                                  self.model.min_boundary_feature_dist,
                 #                                                  listener)
-                prefix = misc.reduce_prosody("prefixing", prefix, form,
-                                             self.reduction_prosody, listener, self.model.clts)
+                prefix = misc.reduce_phonotactics("prefixing", prefix, form,
+                                             self.reduction_phonotactics, listener, self.model.clts)
             else:
                 if self.model.send_empty_if_none:
                     prefix = ""
@@ -129,8 +129,8 @@ class Agent(Agent):
                         # suffix = misc.reduce_boundary_feature_dist("suffixing", suffix, form,
                         #                                                  self.model.min_boundary_feature_dist,
                         #                                                  listener)
-                        suffix = misc.reduce_prosody("suffixing", suffix, form,
-                                                     self.reduction_prosody, listener, self.model.clts)
+                        suffix = misc.reduce_phonotactics("suffixing", suffix, form,
+                                                     self.reduction_phonotactics, listener, self.model.clts)
             else:
                 if self.model.send_empty_if_none:
                     suffix = ""

@@ -21,7 +21,7 @@ class Model(Model):
     def __init__(self, height, width, proportion_l2, suffix_prob,
                  capacity_l1, capacity_l2, pronoun_drop_prob,
                  #min_boundary_feature_dist, reduction_hh, 
-                 reduction_prosody_l1, reduction_prosody_l2,
+                 reduction_phonotactics_l1, reduction_phonotactics_l2,
                  negative_update, always_affix, balance_prefix_suffix_verbs, unique_affix, send_empty_if_none,
                  generalize_production_l1,
                  generalize_production_l2, generalize_update_l1,
@@ -38,8 +38,8 @@ class Model(Model):
         assert pronoun_drop_prob >= 0 and pronoun_drop_prob <= 1
         #assert min_boundary_feature_dist >= 0
         #assert isinstance(reduction_hh, bool)
-        assert isinstance(reduction_prosody_l1, bool)
-        assert isinstance(reduction_prosody_l2, bool)
+        assert isinstance(reduction_phonotactics_l1, bool)
+        assert isinstance(reduction_phonotactics_l2, bool)
         assert isinstance(negative_update, bool)
         assert isinstance(always_affix, bool)
         assert isinstance(balance_prefix_suffix_verbs, bool)
@@ -134,7 +134,7 @@ class Model(Model):
                           capacity=capacity_l2 if l2[i] else capacity_l1, l2=l2[i],
                           generalize_production=generalize_production_l2 if l2[i] else generalize_production_l1,
                           generalize_update=generalize_update_l2 if l2[i] else generalize_update_l1,
-                          reduction_prosody=reduction_prosody_l2 if l2[i] else reduction_prosody_l1)
+                          reduction_phonotactics=reduction_phonotactics_l2 if l2[i] else reduction_phonotactics_l1)
             self.grid.position_agent(agent, (x, y))
             self.schedule.add(agent)
 

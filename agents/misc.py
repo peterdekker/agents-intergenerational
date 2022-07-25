@@ -125,8 +125,8 @@ def infer_possible_persons(affix_type, affix_signal, persons, affixes, lex_conce
 #                 # logging.debug(f"H&H: {affix_old} -> {affix}")
 #     return affix
 
-def reduce_prosody(verb_type, affix, form, reduction_prosody, listener, clts):
-    if reduction_prosody:
+def reduce_phonotactics(verb_type, affix, form, reduction_phonotactics, listener, clts):
+    if reduction_phonotactics:
         # form_border_phoneme = 0 if verb_type == "prefixing" else -1
         # affix_border_phoneme = -1 if verb_type == "prefixing" else 0
         # affix_slice = affix[affix_border_phoneme] if len(affix) > 0 else affix

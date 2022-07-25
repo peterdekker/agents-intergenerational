@@ -46,8 +46,8 @@ CAPACITY_L1 = 0  # (0=off)
 CAPACITY_L2 = 0
 # MIN_BOUNDARY_FEATURE_DIST = 0.0
 # REDUCTION_HH = False
-REDUCTION_PROSODY_L1 = False
-REDUCTION_PROSODY_L2 = False
+REDUCTION_PHONOTACTICS_L1 = False
+REDUCTION_PHONOTACTICS_L2 = False
 NEGATIVE_UPDATE = False
 GENERALIZE_PRODUCTION_L1 = 0.0
 GENERALIZE_PRODUCTION_L2 = 0.0
@@ -78,8 +78,8 @@ model_params = {
     # "min_boundary_feature_dist": {"ui": UserSettableParameter("slider", "Min boundary feature dist",
     #                                                          MIN_BOUNDARY_FEATURE_DIST, 0, 10, 0.1), "script": MIN_BOUNDARY_FEATURE_DIST},
     # "reduction_hh": {"ui": UserSettableParameter('checkbox', 'Reduction H&H', value=REDUCTION_HH), "script": REDUCTION_HH},
-    "reduction_prosody_l1": {"ui": UserSettableParameter('checkbox', 'Reduction prosody L1', value=REDUCTION_PROSODY_L1), "script": REDUCTION_PROSODY_L1},
-    "reduction_prosody_l2": {"ui": UserSettableParameter('checkbox', 'Reduction prosody L2', value=REDUCTION_PROSODY_L2), "script": REDUCTION_PROSODY_L2},
+    "reduction_phonotactics_l1": {"ui": UserSettableParameter('checkbox', 'Reduction phonotactics L1', value=REDUCTION_PHONOTACTICS_L1), "script": REDUCTION_PHONOTACTICS_L1},
+    "reduction_phonotactics_l2": {"ui": UserSettableParameter('checkbox', 'Reduction phonotactics L2', value=REDUCTION_PHONOTACTICS_L2), "script": REDUCTION_PHONOTACTICS_L2},
     "negative_update": {"ui": UserSettableParameter('checkbox', 'Negative update', value=NEGATIVE_UPDATE), "script": NEGATIVE_UPDATE},
     "always_affix": {"ui": UserSettableParameter('checkbox', 'Always affix', value=ALWAYS_AFFIX), "script": ALWAYS_AFFIX},
     "balance_prefix_suffix_verbs": {"ui": UserSettableParameter('checkbox', 'Balance prefix/suffix', value=BALANCE_PREFIX_SUFFIX_VERBS), "script": BALANCE_PREFIX_SUFFIX_VERBS},
@@ -105,7 +105,7 @@ evaluation_params = {
     "plot_from_raw": ""
 }
 
-bool_params = ["reduction_hh", "reduction_prosody_l1", "reduction_prosody_l2", "negative_update", "always_affix",
+bool_params = ["reduction_hh", "reduction_phonotactics_l1", "reduction_phonotactics_l2", "negative_update", "always_affix",
                "balance_prefix_suffix_verbs", "unique_affix", "send_empty_if_none"]
 
 string_params = ["runlabel", "plot_from_raw"]
