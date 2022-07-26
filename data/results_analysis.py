@@ -1,7 +1,7 @@
 import argparse
 import pandas as pd
 
-params_cols = ["proportion_l2", "capacity_l1", "capacity_l2", "generalize_update_l1", "generalize_update_l2"]
+params_cols = ["proportion_l2", "capacity_l1", "capacity_l2", "gen_update_old_l1", "gen_update_old_l2"]
 
 
 def analyze(args):

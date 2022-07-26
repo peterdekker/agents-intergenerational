@@ -49,10 +49,12 @@ CAPACITY_L2 = 0
 REDUCTION_PHONOTACTICS_L1 = False
 REDUCTION_PHONOTACTICS_L2 = False
 NEGATIVE_UPDATE = False
-GENERALIZE_PRODUCTION_L1 = 0.0
-GENERALIZE_PRODUCTION_L2 = 0.0
-GENERALIZE_UPDATE_L1 = 0.0
-GENERALIZE_UPDATE_L2 = 0.0
+GEN_PRODUCTION_OLD_L1 = 0.0
+GEN_PRODUCTION_OLD_L2 = 0.0
+GEN_UPDATE_OLD_L1 = 0.0
+GEN_UPDATE_OLD_L2 = 0.0
+AFFIX_PRIOR_L1 = False
+AFFIX_PRIOR_L2 = False
 # Always affix setting simplifies model and disables suffix_prob
 ALWAYS_AFFIX = True
 SUFFIX_PROB = 0.5
@@ -85,14 +87,16 @@ model_params = {
     "balance_prefix_suffix_verbs": {"ui": UserSettableParameter('checkbox', 'Balance prefix/suffix', value=BALANCE_PREFIX_SUFFIX_VERBS), "script": BALANCE_PREFIX_SUFFIX_VERBS},
     "unique_affix": {"ui": UserSettableParameter('checkbox', 'Unique affix', value=UNIQUE_AFFIX), "script": UNIQUE_AFFIX},
     "send_empty_if_none": {"ui": UserSettableParameter('checkbox', 'Send empty if none', value=SEND_EMPTY_IF_NONE), "script": SEND_EMPTY_IF_NONE},
-    "generalize_production_l1": {"ui": UserSettableParameter("slider", "Generalize production L1 prob",
-                                                             GENERALIZE_PRODUCTION_L1, 0, 1, 0.1), "script": GENERALIZE_PRODUCTION_L1},
-    "generalize_production_l2": {"ui": UserSettableParameter("slider", "Generalize production L2 prob",
-                                                             GENERALIZE_PRODUCTION_L2, 0, 1, 0.1), "script": GENERALIZE_PRODUCTION_L2},
-    "generalize_update_l1": {"ui": UserSettableParameter("slider", "Generalize update L1 prob",
-                                                         GENERALIZE_UPDATE_L1, 0, 1, 0.01), "script": GENERALIZE_UPDATE_L1},
-    "generalize_update_l2": {"ui": UserSettableParameter("slider", "Generalize update L2 prob",
-                                                         GENERALIZE_UPDATE_L2, 0, 1, 0.01), "script": GENERALIZE_UPDATE_L2},
+    "gen_production_old_l1": {"ui": UserSettableParameter("slider", "Generalize production L1 prob",
+                                                          GEN_PRODUCTION_OLD_L1, 0, 1, 0.1), "script": GEN_PRODUCTION_OLD_L1},
+    "gen_production_old_l2": {"ui": UserSettableParameter("slider", "Generalize production L2 prob",
+                                                          GEN_PRODUCTION_OLD_L2, 0, 1, 0.1), "script": GEN_PRODUCTION_OLD_L2},
+    "gen_update_old_l1": {"ui": UserSettableParameter("slider", "Generalize update L1 prob",
+                                                      GEN_UPDATE_OLD_L1, 0, 1, 0.01), "script": GEN_UPDATE_OLD_L1},
+    "gen_update_old_l2": {"ui": UserSettableParameter("slider", "Generalize update L2 prob",
+                                                      GEN_UPDATE_OLD_L2, 0, 1, 0.01), "script": GEN_UPDATE_OLD_L2},
+    "affix_prior_l1": {"ui": UserSettableParameter('checkbox', 'Affix prior L1', value=AFFIX_PRIOR_L1), "script": AFFIX_PRIOR_L1},
+    "affix_prior_l2": {"ui": UserSettableParameter('checkbox', 'Affix prior L2', value=AFFIX_PRIOR_L2), "script": AFFIX_PRIOR_L2},
 }
 
 model_params_ui = {k: v["ui"] for k, v in model_params.items()}
@@ -106,6 +110,6 @@ evaluation_params = {
 }
 
 bool_params = ["reduction_hh", "reduction_phonotactics_l1", "reduction_phonotactics_l2", "negative_update", "always_affix",
-               "balance_prefix_suffix_verbs", "unique_affix", "send_empty_if_none"]
+               "balance_prefix_suffix_verbs", "unique_affix", "send_empty_if_none", "affix_prior_l1", "affix_prior_l2"]
 
 string_params = ["runlabel", "plot_from_raw"]

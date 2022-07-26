@@ -10,7 +10,7 @@ from agents import stats
 
 
 class Agent(Agent):
-    def __init__(self, pos, model, data, init, capacity, generalize_production, generalize_update, reduction_phonotactics, l2):
+    def __init__(self, pos, model, data, init, capacity, gen_production_old, gen_update_old, affix_prior, reduction_phonotactics, l2):
         '''
          Create a new speech agent.
 
@@ -22,8 +22,9 @@ class Agent(Agent):
         super().__init__(pos, model)
         self.pos = pos
         self.capacity = capacity
-        self.generalize_production = generalize_production
-        self.generalize_update = generalize_update
+        self.gen_production_old = gen_production_old
+        self.gen_update_old = gen_update_old
+        self.affix_prior = affix_prior
         self.reduction_phonotactics = reduction_phonotactics
         self.l2 = l2
 
@@ -80,15 +81,15 @@ class Agent(Agent):
 
         prefixing = self.lex_concept_data[lex_concept]["prefixing"]
         suffixing = self.lex_concept_data[lex_concept]["suffixing"]
-        prefix=None
-        suffix=None
+        prefix = None
+        suffix = None
         # (2) Based on verb and transitivity, add prefix or suffix:
         #  - prefixing verb:
         #     -- regardless of transitive or intransitive: use prefix
         if prefixing:
             # self.affixes[(lex_concept_gen, person_gen, "prefix")]
             prefixes = misc.retrieve_affixes_generalize(lex_concept, person, "prefix",
-                                                        self.affixes, self.generalize_production,
+                                                        self.affixes, self.gen_production_old,
                                                         self.lex_concepts, self.persons, self.lex_concept_data)
             # TODO: More elegant if len is always non-zero because there is always ""?
             if len(prefixes) > 0:
@@ -100,7 +101,7 @@ class Agent(Agent):
                 #                                                  self.model.min_boundary_feature_dist,
                 #                                                  listener)
                 prefix = misc.reduce_phonotactics("prefixing", prefix, form,
-                                             self.reduction_phonotactics, listener, self.model.clts)
+                                                  self.reduction_phonotactics, listener, self.model.clts)
             else:
                 if self.model.send_empty_if_none:
                     prefix = ""
@@ -115,7 +116,7 @@ class Agent(Agent):
         if suffixing:
             # self.affixes[(lex_concept_gen, person_gen, "suffix")]
             suffixes = misc.retrieve_affixes_generalize(
-                lex_concept, person, "suffix", self.affixes, self.generalize_production,
+                lex_concept, person, "suffix", self.affixes, self.gen_production_old,
                 self.lex_concepts, self.persons, self.lex_concept_data)
 
             # In all cases where suffix will not be set, use empty suffix
@@ -130,7 +131,7 @@ class Agent(Agent):
                         #                                                  self.model.min_boundary_feature_dist,
                         #                                                  listener)
                         suffix = misc.reduce_phonotactics("suffixing", suffix, form,
-                                                     self.reduction_phonotactics, listener, self.model.clts)
+                                                          self.reduction_phonotactics, listener, self.model.clts)
             else:
                 if self.model.send_empty_if_none:
                     suffix = ""
@@ -204,7 +205,7 @@ class Agent(Agent):
             suffix_recv = self.signal_recv.suffix
             misc.update_affix_list(prefix_recv, suffix_recv, self.affixes, self.lex_concepts_type,
                                    self.lex_concept_data, self.persons, self.concept_listener,
-                                   self.capacity, self.generalize_update, self.l2)
+                                   self.capacity, self.gen_update_old, self.l2)
         else:
             if self.model.negative_update:
                 # Do negative update!
@@ -212,7 +213,7 @@ class Agent(Agent):
                 suffix_recv = self.signal_recv.suffix
                 misc.update_affix_list(prefix_recv, suffix_recv, self.affixes, self.lex_concepts_type,
                                        self.lex_concept_data, self.persons, self.concept_listener,
-                                       self.capacity, self.generalize_update, self.l2, negative=True)
+                                       self.capacity, self.gen_update_old, self.l2, negative=True)
 
     def is_l2(self):
         return self.l2

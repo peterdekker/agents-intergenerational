@@ -6,7 +6,7 @@ from mesa.datacollection import DataCollector
 import numpy as np
 
 from agents.config import N_AGENTS, DATA_FILE, MAX_RADIUS, COMMUNICATED_STATS_AFTER_STEPS, RARE_STATS_AFTER_STEPS,\
-                          CLTS_ARCHIVE_PATH, CLTS_ARCHIVE_URL, CLTS_PATH, COMM_SUCCESS_AFTER_STEPS
+    CLTS_ARCHIVE_PATH, CLTS_ARCHIVE_URL, CLTS_PATH, COMM_SUCCESS_AFTER_STEPS
 from agents import stats
 from agents import misc
 from agents.agent import Agent
@@ -20,12 +20,12 @@ class Model(Model):
 
     def __init__(self, height, width, proportion_l2, suffix_prob,
                  capacity_l1, capacity_l2, pronoun_drop_prob,
-                 #min_boundary_feature_dist, reduction_hh, 
+                 #min_boundary_feature_dist, reduction_hh,
                  reduction_phonotactics_l1, reduction_phonotactics_l2,
                  negative_update, always_affix, balance_prefix_suffix_verbs, unique_affix, send_empty_if_none,
-                 generalize_production_l1,
-                 generalize_production_l2, generalize_update_l1,
-                 generalize_update_l2):
+                 gen_production_old_l1,
+                 gen_production_old_l2, gen_update_old_l1,
+                 gen_update_old_l2, affix_prior_l1, affix_prior_l2):
         '''
         Initialize field
         '''
@@ -45,10 +45,12 @@ class Model(Model):
         assert isinstance(balance_prefix_suffix_verbs, bool)
         assert isinstance(unique_affix, bool)
         assert isinstance(send_empty_if_none, bool)
-        assert generalize_production_l1 >= 0 and generalize_production_l1 <= 1
-        assert generalize_production_l2 >= 0 and generalize_production_l2 <= 1
-        assert generalize_update_l1 >= 0 and generalize_update_l1 <= 1
-        assert generalize_update_l2 >= 0 and generalize_update_l2 <= 1
+        assert gen_production_old_l1 >= 0 and gen_production_old_l1 <= 1
+        assert gen_production_old_l2 >= 0 and gen_production_old_l2 <= 1
+        assert gen_update_old_l1 >= 0 and gen_update_old_l1 <= 1
+        assert gen_update_old_l2 >= 0 and gen_update_old_l2 <= 1
+        assert isinstance(affix_prior_l1, bool)
+        assert isinstance(affix_prior_l2, bool)
 
         self.height = height
         self.width = width
@@ -61,7 +63,6 @@ class Model(Model):
         self.negative_update = negative_update
         self.always_affix = always_affix
         self.send_empty_if_none = send_empty_if_none
-
 
         self.schedule = RandomActivation(self)
         self.grid = SingleGrid(width, height, torus=True)
@@ -132,8 +133,9 @@ class Model(Model):
             y = cell[2]
             agent = Agent((x, y), self, self.data, init="empty" if l2[i] else "data",
                           capacity=capacity_l2 if l2[i] else capacity_l1, l2=l2[i],
-                          generalize_production=generalize_production_l2 if l2[i] else generalize_production_l1,
-                          generalize_update=generalize_update_l2 if l2[i] else generalize_update_l1,
+                          gen_production_old=gen_production_old_l2 if l2[i] else gen_production_old_l1,
+                          gen_update_old=gen_update_old_l2 if l2[i] else gen_update_old_l1,
+                          affix_prior=affix_prior_l2 if l2[i] else affix_prior_l1,
                           reduction_phonotactics=reduction_phonotactics_l2 if l2[i] else reduction_phonotactics_l1)
             self.grid.position_agent(agent, (x, y))
             self.schedule.add(agent)

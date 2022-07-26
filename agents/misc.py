@@ -154,7 +154,7 @@ def enforce_capacity(affix_list, capacity):
 
 
 def update_affix_list(prefix_recv, suffix_recv, affixes, lex_concepts_type, lex_concept_data, persons_all,
-                      concept_listener, capacity, generalize_update, l2, negative=False):
+                      concept_listener, capacity, gen_update_old, l2, negative=False):
     lex_concept_listener = concept_listener.lex_concept
     person_listener = concept_listener.person
     for affix_type, affix_recv in [("prefix", prefix_recv), ("suffix", suffix_recv)]:
@@ -163,7 +163,7 @@ def update_affix_list(prefix_recv, suffix_recv, affixes, lex_concepts_type, lex_
         if lex_concept_listener not in lex_concepts_type[f"{affix_type}ing"]:  # affix_recv is None:
             # If no affix for this verb type received (e.g. prefix), skip
             continue
-        if RG.random() < generalize_update:
+        if RG.random() < gen_update_old:
             # Generalization: update all concepts
             lex_concepts = lex_concepts_type[f"{affix_type}ing"] if GENERALIZE_LEX_CONCEPTS else [
                 lex_concept_listener]
@@ -198,10 +198,10 @@ def spread_l2_agents(proportion_l2, n_agents):
     return l2
 
 
-def retrieve_affixes_generalize(lex_concept, person, verb_type, affixes, generalize_production, lex_concepts,
+def retrieve_affixes_generalize(lex_concept, person, verb_type, affixes, gen_production_old, lex_concepts,
                                 persons, lex_concept_data):
     # Generalize: draw other concept to use affixes from
-    if RG.random() < generalize_production:
+    if RG.random() < gen_production_old:
         # Generalize: create list of all affixes, regardless of concept (but taking into account verb type)
 
         # Commented out code: draw one specific other concept

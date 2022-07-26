@@ -25,11 +25,11 @@ The evaluation script can be invoked to run the model from the command line. It 
 
 The evaluation script always evaluates the proportion L2 speakers as independent variable. As command line arguments, you can give the fixed parameters/dependent variables you want to set. For example, to evaluate the model for different proportions of L2 speakers, while setting the L1 update generalization to 0.5 and the pronoun drop probability to 0.7:
 
-```python3 evaluation.py --generalize_update_l1 0.5 --pronoun_drop_prob 0.7```
+```python3 evaluation.py --gen_update_old_l1 0.5 --pronoun_drop_prob 0.7```
 
 This will create an output directory with different graphs and raw result data. An affix can be added to the output directory, for later identification, using the ```--runlabel``` parameter. For example.
 
-```python3 evaluation.py --generalize_update_l1 0.5 --runlabel mynewvars``` will create an output directory with the current data and time which ends in 'mynewvars'.
+```python3 evaluation.py --gen_update_old_l1 0.5 --runlabel mynewvars``` will create an output directory with the current data and time which ends in 'mynewvars'.
 
 It is also possible to generate graphs later from a raw results file outputted by an earlier run of the script. In that case, use the ```--plot_from_raw``` parameter with the filename of the results file as argument, and without model parameters:
 
