@@ -3,7 +3,7 @@
 
 ## Installation
 
-To install the dependencies use pip and the requirements.txt in this directory. e.g.
+This script requires Python 3.9 or later. To install the dependencies use pip and the requirements.txt in this directory. e.g.
 
 ```
     $ pip install -r requirements.txt

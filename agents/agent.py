@@ -42,8 +42,9 @@ class Agent(Agent):
             self.affixes = copy.deepcopy(data.affixes)
         elif init == "empty":
             self.affixes = defaultdict(list)
-
-        self.colours = stats.compute_colours(self)
+        
+        if self.model.browser_visualization:
+            self.colours = stats.compute_colours(self)
 
     def step(self):
         '''

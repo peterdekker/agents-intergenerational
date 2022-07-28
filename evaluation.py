@@ -1,5 +1,6 @@
 import argparse
-from mesa.batchrunner import BatchRunner
+from mesa.batchrunner import BatchRunner, batch_run
+# from mesa import batch_run
 
 from agents.model import Model
 from agents import misc
@@ -52,18 +53,31 @@ def evaluate_model(fixed_params, variable_params, iterations, steps):
     print(f"  Variable parameters: {params_print(variable_params)}")
     print(f"  Fixed parameters: {params_print(fixed_params)}")
 
-    batch_run = BatchRunner(
-        Model,
-        variable_params,
-        fixed_params,
-        iterations=iterations,
-        max_steps=steps,
-        model_reporters={"datacollector": lambda m: m.datacollector}
-    )
+    # runner = BatchRunner(
+    #     Model,
+    #     variable_params,
+    #     fixed_params,
+    #     iterations=iterations,
+    #     max_steps=steps,
+    #     model_reporters={"datacollector": lambda m: m.datacollector}
+    # )
 
-    batch_run.run_all()
+    # runner.run_all()
 
-    run_data = batch_run.get_model_vars_dataframe()
+    # run_data_old = runner.get_model_vars_dataframe()
+    # print(run_data_old.columns)
+
+    all_params = variable_params | fixed_params
+    results = batch_run(Model, 
+                        parameters=all_params,
+                        number_processes=None,
+                        iterations=iterations,
+                        data_collection_period=1,
+                        max_steps=steps)
+    run_data = pd.DataFrame(results)
+    run_data = run_data.rename(columns={"Step":"timesteps", "RunId": "run"})
+    # Drop first timestep
+    run_data = run_data[run_data.timesteps != 0]
     return run_data
 
 
@@ -259,9 +273,11 @@ def main():
             k: (v if k not in given_params else given_params[k]) for k, v in model_params_script.items() if k != var_param}
         run_data = evaluate_model(fixed_params, {var_param: var_param_settings},
                                   iterations_setting, steps_setting)
-        # Seaborn
-        course_df = get_course_df_sb(run_data, var_param, stats_communicated,
-                                     "communicated", output_dir_custom)
+        # course_df = get_course_df_sb(run_data, var_param, stats_communicated,
+        #                              "communicated", output_dir_custom)
+        course_df = run_data
+        course_df.to_csv(os.path.join(output_dir_custom, f"{var_param}-communicated-raw.csv"))
+
         create_graph_course_sb(course_df, var_param, [
             "prop_communicated_suffix_l1"], output_dir_custom, "raw", runlabel)
         create_graph_end_sb(course_df, var_param,

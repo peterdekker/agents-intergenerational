@@ -1,6 +1,6 @@
 jupyter
 matplotlib
-mesa==0.8.6
+mesa==1.0.0
 numpy
 pandas
 editdistance

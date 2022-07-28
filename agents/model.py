@@ -20,12 +20,11 @@ class Model(Model):
 
     def __init__(self, height, width, proportion_l2, suffix_prob,
                  capacity_l1, capacity_l2, pronoun_drop_prob,
-                 #min_boundary_feature_dist, reduction_hh,
                  reduction_phonotactics_l1, reduction_phonotactics_l2,
                  negative_update, always_affix, balance_prefix_suffix_verbs, unique_affix, send_empty_if_none,
                  gen_production_old_l1,
                  gen_production_old_l2, gen_update_old_l1,
-                 gen_update_old_l2, affix_prior_l1, affix_prior_l2):
+                 gen_update_old_l2, affix_prior_l1, affix_prior_l2, browser_visualization):
         '''
         Initialize field
         '''
@@ -36,8 +35,6 @@ class Model(Model):
         assert capacity_l1 % 1 == 0
         assert capacity_l2 % 1 == 0
         assert pronoun_drop_prob >= 0 and pronoun_drop_prob <= 1
-        #assert min_boundary_feature_dist >= 0
-        #assert isinstance(reduction_hh, bool)
         assert isinstance(reduction_phonotactics_l1, bool)
         assert isinstance(reduction_phonotactics_l2, bool)
         assert isinstance(negative_update, bool)
@@ -51,6 +48,7 @@ class Model(Model):
         assert gen_update_old_l2 >= 0 and gen_update_old_l2 <= 1
         assert isinstance(affix_prior_l1, bool)
         assert isinstance(affix_prior_l2, bool)
+        assert type(browser_visualization) == bool
 
         self.height = height
         self.width = width
@@ -63,6 +61,8 @@ class Model(Model):
         self.negative_update = negative_update
         self.always_affix = always_affix
         self.send_empty_if_none = send_empty_if_none
+        self.browser_visualization = browser_visualization
+
 
         self.schedule = RandomActivation(self)
         self.grid = SingleGrid(width, height, torus=True)
@@ -117,7 +117,6 @@ class Model(Model):
                 "prop_communicated_suffix_l2": "prop_communicated_suffix_l2",
                 "proportion_correct_interactions": "proportion_correct_interactions",
                 "avg_proportion_correct_interactions": "avg_proportion_correct_interactions",
-                # "avg_ambiguity": "avg_ambiguity"
             }
         )
 
@@ -187,7 +186,9 @@ class Model(Model):
                 self.agents_l2, "suffix")
             self.affixes_internal_prefix_l1 = stats.internal_affix_frequencies_agents(
                 self.agents_l1, "prefix")
-            stats.compute_colours_agents(self.agents)
+            if self.browser_visualization:
+                print("Computing agent colour)")
+                stats.compute_colours_agents(self.agents)
         if self.steps % COMM_SUCCESS_AFTER_STEPS == 0:
             # Now compute proportion of correct interaction
             self.proportion_correct_interactions = self.correct_interactions/float(N_AGENTS)

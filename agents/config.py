@@ -97,6 +97,7 @@ model_params = {
                                                       GEN_UPDATE_OLD_L2, 0, 1, 0.01), "script": GEN_UPDATE_OLD_L2},
     "affix_prior_l1": {"ui": UserSettableParameter('checkbox', 'Affix prior L1', value=AFFIX_PRIOR_L1), "script": AFFIX_PRIOR_L1},
     "affix_prior_l2": {"ui": UserSettableParameter('checkbox', 'Affix prior L2', value=AFFIX_PRIOR_L2), "script": AFFIX_PRIOR_L2},
+    "browser_visualization": {"ui": True, "script": False},
 }
 
 model_params_ui = {k: v["ui"] for k, v in model_params.items()}
@@ -110,6 +111,6 @@ evaluation_params = {
 }
 
 bool_params = ["reduction_hh", "reduction_phonotactics_l1", "reduction_phonotactics_l2", "negative_update", "always_affix",
-               "balance_prefix_suffix_verbs", "unique_affix", "send_empty_if_none", "affix_prior_l1", "affix_prior_l2"]
+               "balance_prefix_suffix_verbs", "unique_affix", "send_empty_if_none", "affix_prior_l1", "affix_prior_l2", "browser_visualization"]
 
 string_params = ["runlabel", "plot_from_raw"]
