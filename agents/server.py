@@ -2,7 +2,7 @@ from mesa.visualization.ModularVisualization import ModularServer
 from mesa.visualization.modules import CanvasGrid, ChartModule
 
 from agents.model import Model
-from agents.textbarchart import TextBarChart
+# from agents.textbarchart import TextBarChart
 
 from agents.config import HEIGHT, WIDTH, model_params_ui
 
@@ -33,13 +33,13 @@ communicated_chart = ChartModule([{"Label": "prop_communicated_prefix_l1", "Colo
                                   {"Label": "prop_communicated_suffix_l2", "Color": "Brown"}])
 corr_int_chart = ChartModule([{"Label": "avg_proportion_correct_interactions", "Color": "brown"},
                               {"Label": "proportion_correct_interactions", "Color": "green"}])
-text_bar_chart = TextBarChart([  # {"Label": "avg_ambiguity", "Color": "green"},
-    {"Label": "affixes_internal_prefix_l1"},
-    {"Label": "affixes_internal_suffix_l1"},
-    {"Label": "affixes_internal_prefix_l2"},
-    {"Label": "affixes_internal_suffix_l2"}])
+# text_bar_chart = TextBarChart(
+#     {"Label": "affixes_internal_prefix_l1"},
+#     {"Label": "affixes_internal_suffix_l1"},
+#     {"Label": "affixes_internal_prefix_l2"},
+#     {"Label": "affixes_internal_suffix_l2"}])
 
 
 server = ModularServer(Model,
-                       [canvas_element, corr_int_chart, communicated_chart, internal_chart, text_bar_chart],
+                       [canvas_element, corr_int_chart, communicated_chart, internal_chart],
                        "Contact-induced morphological simplification in Alorese", model_params_ui)

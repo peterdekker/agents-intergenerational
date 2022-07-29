@@ -84,10 +84,10 @@ class Model(Model):
         self.prop_internal_prefix_l2 = 0.0
         self.prop_internal_suffix_l2 = 0.0
 
-        self.affixes_internal_prefix_l1 = {}
-        self.affixes_internal_suffix_l1 = {}
-        self.affixes_internal_prefix_l2 = {}
-        self.affixes_internal_suffix_l2 = {}
+        # self.affixes_internal_prefix_l1 = {}
+        # self.affixes_internal_suffix_l1 = {}
+        # self.affixes_internal_prefix_l2 = {}
+        # self.affixes_internal_suffix_l2 = {}
 
         # Behaviourist
         self.prop_communicated_prefix_l1 = 0.0
@@ -107,10 +107,10 @@ class Model(Model):
                 "prop_internal_suffix_l1": "prop_internal_suffix_l1",
                 "prop_internal_prefix_l2": "prop_internal_prefix_l2",
                 "prop_internal_suffix_l2": "prop_internal_suffix_l2",
-                "affixes_internal_prefix_l1": "affixes_internal_prefix_l1",
-                "affixes_internal_suffix_l1": "affixes_internal_suffix_l1",
-                "affixes_internal_prefix_l2": "affixes_internal_prefix_l2",
-                "affixes_internal_suffix_l2": "affixes_internal_suffix_l2",
+                # "affixes_internal_prefix_l1": "affixes_internal_prefix_l1",
+                # "affixes_internal_suffix_l1": "affixes_internal_suffix_l1",
+                # "affixes_internal_prefix_l2": "affixes_internal_prefix_l2",
+                # "affixes_internal_suffix_l2": "affixes_internal_suffix_l2",
                 "prop_communicated_prefix_l1": "prop_communicated_prefix_l1",
                 "prop_communicated_suffix_l1": "prop_communicated_suffix_l1",
                 "prop_communicated_prefix_l2": "prop_communicated_prefix_l2",
@@ -178,14 +178,14 @@ class Model(Model):
             self.prop_internal_prefix_l2 = stats.prop_internal_filled_agents(self.agents_l2, "prefix")
             self.prop_internal_suffix_l2 = stats.prop_internal_filled_agents(self.agents_l2, "suffix")
 
-            self.affixes_internal_suffix_l1 = stats.internal_affix_frequencies_agents(
-                self.agents_l1, "suffix")
-            self.affixes_internal_prefix_l2 = stats.internal_affix_frequencies_agents(
-                self.agents_l2, "prefix")
-            self.affixes_internal_suffix_l2 = stats.internal_affix_frequencies_agents(
-                self.agents_l2, "suffix")
-            self.affixes_internal_prefix_l1 = stats.internal_affix_frequencies_agents(
-                self.agents_l1, "prefix")
+            # self.affixes_internal_suffix_l1 = stats.internal_affix_frequencies_agents(
+            #     self.agents_l1, "suffix")
+            # self.affixes_internal_prefix_l2 = stats.internal_affix_frequencies_agents(
+            #     self.agents_l2, "prefix")
+            # self.affixes_internal_suffix_l2 = stats.internal_affix_frequencies_agents(
+            #     self.agents_l2, "suffix")
+            # self.affixes_internal_prefix_l1 = stats.internal_affix_frequencies_agents(
+            #     self.agents_l1, "prefix")
             if self.browser_visualization:
                 print("Computing agent colour)")
                 stats.compute_colours_agents(self.agents)
