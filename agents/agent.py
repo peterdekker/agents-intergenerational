@@ -88,11 +88,15 @@ class Agent(Agent):
         #  - prefixing verb:
         #     -- regardless of transitive or intransitive: use prefix
         if prefixing:
-            # self.affixes[(lex_concept_gen, person_gen, "prefix")]
-            prefixes = misc.retrieve_affixes_generalize(lex_concept, person, "prefix",
-                                                        self.affixes, self.gen_production_old,
-                                                        self.lex_concepts, self.persons, self.lex_concept_data)
-            # TODO: More elegant if len is always non-zero because there is always ""?
+            if use_affix_prior:
+
+                # prefixes = list weighted by prob * prior_prob
+                prefixes = misc.weighted_affixes_prior(lex_concept, person, "prefix", self.affixes)
+            else:
+                # Do not use probabilities and prior probabilities of affixes in whole model.
+                # Use plain exemplar lists. prefixes=unweighted list
+                prefixes = misc.retrieve_affixes_generalize(lex_concept, person, "prefix",
+                                                            self.affixes, self.gen_production_old)
             if len(prefixes) > 0:
                 prefix = misc.affix_choice(prefixes)
                 # # Drop affix based on estimated intelligibility for listener (H&H)
@@ -115,10 +119,15 @@ class Agent(Agent):
         #     -- transitive: do not use suffix
         #     -- intransitive: use suffix with probability, because it is not obligatory
         if suffixing:
-            # self.affixes[(lex_concept_gen, person_gen, "suffix")]
-            suffixes = misc.retrieve_affixes_generalize(
-                lex_concept, person, "suffix", self.affixes, self.gen_production_old,
-                self.lex_concepts, self.persons, self.lex_concept_data)
+            if use_affix_prior:
+                suffixes = misc.weighted_affixes_prior(lex_concept, person, "suffix", self.affixes)
+                # suffixes = list weighted by prob * prior_prob
+            
+            else:
+                # Do not use probabilities and prior probabilities of affixes in whole model.
+                # Use plain exemplar lists. suffixes=unweighted list
+                suffixes = misc.retrieve_affixes_generalize(
+                    lex_concept, person, "suffix", self.affixes, self.gen_production_old)
 
             # In all cases where suffix will not be set, use empty suffix
             # (different from None, because listener will add empty suffix to its stack)
@@ -133,6 +142,8 @@ class Agent(Agent):
                         #                                                  listener)
                         suffix = misc.reduce_phonotactics("suffixing", suffix, form,
                                                           self.reduction_phonotactics, listener, self.model.clts)
+                else:
+                    suffix = ""
             else:
                 if self.model.send_empty_if_none:
                     suffix = ""

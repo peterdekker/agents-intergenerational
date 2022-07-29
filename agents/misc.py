@@ -197,11 +197,13 @@ def spread_l2_agents(proportion_l2, n_agents):
     RG.shuffle(l2)
     return l2
 
+def weighted_affixes_prior(lex_concept, person, affix_type, affixes):
+    pass
 
-def retrieve_affixes_generalize(lex_concept, person, verb_type, affixes, gen_production_old, lex_concepts,
-                                persons, lex_concept_data):
+
+def retrieve_affixes_generalize(lex_concept, person, verb_type, affixes, gen_production_old):
     # Generalize: draw other concept to use affixes from
-    if RG.random() < gen_production_old:
+    if gen_production_old and RG.random() < gen_production_old:
         # Generalize: create list of all affixes, regardless of concept (but taking into account verb type)
 
         # Commented out code: draw one specific other concept
@@ -221,7 +223,8 @@ def retrieve_affixes_generalize(lex_concept, person, verb_type, affixes, gen_pro
 
 
 def affix_choice(affixes):
-    return RG.choice(affixes)
+    # TODO: make weighted choice
+    return False # RG.choice(affixes)
 
 
 def create_output_dir(output_dir):
