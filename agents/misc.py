@@ -66,10 +66,10 @@ def infer_person_from_signal(lex_concept, lex_concept_data, affixes, persons, si
     # verbs are prefixing/suffixing
 
     possible_persons = []
-    if lex_concept_data[lex_concept]["prefixing"]:
+    if lex_concept_data[lex_concept]["prefix"]:
         possible_persons += infer_possible_persons("prefix", signal.prefix, persons,
                                                    affixes, lex_concept)
-    if lex_concept_data[lex_concept]["suffixing"]:
+    if lex_concept_data[lex_concept]["suffix"]:
         possible_persons += infer_possible_persons("suffix",
                                                    signal.suffix, persons,
                                                    affixes, lex_concept)
@@ -102,42 +102,42 @@ def infer_possible_persons(affix_type, affix_signal, persons, affixes, lex_conce
     return possible_persons
 
 
-# def reduce_boundary_feature_dist(verb_type, affix, form, min_boundary_feature_dist, listener):
+# def reduce_boundary_feature_dist(affix_type, affix, form, min_boundary_feature_dist, listener):
 #     if min_boundary_feature_dist > 0.0:
-#         form_border_phoneme = 0 if verb_type == "prefixing" else -1
-#         affix_border_phoneme = -1 if verb_type == "prefixing" else 0
+#         form_border_phoneme = 0 if affix_type == "prefix" else -1
+#         affix_border_phoneme = -1 if affix_type == "prefix" else 0
 #         affix_slice = affix[affix_border_phoneme] if len(affix) > 0 else affix
 #         feature_dist = dst.weighted_feature_edit_distance(form[form_border_phoneme], affix_slice)
 #         # Sounds have to be different enough
 #         if feature_dist < min_boundary_feature_dist:
 #             affix = ""
 #             # if len(affix) > 0:
-#             #     affix = affix[1:] if verb_type == "prefixing" else affix[:-1]
+#             #     affix = affix[1:] if affix_type == "prefix" else affix[:-1]
 #     return affix
 
-# def reduce_hh(verb_type, affix, listener, reduction_hh):
+# def reduce_hh(affix_type, affix, listener, reduction_hh):
 #     #affix_old = affix
 #     if reduction_hh:
 #         if not listener.is_l2():
 #             if len(affix) > 0:
 #                 # affix = ""
-#                 affix = affix[1:] if verb_type == "prefixing" else affix[:-1]
+#                 affix = affix[1:] if affix_type == "prefix" else affix[:-1]
 #                 # logging.debug(f"H&H: {affix_old} -> {affix}")
 #     return affix
 
-def reduce_phonotactics(verb_type, affix, form, reduction_phonotactics, listener, clts):
+def reduce_phonotactics(affix_type, affix, form, reduction_phonotactics, listener, clts):
     if reduction_phonotactics:
-        # form_border_phoneme = 0 if verb_type == "prefixing" else -1
-        # affix_border_phoneme = -1 if verb_type == "prefixing" else 0
+        # form_border_phoneme = 0 if affix_type == "prefix" else -1
+        # affix_border_phoneme = -1 if affix_type == "prefix" else 0
         # affix_slice = affix[affix_border_phoneme] if len(affix) > 0 else affix
         # feature_dist = dst.weighted_feature_edit_distance(form[form_border_phoneme], affix_slice)
         # # Sounds have to be different enough
         # if feature_dist < min_boundary_feature_dist:
         #     affix = ""
         #     # if len(affix) > 0:
-        #     #     affix = affix[1:] if verb_type == "prefixing" else affix[:-1]
+        #     #     affix = affix[1:] if affix_type == "prefix" else affix[:-1]
 
-        inflected_form = affix+form if verb_type == "prefixing" else form+affix
+        inflected_form = affix+form if affix_type == "prefix" else form+affix
         # print(inflected_form)
         spaced_form = " ".join(list(inflected_form))
         cv_pattern = clts.bipa.translate(spaced_form, clts.soundclass("cv")).replace(" ", "")
@@ -160,12 +160,12 @@ def update_affix_list(prefix_recv, suffix_recv, affixes, lex_concepts_type, lex_
     for affix_type, affix_recv in [("prefix", prefix_recv), ("suffix", suffix_recv)]:
         # TODO: This assumes listener has same concept matrix, and knows which
         # verbs are prefixing/suffixing.
-        if lex_concept_listener not in lex_concepts_type[f"{affix_type}ing"]:  # affix_recv is None:
+        if lex_concept_listener not in lex_concepts_type[affix_type]:  # affix_recv is None:
             # If no affix for this verb type received (e.g. prefix), skip
             continue
         if RG.random() < gen_update_old:
             # Generalization: update all concepts
-            lex_concepts = lex_concepts_type[f"{affix_type}ing"] if GENERALIZE_LEX_CONCEPTS else [
+            lex_concepts = lex_concepts_type[affix_type] if GENERALIZE_LEX_CONCEPTS else [
                 lex_concept_listener]
             persons = persons_all if GENERALIZE_PERSONS else [person_listener]
         else:
@@ -197,11 +197,16 @@ def spread_l2_agents(proportion_l2, n_agents):
     RG.shuffle(l2)
     return l2
 
+
 def weighted_affixes_prior(lex_concept, person, affix_type, affixes):
+    # affixes_concept = affixes[(lex_concept, person, affix_type)]
+    # affixes_affix_type = {(l, p, t): affixes[(l, p, t)] for (l, p, t) in affixes.keys() if t == affix_type and (
+    #         GENERALIZE_PERSONS or p == person) and (GENERALIZE_LEX_CONCEPTS or l == lex_concept)}
+    # affixes_all = list(chain.from_iterable(affixes_affix_type.values()))
     pass
 
 
-def retrieve_affixes_generalize(lex_concept, person, verb_type, affixes, gen_production_old):
+def retrieve_affixes_generalize(lex_concept, person, affix_type, affixes, gen_production_old):
     # Generalize: draw other concept to use affixes from
     if gen_production_old and RG.random() < gen_production_old:
         # Generalize: create list of all affixes, regardless of concept (but taking into account verb type)
@@ -210,21 +215,28 @@ def retrieve_affixes_generalize(lex_concept, person, verb_type, affixes, gen_pro
         # _, lex_concept_gen, person_gen, _ = ConceptMessage.draw_new_concept(lex_concepts,
         #                                                                     persons,
         #                                                                     lex_concept_data)
-        # return affixes[(lex_concept_gen, person_gen, verb_type)]
+        # return affixes[(lex_concept_gen, person_gen, affix_type)]
 
-        affixes_verb_type = {(l, p, t): affixes[(l, p, t)] for (l, p, t) in affixes.keys() if t == verb_type and (
+        affixes_affix_type = {(l, p, t): affixes[(l, p, t)] for (l, p, t) in affixes.keys() if t == affix_type and (
             GENERALIZE_PERSONS or p == person) and (GENERALIZE_LEX_CONCEPTS or l == lex_concept)}
-        affixes_all = list(chain.from_iterable(affixes_verb_type.values()))
+        affixes_all = list(chain.from_iterable(affixes_affix_type.values()))
 
         return affixes_all
     else:
         # Do not generalize: take affixes list for this concept
-        return affixes[(lex_concept, person, verb_type)]
+        return affixes[(lex_concept, person, affix_type)]
 
 
 def affix_choice(affixes):
-    # TODO: make weighted choice
-    return False # RG.choice(affixes)
+    if isinstance(affixes, dict):
+        # Choice weighted by probability
+        sample = RG.choice(affixes.keys(), p=affixes.values())
+    elif isinstance(affixes, list):
+        # Unweighted choice
+        sample = RG.choice(affixes)
+    else:
+        raise ValueError("affixes has to be a dict or list.")
+    return sample
 
 
 def create_output_dir(output_dir):

@@ -80,15 +80,15 @@ class Agent(Agent):
         form = self.lex_concept_data[lex_concept]["form"]
         signal.form = form
 
-        prefixing = self.lex_concept_data[lex_concept]["prefixing"]
-        suffixing = self.lex_concept_data[lex_concept]["suffixing"]
+        prefixing = self.lex_concept_data[lex_concept]["prefix"]
+        suffixing = self.lex_concept_data[lex_concept]["suffix"]
         prefix = None
         suffix = None
         # (2) Based on verb and transitivity, add prefix or suffix:
         #  - prefixing verb:
         #     -- regardless of transitive or intransitive: use prefix
         if prefixing:
-            if use_affix_prior:
+            if self.affix_prior:
 
                 # prefixes = list weighted by prob * prior_prob
                 prefixes = misc.weighted_affixes_prior(lex_concept, person, "prefix", self.affixes)
@@ -100,12 +100,12 @@ class Agent(Agent):
             if len(prefixes) > 0:
                 prefix = misc.affix_choice(prefixes)
                 # # Drop affix based on estimated intelligibility for listener (H&H)
-                # prefix = misc.reduce_hh("prefixing", prefix, listener, self.model.reduction_hh)
+                # prefix = misc.reduce_hh("prefix", prefix, listener, self.model.reduction_hh)
                 # # Drop affix based on phonetic distance between stem/affix boundary phonemes
-                # prefix = misc.reduce_boundary_feature_dist("prefixing", prefix, form,
+                # prefix = misc.reduce_boundary_feature_dist("prefix", prefix, form,
                 #                                                  self.model.min_boundary_feature_dist,
                 #                                                  listener)
-                prefix = misc.reduce_phonotactics("prefixing", prefix, form,
+                prefix = misc.reduce_phonotactics("prefix", prefix, form,
                                                   self.reduction_phonotactics, listener, self.model.clts)
             else:
                 if self.model.send_empty_if_none:
@@ -119,7 +119,7 @@ class Agent(Agent):
         #     -- transitive: do not use suffix
         #     -- intransitive: use suffix with probability, because it is not obligatory
         if suffixing:
-            if use_affix_prior:
+            if self.affix_prior:
                 suffixes = misc.weighted_affixes_prior(lex_concept, person, "suffix", self.affixes)
                 # suffixes = list weighted by prob * prior_prob
             
@@ -136,11 +136,11 @@ class Agent(Agent):
                 if self.model.always_affix or transitivity == "intrans":
                     if self.model.always_affix or RG.random() < self.model.suffix_prob:
                         suffix = misc.affix_choice(suffixes)
-                        # suffix = misc.reduce_hh("suffixing", suffix, listener, self.model.reduction_hh)
-                        # suffix = misc.reduce_boundary_feature_dist("suffixing", suffix, form,
+                        # suffix = misc.reduce_hh("suffix", suffix, listener, self.model.reduction_hh)
+                        # suffix = misc.reduce_boundary_feature_dist("suffix", suffix, form,
                         #                                                  self.model.min_boundary_feature_dist,
                         #                                                  listener)
-                        suffix = misc.reduce_phonotactics("suffixing", suffix, form,
+                        suffix = misc.reduce_phonotactics("suffix", suffix, form,
                                                           self.reduction_phonotactics, listener, self.model.clts)
                 else:
                     suffix = ""

@@ -189,8 +189,8 @@ def create_graph_course_sb(course_df, variable_param, stats, output_dir, label, 
     # y_label = "proportion utterances non-empty" if mode=="communicated" else "proportion paradigm cells filled"
     df_melted = course_df.melt(id_vars=["timesteps", variable_param],
                                value_vars=stats, value_name=y_label, var_name="statistic")
-    sns.lineplot(data=df_melted, x="timesteps", y=y_label, hue=variable_param)
-
+    ax = sns.lineplot(data=df_melted, x="timesteps", y=y_label, hue=variable_param)
+    ax.set_ylim(0, 1)
     plt.savefig(os.path.join(
         output_dir, f"{variable_param}-{label}-course-{runlabel}.{IMG_FORMAT}"), format=IMG_FORMAT, dpi=300)
     plt.clf()
@@ -205,7 +205,8 @@ def create_graph_end_sb(course_df, variable_param, stats, output_dir, label, run
     # Use last iteration as data
     n_steps = max(course_df["timesteps"])
     df_tail = df_melted[df_melted["timesteps"] == n_steps]
-    sns.lineplot(data=df_tail, x=variable_param, y=y_label, hue="statistic")
+    ax = sns.lineplot(data=df_tail, x=variable_param, y=y_label, hue="statistic")
+    ax.set_ylim(0, 1)
     plt.savefig(os.path.join(
         output_dir, f"{variable_param}-{label}-end-{runlabel}.{IMG_FORMAT}"), format=IMG_FORMAT, dpi=300)
     plt.clf()

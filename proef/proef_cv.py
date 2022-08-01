@@ -4,11 +4,11 @@ import os
 import requests
 import shutil
 
-verb_forms = {"suffixing": ["balik", "bu'a", "buka", "bəsuk", "de'in", "deka", "gehi", "gelu", "(gə)redo", "gəta", "haga", "həbo", "hitun", "hode", "horon", "kantar", "kirin", "kədoko", "kərian", "koda", "ləba wəkin", "lodo", "louk", "mia", "mori", "nyanyi", "ola", "peko", "peun", "pəla'e", "pupu", "səga", "taku", "tanin", "tei", "tobo", "tor", "turu", "tutu"],
-              "prefixing": ["an", "a'an", "əte", "a'i", "enun", "oi", "ala", "ələ", "anan", "ahu' wai", "awa", "awan", "ian", "əwan", "itə", "iu", "odi", "olin", "urən"]}
+verb_forms = {"suffix": ["balik", "bu'a", "buka", "bəsuk", "de'in", "deka", "gehi", "gelu", "(gə)redo", "gəta", "haga", "həbo", "hitun", "hode", "horon", "kantar", "kirin", "kədoko", "kərian", "koda", "ləba wəkin", "lodo", "louk", "mia", "mori", "nyanyi", "ola", "peko", "peun", "pəla'e", "pupu", "səga", "taku", "tanin", "tei", "tobo", "tor", "turu", "tutu"],
+              "prefix": ["an", "a'an", "əte", "a'i", "enun", "oi", "ala", "ələ", "anan", "ahu' wai", "awa", "awan", "ian", "əwan", "itə", "iu", "odi", "olin", "urən"]}
 
-affixes = {"prefixing": ["k", "m", "n", "m", "t", "m", "r"],
-           "suffixing": ["kən", "ko", "no", "na", "kən", "te", "ke", "ne", "ka"]}
+affixes = {"prefix": ["k", "m", "n", "m", "t", "m", "r"],
+           "suffix": ["kən", "ko", "no", "na", "kən", "te", "ke", "ne", "ka"]}
 
 currentdir = os.path.dirname(os.path.realpath(__file__))
 CLTS_ARCHIVE_PATH = os.path.join(currentdir, "2.1.0.tar.gz")
@@ -41,11 +41,11 @@ def load_clts():
 
 
 clts = load_clts()
-for vt in ["prefixing", "suffixing"]:
+for vt in ["prefix", "suffix"]:
     print(vt)
     for form in verb_forms[vt]:
         #for aff in affixes[vt]:
-        #inflected_form = aff+form if vt == "prefixing" else form+aff
+        #inflected_form = aff+form if vt == "prefix" else form+aff
         inflected_form = form
         print(inflected_form)
         spaced_form = " ".join(list(inflected_form))

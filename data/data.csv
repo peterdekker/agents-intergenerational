@@ -1,4 +1,4 @@
-concept	form_alorese	form_lewoingu	trans	intrans	prefixing	suffixing	1sg_prefix	1sg_suffix	2sg_prefix	2sg_suffix	3sg_prefix	3sg_suffix	1pl.incl_prefix	1pl.incl_suffix	1pl.excl_prefix	1pl.excl_suffix	2pl_prefix	2pl_suffix	3pl_prefix	3pl_suffix
+concept	form_alorese	form_lewoingu	trans	intrans	prefix	suffix	1sg_prefix	1sg_suffix	2sg_prefix	2sg_suffix	3sg_prefix	3sg_suffix	1pl.incl_prefix	1pl.incl_suffix	1pl.excl_prefix	1pl.excl_suffix	2pl_prefix	2pl_suffix	3pl_prefix	3pl_suffix
 to be with	-ong		1	0	1		k-		m-		n-		m-		t-		m-		r-	
 to eat [irregular]	-ang	-an	1	1	1		k-		m-		n-		m-		t-		m-		r-	
 to use, make	-ang	-a'an	1	0	1		k-		m-		n-		m-		t-		m-		r-	

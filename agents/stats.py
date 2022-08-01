@@ -3,17 +3,17 @@ import numpy as np
 from collections import defaultdict, Counter
 
 
-def prop_internal_filled(agent, aff_pos):
+def prop_internal_filled(agent, affix_type):
     total = 0
     filled = 0
-    for lex_concept in agent.lex_concepts_type[f"{aff_pos}ing"]:
+    for lex_concept in agent.lex_concepts_type[affix_type]:
         for person in agent.persons:
             total += 1
-            # affix_set = set(agent.affixes[(lex_concept, person, aff_pos)])
+            # affix_set = set(agent.affixes[(lex_concept, person, affix_type)])
             # affix_set.discard("")
             # if len(affix_set) > 0:
             #     filled += 1
-            affixes = agent.affixes[(lex_concept, person, aff_pos)]
+            affixes = agent.affixes[(lex_concept, person, affix_type)]
             if len(affixes) > 0:
                 # Find, possibly multiple, most common elements
                 most_common_list = Counter(affixes).most_common()
@@ -29,23 +29,23 @@ def prop_internal_filled(agent, aff_pos):
     return filled/total
 
 
-def prop_internal_filled_agents(agents, aff_pos):
-    filled_props = [prop_internal_filled(a, aff_pos) for a in agents]
+def prop_internal_filled_agents(agents, affix_type):
+    filled_props = [prop_internal_filled(a, affix_type) for a in agents]
     return np.mean(filled_props) if len(filled_props) > 0 else 0
 
 
-def internal_affix_frequencies(agent, aff_pos, freq_dict):
-    for lex_concept in agent.lex_concepts_type[f"{aff_pos}ing"]:
+def internal_affix_frequencies(agent, affix_type, freq_dict):
+    for lex_concept in agent.lex_concepts_type[affix_type]:
         for person in agent.persons:
-            affix_list = agent.affixes[(lex_concept, person, aff_pos)]
+            affix_list = agent.affixes[(lex_concept, person, affix_type)]
             for aff in affix_list:
                 freq_dict[f"'{aff}'-{person}"] += 1
 
 
-def internal_affix_frequencies_agents(agents, aff_pos):
+def internal_affix_frequencies_agents(agents, affix_type):
     freq_dict = defaultdict(int)
     for a in agents:
-        internal_affix_frequencies(a, aff_pos, freq_dict)
+        internal_affix_frequencies(a, affix_type, freq_dict)
     return freq_dict
 
 

@@ -12,16 +12,16 @@ class Data():
         self.data = self.data[self.data["form_lewoingu"] != ""]
 
         if balance_prefix_suffix_verbs:
-            prefixing = self.data[self.data["prefixing"] == 1]
+            prefixing = self.data[self.data["prefix"] == 1]
             n_prefixing = len(prefixing)
-            suffixing = self.data[self.data["suffixing"] == 1]
+            suffixing = self.data[self.data["suffix"] == 1]
             self.data = pd.concat([prefixing, suffixing.head(n_prefixing)])
 
         self.lex_concepts = list(self.data["concept"])
-        self.lex_concepts_type = {"prefixing": [], "suffixing": []}
+        self.lex_concepts_type = {"prefix": [], "suffix": []}
         self.persons = PERSONS
 
-        general_cols = ["concept", "form_lewoingu", "trans", "intrans", "prefixing", "suffixing"]
+        general_cols = ["concept", "form_lewoingu", "trans", "intrans", "prefix", "suffix"]
         person_affix_cols = [col for col in self.data if col.startswith(tuple(PERSONS))]
         data_reindexed = self.data[general_cols+person_affix_cols].set_index("concept")
         data_dict = data_reindexed.to_dict(orient="index")
@@ -38,24 +38,24 @@ class Data():
             form = [f.strip("* -") for f in re.split(",|/", forms)][0]
             transitivities = [k for k, v in data_dict[lex_concept].items() if (
                 k == "trans" or k == "intrans") and v == 1]
-            prefixing = bool(data_dict[lex_concept]["prefixing"])
-            suffixing = bool(data_dict[lex_concept]["suffixing"])
+            prefixing = bool(data_dict[lex_concept]["prefix"])
+            suffixing = bool(data_dict[lex_concept]["suffix"])
             # For now, make it not possible for prefixing verbs to be also suffixing
             if prefixing:
                 suffixing = False
-                self.lex_concepts_type["prefixing"].append(lex_concept)
+                self.lex_concepts_type["prefix"].append(lex_concept)
             else:
-                self.lex_concepts_type["suffixing"].append(lex_concept)
+                self.lex_concepts_type["suffix"].append(lex_concept)
             self.lex_concept_data[lex_concept] = {"form": form,
                                                   "transitivities": transitivities,
-                                                  "prefixing": prefixing,
-                                                  "suffixing": suffixing}
+                                                  "prefix": prefixing,
+                                                  "suffix": suffixing}
 
             for person in self.persons:
                 for affix_type in ["prefix", "suffix"]:
                     # For now, make it not possible for prefixing verbs to be also suffixing
                     # TODO: make this check more sophisticated. we just filled this lex_concepts_type
-                    if lex_concept in self.lex_concepts_type[f"{affix_type}ing"]:
+                    if lex_concept in self.lex_concepts_type[affix_type]:
                         affix = data_dict[lex_concept][f"{person}_{affix_type}"]
                         # Affix preprocessing: there can be multiple affixes, split by ,
                         affixes_processed = [a.strip(" -") for a in affix.split(",")]
