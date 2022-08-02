@@ -112,7 +112,9 @@ class Agent(Agent):
                     prefix = ""
                 else:
                     # Without option on: just skip this whole interaction. Only listen for this concept until it gets filled with at least one form.
+                    logging.debug(f"No affixes for this concept: skip speaking.\n")
                     return
+            
             signal.prefix = prefix
 
         #  - suffixing verb:
@@ -149,6 +151,7 @@ class Agent(Agent):
                     suffix = ""
                 else:
                     # Without option on: just skip this whole interaction. Only listen for this concept until it gets filled with at least one form.
+                    logging.debug(f"No affixes for this concept: skip speaking.")
                     return
             signal.suffix = suffix
 
@@ -197,7 +200,7 @@ class Agent(Agent):
 
         self.concept_listener = ConceptMessage(
             lex_concept=lex_concept_inferred, person=person_inferred)
-        logging.debug(f"Listener decodes concept: {self.concept_listener!s}")
+        logging.debug(f"Listener decodes concept: {self.concept_listener!s}\n")
 
         # Point to inferred concept
         return self.concept_listener

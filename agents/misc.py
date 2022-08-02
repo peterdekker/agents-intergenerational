@@ -200,29 +200,30 @@ def spread_l2_agents(proportion_l2, n_agents):
 
 def weighted_affixes_prior(lex_concept, person, affix_type, affixes):
     affixes_concept = affixes[(lex_concept, person, affix_type)]
-    print(f"Affixes for concept: {affixes_concept}")
+    logging.debug(f"Affixes for concept: {affixes_concept}")
     n_exemplars_concept = len(affixes_concept)
     counts_affixes_concept = Counter(affixes_concept)
-    print(f"Counts for concept: {counts_affixes_concept}")
+    logging.debug(f"Counts for concept: {counts_affixes_concept}")
     p_affix_given_concept = {aff: count/n_exemplars_concept for aff, count in counts_affixes_concept.items()}
-    print(f"Probabilities for concept: {p_affix_given_concept}")
-
+    logging.debug(f"Probabilities for concept: {p_affix_given_concept}")
 
     affixes_affix_type = {(l, p, t): affixes[(l, p, t)] for (l, p, t) in affixes.keys() if t == affix_type and (
             GENERALIZE_PERSONS or p == person) and (GENERALIZE_LEX_CONCEPTS or l == lex_concept)}
     affixes_all = list(chain.from_iterable(affixes_affix_type.values()))
-    print(f"Affixes for all: {affixes_all}")
+    logging.debug(f"Affixes for all: {affixes_all}")
     n_exemplars_all = len(affixes_all)
     counts_affixes_all = Counter(affixes_all)
-    print(f"Counts for all: {counts_affixes_all}")
+    logging.debug(f"Counts for all: {counts_affixes_all}")
     p_affix = {aff: count/n_exemplars_all for aff, count in counts_affixes_all.items()}
-    print(f"Probabilities for all: {p_affix}")
-
+    logging.debug(f"Probabilities for all: {p_affix}")
 
     # combined: p(affix|concept) * p(affix) [prior]
     p_combined = {aff: p_aff_conc * p_affix[aff] for aff, p_aff_conc in p_affix_given_concept.items()}
+    logging.debug(f"Combined: {p_combined}")
     total = sum(p_combined.values())
-    p_combined_normalized = {aff: p_comb/total for aff,p_comb in p_combined}
+    p_combined_normalized = {aff: p_comb/total for aff,p_comb in p_combined.items()}
+    logging.debug(f"Combined normalized: {p_combined_normalized}")
+    return p_combined_normalized
 
     
 
@@ -251,7 +252,7 @@ def retrieve_affixes_generalize(lex_concept, person, affix_type, affixes, gen_pr
 def affix_choice(affixes):
     if isinstance(affixes, dict):
         # Choice weighted by probability
-        sample = RG.choice(affixes.keys(), p=affixes.values())
+        sample = RG.choice(list(affixes.keys()), p=list(affixes.values()))
     elif isinstance(affixes, list):
         # Unweighted choice
         sample = RG.choice(affixes)
