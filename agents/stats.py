@@ -65,7 +65,7 @@ def colour_str(c):
     return f"hsl({c[0]},{c[1]}%,{c[2]}%)"
 
 
-def update_communicated_model_stats(model, prefix, suffix, prefixing, suffixing, l2, step):
+def update_communicated_model_stats(model, prefix, suffix, prefixing, suffixing, l2):
     if prefixing:
         assert isinstance(prefix, str) # check that it is not none
         if l2:
@@ -81,11 +81,13 @@ def update_communicated_model_stats(model, prefix, suffix, prefixing, suffixing,
             model.communicated_suffix_l1.append(suffix)
 
 
-def prop_communicated(communicated_list):
+def prop_communicated(communicated_list, label=""):
     # Calculate proportion non-empty communications
     n_non_empty = len([s for s in communicated_list if s != ""])
     n_total = len(communicated_list)
+    # if n_total == 0 and "L1" in label:
+    #     print(f"{label}:empty")
     # Clear communicated list, so new proportion is calculated for next COMMUNICATED_STATS_AFTER_STEPS timesteps
     communicated_list.clear()
     # Calculate proportion
-    return n_non_empty/n_total if n_total > 0 else 0
+    return n_non_empty/n_total if n_total > 0 else None

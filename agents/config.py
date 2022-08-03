@@ -13,8 +13,8 @@ CLTS_ARCHIVE_PATH = os.path.join(CURRENTDIR, "2.1.0.tar.gz")
 CLTS_ARCHIVE_URL = "https://github.com/cldf-clts/clts/archive/refs/tags/v2.1.0.tar.gz"
 CLTS_PATH = os.path.join(CURRENTDIR, "clts-2.1.0")
 
-HEIGHT = 6
-WIDTH = 6
+HEIGHT = 8
+WIDTH = 8
 MAX_RADIUS = max(HEIGHT, WIDTH)
 
 N_AGENTS = HEIGHT*WIDTH
@@ -38,7 +38,7 @@ GENERALIZE_PERSONS = True
 
 # Defaults for UserSettableParameters
 # Independent variable
-PROPORTION_L2 = 0.5
+PROPORTION_L2 = 0.0
 # Only crucial parameter
 PRONOUN_DROP_PROB = 1.0
 # Model expansions turned off by default
@@ -61,7 +61,7 @@ SUFFIX_PROB = 0.5
 # Settings to check which model results come from data artefacts
 BALANCE_PREFIX_SUFFIX_VERBS = False
 UNIQUE_AFFIX = False
-SEND_EMPTY_IF_NONE = True
+SEND_EMPTY_IF_NONE = False
 
 
 # For evaluation script (not browser visualization)

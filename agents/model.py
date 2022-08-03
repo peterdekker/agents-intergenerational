@@ -164,13 +164,13 @@ class Model(Model):
 
             # Compute proportion non-empty cells in communicative measure
             self.prop_communicated_prefix_l1 = stats.prop_communicated(
-                self.communicated_prefix_l1)
+                self.communicated_prefix_l1, label="Prefix L1")
             self.prop_communicated_prefix_l2 = stats.prop_communicated(
-                self.communicated_prefix_l2)
+                self.communicated_prefix_l2, label="Prefix L2")
             self.prop_communicated_suffix_l1 = stats.prop_communicated(
-                self.communicated_suffix_l1)
+                self.communicated_suffix_l1, label="Suffix L1")
             self.prop_communicated_suffix_l2 = stats.prop_communicated(
-                self.communicated_suffix_l2)
+                self.communicated_suffix_l2, label="Suffix L2")
 
         if self.steps % RARE_STATS_AFTER_STEPS == 0:
             self.prop_internal_prefix_l1 = stats.prop_internal_filled_agents(self.agents_l1, "prefix")

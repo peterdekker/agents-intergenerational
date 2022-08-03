@@ -114,7 +114,8 @@ class Agent(Agent):
                     # Without option on: just skip this whole interaction. Only listen for this concept until it gets filled with at least one form.
                     logging.debug(f"No affixes for this concept: skip speaking.\n")
                     return
-            
+            # if prefix=="":
+            #     raise ValueError("Prefix is empty")
             signal.prefix = prefix
 
         #  - suffixing verb:
@@ -153,10 +154,11 @@ class Agent(Agent):
                     # Without option on: just skip this whole interaction. Only listen for this concept until it gets filled with at least one form.
                     logging.debug(f"No affixes for this concept: skip speaking.")
                     return
+            # if suffix=="":
+            #     raise ValueError("Suffix is empty")
             signal.suffix = suffix
-
         stats.update_communicated_model_stats(
-            self.model, prefix, suffix, prefixing, suffixing, self.l2, self.model.steps)
+            self.model, prefix, suffix, prefixing, suffixing, self.l2)
 
         # (3) Add context from sentence (subject)
         if RG.random() >= self.model.pronoun_drop_prob:
