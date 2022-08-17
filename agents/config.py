@@ -65,8 +65,8 @@ SEND_EMPTY_IF_NONE = False
 
 
 # For evaluation script (not browser visualization)
-ITERATIONS = [20]
-STEPS = [8000]
+ITERATIONS = [5]
+STEPS = [10000]
 
 
 model_params = {
