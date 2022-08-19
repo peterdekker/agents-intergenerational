@@ -82,6 +82,8 @@ def update_communicated_model_stats(model, prefix, suffix, prefixing, suffixing,
 
 
 def prop_communicated(communicated_list, label=""):
+    # if label=="Suffix L2":
+    #     print(communicated_list)
     # Calculate proportion non-empty communications
     n_non_empty = len([s for s in communicated_list if s != ""])
     n_total = len(communicated_list)

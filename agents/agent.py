@@ -106,7 +106,7 @@ class Agent(Agent):
                 #                                                  self.model.min_boundary_feature_dist,
                 #                                                  listener)
                 prefix = misc.reduce_phonotactics("prefix", prefix, form,
-                                                  self.reduction_phonotactics, listener, self.model.clts)
+                                                  self.reduction_phonotactics, self.model.clts, speaker_type=self.l2)
             else:
                 if self.model.send_empty_if_none:
                     prefix = ""
@@ -144,7 +144,7 @@ class Agent(Agent):
                         #                                                  self.model.min_boundary_feature_dist,
                         #                                                  listener)
                         suffix = misc.reduce_phonotactics("suffix", suffix, form,
-                                                          self.reduction_phonotactics, listener, self.model.clts)
+                                                          self.reduction_phonotactics, self.model.clts, speaker_type=self.l2)
                 else:
                     suffix = ""
             else:

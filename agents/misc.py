@@ -125,7 +125,7 @@ def infer_possible_persons(affix_type, affix_signal, persons, affixes, lex_conce
 #                 # logging.debug(f"H&H: {affix_old} -> {affix}")
 #     return affix
 
-def reduce_phonotactics(affix_type, affix, form, reduction_phonotactics, listener, clts):
+def reduce_phonotactics(affix_type, affix, form, reduction_phonotactics, clts, speaker_type=None):
     if reduction_phonotactics:
         # form_border_phoneme = 0 if affix_type == "prefix" else -1
         # affix_border_phoneme = -1 if affix_type == "prefix" else 0

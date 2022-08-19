@@ -263,7 +263,7 @@ def main():
         print(f"Evaluating iterations {iterations} and steps {steps}")
         # Use proportion L2 as variable (independent) param, set given params as fixed params.
         var_param = "proportion_l2"
-        var_param_settings = [0.0, 0.25, 0.5, 0.75]
+        var_param_settings = [0.0, 0.2, 0.4, 0.6, 0.8, 1.0]
         assert len(iterations) == 1
         assert len(steps) == 1
         iterations_setting = iterations[0]
