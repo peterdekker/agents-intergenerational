@@ -6,7 +6,6 @@ from agents.config import PERSONS
 
 class Data():
     def __init__(self, data_file, balance_prefix_suffix_verbs, unique_affix):
-        print(data_file)
         unique_affix_id = 0
         self.data = pd.read_csv(data_file, sep="\t").fillna(value="")
         # Filter on only cells which have Lewoingu form
