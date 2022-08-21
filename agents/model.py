@@ -5,7 +5,7 @@ from mesa.datacollection import DataCollector
 
 import numpy as np
 
-from agents.config import N_AGENTS, DATA_FILE, MAX_RADIUS, COMMUNICATED_STATS_AFTER_STEPS, RARE_STATS_AFTER_STEPS,\
+from agents.config import N_AGENTS, DATA_FILE, DATA_FILE_SYNTHETIC, MAX_RADIUS, COMMUNICATED_STATS_AFTER_STEPS, RARE_STATS_AFTER_STEPS,\
     CLTS_ARCHIVE_PATH, CLTS_ARCHIVE_URL, CLTS_PATH, COMM_SUCCESS_AFTER_STEPS
 from agents import stats
 from agents import misc
@@ -21,7 +21,7 @@ class Model(Model):
     def __init__(self, height, width, proportion_l2, suffix_prob,
                  capacity_l1, capacity_l2, pronoun_drop_prob,
                  reduction_phonotactics_l1, reduction_phonotactics_l2,
-                 negative_update, always_affix, balance_prefix_suffix_verbs, unique_affix, send_empty_if_none,
+                 negative_update, always_affix, balance_prefix_suffix_verbs, unique_affix, send_empty_if_none, synthetic_forms,
                  gen_production_old_l1,
                  gen_production_old_l2, gen_update_old_l1,
                  gen_update_old_l2, affix_prior_l1, affix_prior_l2, browser_visualization):
@@ -42,6 +42,7 @@ class Model(Model):
         assert isinstance(balance_prefix_suffix_verbs, bool)
         assert isinstance(unique_affix, bool)
         assert isinstance(send_empty_if_none, bool)
+        assert isinstance(synthetic_forms, bool)
         assert gen_production_old_l1 >= 0 and gen_production_old_l1 <= 1
         assert gen_production_old_l2 >= 0 and gen_production_old_l2 <= 1
         assert gen_update_old_l1 >= 0 and gen_update_old_l1 <= 1
@@ -69,7 +70,7 @@ class Model(Model):
         self.steps = 0
 
         # Agent language model object is created from data file
-        self.data = Data(DATA_FILE, balance_prefix_suffix_verbs, unique_affix)
+        self.data = Data(DATA_FILE_SYNTHETIC if synthetic_forms else DATA_FILE, balance_prefix_suffix_verbs, unique_affix)
         self.clts = misc.load_clts(CLTS_ARCHIVE_PATH, CLTS_ARCHIVE_URL, CLTS_PATH)
 
         # Stats

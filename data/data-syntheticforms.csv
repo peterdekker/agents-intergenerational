@@ -1,0 +1,59 @@
+concept	form_alorese	form_lewoingu	trans	intrans	prefix	suffix	1sg_prefix	1sg_suffix	2sg_prefix	2sg_suffix	3sg_prefix	3sg_suffix	1pl.incl_prefix	1pl.incl_suffix	1pl.excl_prefix	1pl.excl_suffix	2pl_prefix	2pl_suffix	3pl_prefix	3pl_suffix
+to be with			1	0	1		k-		m-		n-		m-		t-		m-		r-	
+to eat [irregular]		-apa	1	1	1		k-		m-		n-		m-		t-		m-		r-	
+to use, make		-aba	1	0	1		k-		m-		n-		m-		t-		m-		r-	
+to carry		-ama	1	0	1		k-		m-		n-		m-		t-		m-		r-	
+to go		-ata	0	1	1		k-	-kən	m-	-ko, -no	n-	-na	m-	-kən	t-	-te	m-	-ke, -ne	r-	-ka
+to drink		-ada	1	1	1		k-		m-		n-		m-		t-		m-		r-	
+to know		-ana	1	1	1		k-		m-		n-		m-		t-		m-		r-	
+to pass		-aka	1	0	1		k-		m-		n-		m-		t-		m-		r-	
+to plait		-aga	1	1	1		k-		m-		n-		m-		t-		m-		r-	
+to get water		-afa	1	1	1		k-		m-		n-		m-		t-		m-		r-	
+to stay		-ava	1	1	1		k-		m-		n-		m-		t-		m-		r-	
+to wait 1		-asa	1	1	1		k-		m-		n-		m-		t-		m-		r-	
+to wait 2		-aza	1	1	1		k-		m-		n-		m-		t-		m-		r-	
+can, to harvest, to pick up		-ala	1	1	1		k-		m-		n-		m-		t-		m-		r-	
+to sleep with		-aja	1	0	1		k-		m-		n-		m-		t-		m-		r-	
+to hunt		-awa	1	1	1		k-		m-		n-		m-		t-		m-		r-	
+will		-aha	1	1	1		k-		m-		n-		m-		t-		m-		r-	
+to improve		-apapa	1	1	1		k-		m-		n-		m-		t-		m-		r-	
+to dream		-ababa	1	1	1		k-		m-		n-		m-		t-		m-		r-	
+to return 1		papa	1	1		1		-kən		-ko, -no		-na		-kən		-te		-ke, -ne		-ka
+to eat		baba	1	1		1		-kən		-ko, -no		-na		-kən		-te		-ke, -ne		-ka
+to open		mama	1	1		1		-kən		-ko, -no		-na		-kən		-te		-ke, -ne		-ka
+to be born		tata	0	1		1		-kən		-ko, -no		-na		-kən		-te		-ke, -ne		-ka
+to stand		dada	0	1		1		-kən		-ko, -no		-na		-kən		-te		-ke, -ne		-ka
+to sink		nana	0	1		1		-kən		-ko, -no		-na		-kən		-te		-ke, -ne		-ka
+to not want		kaka	1	1		1		-kən		-ko, -no		-na		-kən		-te		-ke, -ne		-ka
+to change		gaga	1	1		1		-kən		-ko, -no		-na		-kən		-te		-ke, -ne		-ka
+to shake		fafa	1	1		1		-kən		-ko, -no		-na		-kən		-te		-ke, -ne		-ka
+to take		vava	1	1		1		-kən		-ko, -no		-na		-kən		-te		-ke, -ne		-ka
+to copulate		sasa	0	1		1		-kən		-ko, -no		-na		-kən		-te		-ke, -ne		-ka
+to bathe		zaza	1	1		1		-kən		-ko, -no		-na		-kən		-te		-ke, -ne		-ka
+to count		lala	1	1		1		-kən		-ko, -no		-na		-kən		-te		-ke, -ne		-ka
+to burn, angry		jaja	0	1		1		-kən		-ko, -no		-na		-kən		-te		-ke, -ne		-ka
+to hide		wawa	1	1		1		-kən		-ko, -no		-na		-kən		-te		-ke, -ne		-ka
+to sing 1		haha	1	1		1		-kən		-ko, -no		-na		-kən		-te		-ke, -ne		-ka
+to talk 1		paba	1	1		1		-kən		-ko, -no		-na		-kən		-te		-ke, -ne		-ka
+to be surprised		pama	1	1		1		-kən		-ko, -no		-na		-kən		-te		-ke, -ne		-ka
+to work		pata	1	1		1		-kən		-ko, -no		-na		-kən		-te		-ke, -ne		-ka
+to talk 2		pada	1	1		1		-kən		-ko, -no		-na		-kən		-te		-ke, -ne		-ka
+to bend down		pana	1	1		1		-kən		-ko, -no		-na		-kən		-te		-ke, -ne		-ka
+to go down		paka	1	1		1		-kən		-ko, -no		-na		-kən		-te		-ke, -ne		-ka
+to get out		paga	1	1		1		-kən		-ko, -no		-na		-kən		-te		-ke, -ne		-ka
+to be ashamed		pafa	0	1		1		-kən		-ko, -no		-na		-kən		-te		-ke, -ne		-ka
+to live 1		pava	0	1		1		-kən		-ko, -no		-na		-kən		-te		-ke, -ne		-ka
+to sing 2		pasa	1	1		1		-kən		-ko, -no		-na		-kən		-te		-ke, -ne		-ka
+to farm		paza	1	1		1		-kən		-ko, -no		-na		-kən		-te		-ke, -ne		-ka
+to turn		pala	1	1		1		-kən		-ko, -no		-na		-kən		-te		-ke, -ne		-ka
+to return 2		paja	1	1		1		-kən		-ko, -no		-na		-kən		-te		-ke, -ne		-ka
+to run		pawa	1	1		1		-kən		-ko, -no		-na		-kən		-te		-ke, -ne		-ka
+to gather		paha	1	1		1		-kən		-ko, -no		-na		-kən		-te		-ke, -ne		-ka
+to come		bapa	1	1		1		-kən		-ko, -no		-na		-kən		-te		-ke, -ne		-ka
+to fear		bama	1	1		1		-kən		-ko, -no		-na		-kən		-te		-ke, -ne		-ka
+to cry		bata	1	1		1		-kən		-ko, -no		-na		-kən		-te		-ke, -ne		-ka
+to live 2		bada	0	1		1		-kən		-ko, -no		-na		-kən		-te		-ke, -ne		-ka
+to lie down		bana	0	1		1		-kən		-ko, -no		-na		-kən		-te		-ke, -ne		-ka
+to agree		baka	1	1		1		-kən		-ko, -no		-na		-kən		-te		-ke, -ne		-ka
+to sleep		baga	0	1		1		-kən		-ko, -no		-na		-kən		-te		-ke, -ne		-ka
+to talk 3		bafa	1	1		1		-kən		-ko, -no		-na		-kən		-te		-ke, -ne		-ka

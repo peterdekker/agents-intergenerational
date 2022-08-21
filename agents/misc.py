@@ -141,6 +141,7 @@ def reduce_phonotactics(affix_type, affix, form, reduction_phonotactics, clts, s
         # print(inflected_form)
         spaced_form = " ".join(list(inflected_form))
         cv_pattern = clts.bipa.translate(spaced_form, clts.soundclass("cv")).replace(" ", "")
+        # print(f"{inflected_form} | {cv_pattern}")
         # print(cv_pattern)
         if "CC" in cv_pattern:
             #print("CONSONANT CLUSTER!")
