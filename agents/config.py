@@ -6,7 +6,7 @@ import os
 from panphon.distance import Distance
 from mesa.visualization.UserParam import UserSettableParameter, Slider, Checkbox
 
-logging.basicConfig(stream=sys.stderr, level=logging.ERROR)
+logging.basicConfig(stream=sys.stderr, level=logging.DEBUG)
 
 CURRENTDIR = os.path.dirname(os.path.realpath(__file__))
 CLTS_ARCHIVE_PATH = os.path.join(CURRENTDIR, "2.1.0.tar.gz")
