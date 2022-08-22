@@ -93,10 +93,11 @@ class Agent(Agent):
                 # prefixes = list weighted by prob * prior_prob
                 prefixes = misc.weighted_affixes_prior(lex_concept, person, "prefix", self.affixes)
             else:
+                prefixes = misc.distribution_from_exemplars(lex_concept, person, "prefix", self.affixes, alpha=1000 if self.l2 else 1)
                 # Do not use probabilities and prior probabilities of affixes in whole model.
                 # Use plain exemplar lists. prefixes=unweighted list
-                prefixes = misc.retrieve_affixes_generalize(lex_concept, person, "prefix",
-                                                            self.affixes, self.gen_production_old)
+                # prefixes = misc.retrieve_affixes_generalize(lex_concept, person, "prefix",
+                #                                             self.affixes, self.gen_production_old)
             if len(prefixes) > 0:
                 prefix = misc.affix_choice(prefixes)
                 # # Drop affix based on estimated intelligibility for listener (H&H)
@@ -125,16 +126,13 @@ class Agent(Agent):
             if self.affix_prior:
                 suffixes = misc.weighted_affixes_prior(lex_concept, person, "suffix", self.affixes)
                 # suffixes = list weighted by prob * prior_prob
-            
             else:
+                suffixes = misc.distribution_from_exemplars(lex_concept, person, "suffix", self.affixes, alpha=1000 if self.l2 else 1)
                 # Do not use probabilities and prior probabilities of affixes in whole model.
                 # Use plain exemplar lists. suffixes=unweighted list
-                suffixes = misc.retrieve_affixes_generalize(
-                    lex_concept, person, "suffix", self.affixes, self.gen_production_old)
+                # suffixes = misc.retrieve_affixes_generalize(
+                #     lex_concept, person, "suffix", self.affixes, self.gen_production_old)
 
-            # In all cases where suffix will not be set, use empty suffix
-            # (different from None, because listener will add empty suffix to its stack)
-            # TODO: More elegant if len(sfxs) is always non-zero because there is always ""?
             if len(suffixes) > 0:
                 if self.model.always_affix or transitivity == "intrans":
                     if self.model.always_affix or RG.random() < self.model.suffix_prob:

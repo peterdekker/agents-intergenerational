@@ -14,6 +14,7 @@ from collections import Counter
 from pyclts import CLTS
 import requests
 import shutil
+import math
 
 
 def download_if_needed(archive_path, archive_url, file_path, label):
@@ -225,6 +226,27 @@ def weighted_affixes_prior(lex_concept, person, affix_type, affixes):
     p_combined_normalized = {aff: p_comb/total for aff,p_comb in p_combined.items()}
     logging.debug(f"Combined normalized: {p_combined_normalized}")
     return p_combined_normalized
+
+
+def distribution_from_exemplars(lex_concept, person, affix_type, affixes, alpha):
+    affixes_concept = affixes[(lex_concept, person, affix_type)]
+    logging.debug(f"Affixes for concept: {affixes_concept}")
+    n_exemplars_concept = len(affixes_concept)
+    counts_affixes_concept = Counter(affixes_concept)
+    logging.debug(f"Counts for concept: {counts_affixes_concept}")
+    p_affix_given_concept = {aff: count/n_exemplars_concept for aff, count in counts_affixes_concept.items()}
+    logging.debug(f"Probabilities for concept: {p_affix_given_concept}")
+    if math.isclose(alpha, 1.0):
+        return p_affix_given_concept
+    p_scaled = {aff: p_aff_conc ** alpha for aff, p_aff_conc in p_affix_given_concept.items()}
+    logging.debug(f"Scaled: {p_scaled}")
+    total = sum(p_scaled.values())
+    # if total < 0.0000000000000000000001:
+    #     print(f"Probabilities for concept: {p_affix_given_concept}")
+    #     print(f"Scaled: {p_scaled}")
+    p_scaled_normalized = {aff: p_sc/total for aff, p_sc in p_scaled.items()}
+    logging.debug(f"Scaled normalized: {p_scaled_normalized}")
+    return p_scaled_normalized
 
     
 
