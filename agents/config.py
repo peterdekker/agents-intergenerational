@@ -19,8 +19,8 @@ MAX_RADIUS = max(HEIGHT, WIDTH)
 
 N_AGENTS = HEIGHT*WIDTH
 SAMPLE = HEIGHT
-DATA_FILE = "data/data.csv"
-DATA_FILE_SYNTHETIC = "data/data-syntheticforms.csv"
+DATA_FILE = "data/data-sample.csv"
+DATA_FILE_SYNTHETIC = "data/data-syntheticforms-sample.csv"
 PERSONS = ['1sg', '2sg', '3sg', '1pl.incl', '1pl.excl', '2pl', '3pl']
 
 dst = Distance()

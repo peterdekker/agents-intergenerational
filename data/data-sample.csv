@@ -1,0 +1,16 @@
+concept	form_lewoingu	trans	intrans	prefix	suffix	1sg_prefix	1sg_suffix	2sg_prefix	2sg_suffix	3sg_prefix	3sg_suffix	1pl.incl_prefix	1pl.incl_suffix	1pl.excl_prefix	1pl.excl_suffix	2pl_prefix	2pl_suffix	3pl_prefix	3pl_suffix
+to eat [irregular]	-an	1	1	1		k-		m-		n-		m-		t-		m-		r-	
+to use, make	-a'an	1	0	1		k-		m-		n-		m-		t-		m-		r-	
+to carry	-əte	1	0	1		k-		m-		n-		m-		t-		m-		r-	
+to go	-a'i-	0	1	1		k-	-kən	m-	-ko, -no	n-	-na	m-	-kən	t-	-te	m-	-ke, -ne	r-	-ka
+to drink	-enun	1	1	1		k-		m-		n-		m-		t-		m-		r-	
+to return 1	balik	1	1		1		-kən		-ko, -no		-na		-kən		-te		-ke, -ne		-ka
+to eat	bu'a	1	1		1		-kən		-ko, -no		-na		-kən		-te		-ke, -ne		-ka
+to open	buka	1	1		1		-kən		-ko, -no		-na		-kən		-te		-ke, -ne		-ka
+to be born	bəsuk	0	1		1		-kən		-ko, -no		-na		-kən		-te		-ke, -ne		-ka
+to stand	de'in	0	1		1		-kən		-ko, -no		-na		-kən		-te		-ke, -ne		-ka
+to sink	deka	0	1		1		-kən		-ko, -no		-na		-kən		-te		-ke, -ne		-ka
+to not want	gehi	1	1		1		-kən		-ko, -no		-na		-kən		-te		-ke, -ne		-ka
+to change	gelu	1	1		1		-kən		-ko, -no		-na		-kən		-te		-ke, -ne		-ka
+to shake	redo	1	1		1		-kən		-ko, -no		-na		-kən		-te		-ke, -ne		-ka
+to take	gəta	1	1		1		-kən		-ko, -no		-na		-kən		-te		-ke, -ne		-ka
