@@ -231,24 +231,36 @@ def weighted_affixes_prior(lex_concept, person, affix_type, affixes):
 def distribution_from_exemplars(lex_concept, person, affix_type, affixes, alpha):
     affixes_concept = affixes[(lex_concept, person, affix_type)]
     logging.debug(f"Affixes for concept: {affixes_concept}")
+    if len(affixes_concept) == 0:
+        return {}
+    
     n_exemplars_concept = len(affixes_concept)
     counts_affixes_concept = Counter(affixes_concept)
     logging.debug(f"Counts for concept: {counts_affixes_concept}")
-    p_affix_given_concept = {aff: count/n_exemplars_concept for aff, count in counts_affixes_concept.items()}
-    logging.debug(f"Probabilities for concept: {p_affix_given_concept}")
+    counts_keys = list(counts_affixes_concept.keys())
+    counts_values = np.array(list(counts_affixes_concept.values()))
+    p_affix_given_concept = counts_values / n_exemplars_concept
+    logging.debug(f"Probabilities for concept: {dict(zip(counts_keys, p_affix_given_concept))}")
+    logging.debug(f"Alpha: {alpha}")
     if math.isclose(alpha, 1.0):
-        return p_affix_given_concept
-    p_scaled = {aff: p_aff_conc ** alpha for aff, p_aff_conc in p_affix_given_concept.items()}
-    logging.debug(f"Scaled: {p_scaled}")
-    total = sum(p_scaled.values())
-    # if total < 0.0000000000000000000001:
-    #     print(f"Probabilities for concept: {p_affix_given_concept}")
-    #     print(f"Scaled: {p_scaled}")
-    p_scaled_normalized = {aff: p_sc/total for aff, p_sc in p_scaled.items()}
-    logging.debug(f"Scaled normalized: {p_scaled_normalized}")
-    return p_scaled_normalized
-
+        return dict(zip(counts_keys, p_affix_given_concept))
     
+    # Scale probabilities with alpha in log space (make distribution peakier)
+    log_scaled = np.log(p_affix_given_concept) * alpha
+    logging.debug(f"Log Scaled: {dict(zip(counts_keys, log_scaled))}")
+    log_moved = log_scaled - np.max(log_scaled) # Move highest value to 0
+    logging.debug(f"Log Moved: {dict(zip(counts_keys, log_moved))}")
+    # Go back to normal probabilities
+    p_moved = np.exp(log_moved)
+    logging.debug(f"Prob Moved: {dict(zip(counts_keys, p_moved))}")
+    p_scaled_normalized = p_moved / np.sum(p_moved)
+    # if math.isclose(total, 0) and len(p_scaled) > 0:
+    #     print(counts_affixes_concept)
+    #     print(p_affix_given_concept)
+    #     print(p_scaled)
+    logging.debug(f"Scaled normalized: {dict(zip(counts_keys, p_scaled_normalized))}")
+    return dict(zip(counts_keys, p_scaled_normalized))
+
 
 
 def retrieve_affixes_generalize(lex_concept, person, affix_type, affixes, gen_production_old):
