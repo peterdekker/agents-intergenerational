@@ -10,7 +10,7 @@ from agents import stats
 
 
 class Agent(Agent):
-    def __init__(self, pos, model, data, init, capacity, gen_production_old, gen_update_old, affix_prior, reduction_phonotactics, l2):
+    def __init__(self, pos, model, data, init, capacity, gen_production_old, gen_update_old, affix_prior, reduction_phonotactics, alpha, l2):
         '''
          Create a new speech agent.
 
@@ -26,6 +26,7 @@ class Agent(Agent):
         self.gen_update_old = gen_update_old
         self.affix_prior = affix_prior
         self.reduction_phonotactics = reduction_phonotactics
+        self.alpha = alpha
         self.l2 = l2
 
         # These vars are not deep copies, because they will not be altered by agents
@@ -93,7 +94,7 @@ class Agent(Agent):
                 # prefixes = list weighted by prob * prior_prob
                 prefixes = misc.weighted_affixes_prior(lex_concept, person, "prefix", self.affixes)
             else:
-                prefixes = misc.distribution_from_exemplars(lex_concept, person, "prefix", self.affixes, alpha=1000 if self.l2 else 1)
+                prefixes = misc.distribution_from_exemplars(lex_concept, person, "prefix", self.affixes, alpha=self.alpha)
                 # Do not use probabilities and prior probabilities of affixes in whole model.
                 # Use plain exemplar lists. prefixes=unweighted list
                 # prefixes = misc.retrieve_affixes_generalize(lex_concept, person, "prefix",
@@ -127,7 +128,7 @@ class Agent(Agent):
                 suffixes = misc.weighted_affixes_prior(lex_concept, person, "suffix", self.affixes)
                 # suffixes = list weighted by prob * prior_prob
             else:
-                suffixes = misc.distribution_from_exemplars(lex_concept, person, "suffix", self.affixes, alpha=1000 if self.l2 else 1)
+                suffixes = misc.distribution_from_exemplars(lex_concept, person, "suffix", self.affixes, alpha=self.alpha)
                 # Do not use probabilities and prior probabilities of affixes in whole model.
                 # Use plain exemplar lists. suffixes=unweighted list
                 # suffixes = misc.retrieve_affixes_generalize(

@@ -56,6 +56,8 @@ GEN_UPDATE_OLD_L1 = 0.0
 GEN_UPDATE_OLD_L2 = 0.0
 AFFIX_PRIOR_L1 = False
 AFFIX_PRIOR_L2 = False
+ALPHA_L1 = 1  # (0=off)
+ALPHA_L2 = 1000
 # Always affix setting simplifies model and disables suffix_prob
 ALWAYS_AFFIX = True
 SUFFIX_PROB = 0.5
@@ -91,16 +93,18 @@ model_params = {
     "unique_affix": {"ui": Checkbox('Unique affix', value=UNIQUE_AFFIX), "script": UNIQUE_AFFIX},
     "send_empty_if_none": {"ui": Checkbox('Send empty if none', value=SEND_EMPTY_IF_NONE), "script": SEND_EMPTY_IF_NONE},
     "synthetic_forms": {"ui": Checkbox('Synthetic forms', value=SYNTHETIC_FORMS), "script": SYNTHETIC_FORMS},
-    "gen_production_old_l1": {"ui": Slider("Generalize production L1 prob",
+    "gen_production_old_l1": {"ui": Slider("Gen production L1 OLD",
                                                           GEN_PRODUCTION_OLD_L1, 0, 1, 0.1), "script": GEN_PRODUCTION_OLD_L1},
-    "gen_production_old_l2": {"ui": Slider("Generalize production L2 prob",
+    "gen_production_old_l2": {"ui": Slider("Gen production L2 OLD",
                                                           GEN_PRODUCTION_OLD_L2, 0, 1, 0.1), "script": GEN_PRODUCTION_OLD_L2},
-    "gen_update_old_l1": {"ui": Slider("Generalize update L1 prob",
+    "gen_update_old_l1": {"ui": Slider("Gen update L1 OLD",
                                                       GEN_UPDATE_OLD_L1, 0, 1, 0.01), "script": GEN_UPDATE_OLD_L1},
-    "gen_update_old_l2": {"ui": Slider("Generalize update L2 prob",
+    "gen_update_old_l2": {"ui": Slider("Gen update L2 OLD",
                                                       GEN_UPDATE_OLD_L2, 0, 1, 0.01), "script": GEN_UPDATE_OLD_L2},
     "affix_prior_l1": {"ui": Checkbox('Affix prior L1', value=AFFIX_PRIOR_L1), "script": AFFIX_PRIOR_L1},
     "affix_prior_l2": {"ui": Checkbox('Affix prior L2', value=AFFIX_PRIOR_L2), "script": AFFIX_PRIOR_L2},
+    "alpha_l1": {"ui": Slider("alpha L1", ALPHA_L1, 0, 10000, 100), "script": ALPHA_L1},
+    "alpha_l2": {"ui": Slider("alpha L2", ALPHA_L2, 0, 10000, 100), "script": ALPHA_L2},
     "browser_visualization": {"ui": True, "script": False},
 }
 

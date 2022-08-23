@@ -20,7 +20,7 @@ class Model(Model):
 
     def __init__(self, height, width, proportion_l2, suffix_prob,
                  capacity_l1, capacity_l2, pronoun_drop_prob,
-                 reduction_phonotactics_l1, reduction_phonotactics_l2,
+                 reduction_phonotactics_l1, reduction_phonotactics_l2, alpha_l1, alpha_l2,
                  negative_update, always_affix, balance_prefix_suffix_verbs, unique_affix, send_empty_if_none, synthetic_forms,
                  gen_production_old_l1,
                  gen_production_old_l2, gen_update_old_l1,
@@ -37,6 +37,8 @@ class Model(Model):
         assert pronoun_drop_prob >= 0 and pronoun_drop_prob <= 1
         assert isinstance(reduction_phonotactics_l1, bool)
         assert isinstance(reduction_phonotactics_l2, bool)
+        assert alpha_l1 % 1 == 0
+        assert alpha_l2 % 1 == 0
         assert isinstance(negative_update, bool)
         assert isinstance(always_affix, bool)
         assert isinstance(balance_prefix_suffix_verbs, bool)
@@ -136,7 +138,8 @@ class Model(Model):
                           gen_production_old=gen_production_old_l2 if l2[i] else gen_production_old_l1,
                           gen_update_old=gen_update_old_l2 if l2[i] else gen_update_old_l1,
                           affix_prior=affix_prior_l2 if l2[i] else affix_prior_l1,
-                          reduction_phonotactics=reduction_phonotactics_l2 if l2[i] else reduction_phonotactics_l1)
+                          reduction_phonotactics=reduction_phonotactics_l2 if l2[i] else reduction_phonotactics_l1,
+                          alpha=alpha_l2 if l2[i] else alpha_l1)
             self.grid.position_agent(agent, (x, y))
             self.schedule.add(agent)
 
