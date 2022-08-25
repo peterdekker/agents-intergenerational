@@ -127,17 +127,7 @@ def infer_possible_persons(affix_type, affix_signal, persons, affixes, lex_conce
 #     return affix
 
 def reduce_phonotactics(affix_type, affix, form, reduction_phonotactics, clts, speaker_type=None):
-    if reduction_phonotactics:
-        # form_border_phoneme = 0 if affix_type == "prefix" else -1
-        # affix_border_phoneme = -1 if affix_type == "prefix" else 0
-        # affix_slice = affix[affix_border_phoneme] if len(affix) > 0 else affix
-        # feature_dist = dst.weighted_feature_edit_distance(form[form_border_phoneme], affix_slice)
-        # # Sounds have to be different enough
-        # if feature_dist < min_boundary_feature_dist:
-        #     affix = ""
-        #     # if len(affix) > 0:
-        #     #     affix = affix[1:] if affix_type == "prefix" else affix[:-1]
-
+    if reduction_phonotactics and RG.random() < 0.5:
         inflected_form = affix+form if affix_type == "prefix" else form+affix
         # print(inflected_form)
         spaced_form = " ".join(list(inflected_form))

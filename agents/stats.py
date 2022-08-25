@@ -68,6 +68,7 @@ def colour_str(c):
 def update_communicated_model_stats(model, prefix, suffix, prefixing, suffixing, l2):
     if prefixing:
         assert isinstance(prefix, str) # check that it is not none
+        model.communicated_prefix.append(prefix)
         if l2:
             model.communicated_prefix_l2.append(prefix)
         else:
@@ -75,6 +76,7 @@ def update_communicated_model_stats(model, prefix, suffix, prefixing, suffixing,
 
     if suffixing:
         assert isinstance(suffix, str) # check that it is not none
+        model.communicated_suffix.append(suffix)
         if l2:
             model.communicated_suffix_l2.append(suffix)
         else:

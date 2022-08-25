@@ -28,9 +28,11 @@ internal_chart = ChartModule([{"Label": "prop_internal_prefix_l1", "Color": "Blu
                               {"Label": "prop_internal_prefix_l2", "Color": "Orange"},
                               {"Label": "prop_internal_suffix_l2", "Color": "Brown"}])
 communicated_chart = ChartModule([{"Label": "prop_communicated_prefix_l1", "Color": "Blue"},
-                                  {"Label": "prop_communicated_suffix_l1", "Color": "Purple"},
-                                  {"Label": "prop_communicated_prefix_l2", "Color": "Orange"},
-                                  {"Label": "prop_communicated_suffix_l2", "Color": "Brown"}])
+                                  {"Label": "prop_communicated_suffix_l1", "Color": "Yellow"},
+                                  {"Label": "prop_communicated_prefix_l2", "Color": "Red"},
+                                  {"Label": "prop_communicated_suffix_l2", "Color": "Brown"},
+                                  {"Label": "prop_communicated_prefix", "Color": "Purple"},
+                                  {"Label": "prop_communicated_suffix", "Color": "Orange"}])
 corr_int_chart = ChartModule([{"Label": "avg_proportion_correct_interactions", "Color": "brown"},
                               {"Label": "proportion_correct_interactions", "Color": "green"}])
 # text_bar_chart = TextBarChart(

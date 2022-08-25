@@ -28,7 +28,7 @@ import os
 stats_internal = ["prop_internal_prefix_l1", "prop_internal_suffix_l1",
                   "prop_internal_prefix_l2", "prop_internal_suffix_l2"]
 stats_communicated = ["prop_communicated_prefix_l1", "prop_communicated_suffix_l1",
-                      "prop_communicated_prefix_l2", "prop_communicated_suffix_l2"]
+                      "prop_communicated_prefix_l2", "prop_communicated_suffix_l2", "prop_communicated_prefix", "prop_communicated_suffix"]
 
 #stats = {**stats_internal, **stats_communicated}
 
@@ -245,13 +245,13 @@ def main():
         # Assume in the imported file, variable parameter was proportion L2
         var_param = "proportion_l2"
         create_graph_course_sb(course_df_import, var_param, [
-            "prop_communicated_suffix_l1"], output_dir_custom, "raw", runlabel)
+            "prop_communicated_suffix"], output_dir_custom, "raw", runlabel)
         create_graph_end_sb(course_df_import, var_param,
                             stats_communicated, output_dir_custom, "raw", runlabel)
 
         course_df_rolling = rolling_avg(course_df_import, ROLLING_AVG_WINDOW, stats_communicated)
         create_graph_course_sb(course_df_rolling, var_param, [
-            "prop_communicated_suffix_l1"], output_dir_custom, "rolling", runlabel)
+            "prop_communicated_suffix"], output_dir_custom, "rolling", runlabel)
         create_graph_end_sb(course_df_rolling, var_param,
                             stats_communicated, output_dir_custom, "rolling", runlabel)
 
@@ -280,13 +280,13 @@ def main():
         course_df.to_csv(os.path.join(output_dir_custom, f"{var_param}-communicated-raw.csv"))
 
         create_graph_course_sb(course_df, var_param, [
-            "prop_communicated_suffix_l1"], output_dir_custom, "raw", runlabel)
+            "prop_communicated_suffix"], output_dir_custom, "raw", runlabel)
         create_graph_end_sb(course_df, var_param,
                             stats_communicated, output_dir_custom, "raw", runlabel)
 
         course_df_rolling = rolling_avg(course_df, ROLLING_AVG_WINDOW, stats_communicated)
         create_graph_course_sb(course_df_rolling, var_param, [
-            "prop_communicated_suffix_l1"], output_dir_custom, "rolling", runlabel)
+            "prop_communicated_suffix"], output_dir_custom, "rolling", runlabel)
         create_graph_end_sb(course_df_rolling, var_param,
                             stats_communicated, output_dir_custom, "rolling", runlabel)
 

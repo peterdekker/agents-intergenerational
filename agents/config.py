@@ -67,6 +67,7 @@ UNIQUE_AFFIX = False
 
 SEND_EMPTY_IF_NONE = False
 SYNTHETIC_FORMS = False
+L2_INIT_FULL = False
 
 
 # For evaluation script (not browser visualization)
@@ -93,6 +94,7 @@ model_params = {
     "unique_affix": {"ui": Checkbox('Unique affix', value=UNIQUE_AFFIX), "script": UNIQUE_AFFIX},
     "send_empty_if_none": {"ui": Checkbox('Send empty if none', value=SEND_EMPTY_IF_NONE), "script": SEND_EMPTY_IF_NONE},
     "synthetic_forms": {"ui": Checkbox('Synthetic forms', value=SYNTHETIC_FORMS), "script": SYNTHETIC_FORMS},
+    "l2_init_full": {"ui": Checkbox('L2 init full', value=L2_INIT_FULL), "script": L2_INIT_FULL},
     "gen_production_old_l1": {"ui": Slider("Gen production L1 OLD",
                                                           GEN_PRODUCTION_OLD_L1, 0, 1, 0.1), "script": GEN_PRODUCTION_OLD_L1},
     "gen_production_old_l2": {"ui": Slider("Gen production L2 OLD",
@@ -120,6 +122,6 @@ evaluation_params = {
 
 bool_params = ["reduction_hh", "reduction_phonotactics_l1", "reduction_phonotactics_l2", "negative_update", "always_affix",
                "balance_prefix_suffix_verbs", "unique_affix", "send_empty_if_none",
-               "synthetic_forms", "affix_prior_l1", "affix_prior_l2", "browser_visualization"]
+               "synthetic_forms", "l2_init_full", "affix_prior_l1", "affix_prior_l2", "browser_visualization"]
 
 string_params = ["runlabel", "plot_from_raw"]

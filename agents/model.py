@@ -21,7 +21,7 @@ class Model(Model):
     def __init__(self, height, width, proportion_l2, suffix_prob,
                  capacity_l1, capacity_l2, pronoun_drop_prob,
                  reduction_phonotactics_l1, reduction_phonotactics_l2, alpha_l1, alpha_l2,
-                 negative_update, always_affix, balance_prefix_suffix_verbs, unique_affix, send_empty_if_none, synthetic_forms,
+                 negative_update, always_affix, balance_prefix_suffix_verbs, unique_affix, send_empty_if_none, synthetic_forms, l2_init_full,
                  gen_production_old_l1,
                  gen_production_old_l2, gen_update_old_l1,
                  gen_update_old_l2, affix_prior_l1, affix_prior_l2, browser_visualization):
@@ -45,6 +45,7 @@ class Model(Model):
         assert isinstance(unique_affix, bool)
         assert isinstance(send_empty_if_none, bool)
         assert isinstance(synthetic_forms, bool)
+        assert isinstance(l2_init_full, bool)
         assert gen_production_old_l1 >= 0 and gen_production_old_l1 <= 1
         assert gen_production_old_l2 >= 0 and gen_production_old_l2 <= 1
         assert gen_update_old_l1 >= 0 and gen_update_old_l1 <= 1
@@ -97,11 +98,15 @@ class Model(Model):
         self.prop_communicated_suffix_l1 = 0.0
         self.prop_communicated_prefix_l2 = 0.0
         self.prop_communicated_suffix_l2 = 0.0
+        self.prop_communicated_prefix = 0.0
+        self.prop_communicated_suffix = 0.0
 
         self.communicated_prefix_l1 = []
         self.communicated_suffix_l1 = []
         self.communicated_prefix_l2 = []
         self.communicated_suffix_l2 = []
+        self.communicated_prefix = []
+        self.communicated_suffix = []
         ###
 
         self.datacollector = DataCollector(
@@ -118,6 +123,8 @@ class Model(Model):
                 "prop_communicated_suffix_l1": "prop_communicated_suffix_l1",
                 "prop_communicated_prefix_l2": "prop_communicated_prefix_l2",
                 "prop_communicated_suffix_l2": "prop_communicated_suffix_l2",
+                "prop_communicated_prefix": "prop_communicated_prefix",
+                "prop_communicated_suffix": "prop_communicated_suffix",
                 "proportion_correct_interactions": "proportion_correct_interactions",
                 "avg_proportion_correct_interactions": "avg_proportion_correct_interactions",
             }
@@ -133,7 +140,7 @@ class Model(Model):
         for i, cell in enumerate(self.grid.coord_iter()):
             x = cell[1]
             y = cell[2]
-            agent = Agent((x, y), self, self.data, init="empty" if l2[i] else "data",
+            agent = Agent((x, y), self, self.data, init="empty" if (l2[i] and not l2_init_full) else "data",
                           capacity=capacity_l2 if l2[i] else capacity_l1, l2=l2[i],
                           gen_production_old=gen_production_old_l2 if l2[i] else gen_production_old_l1,
                           gen_update_old=gen_update_old_l2 if l2[i] else gen_update_old_l1,
@@ -175,6 +182,10 @@ class Model(Model):
                 self.communicated_suffix_l1, label="Suffix L1")
             self.prop_communicated_suffix_l2 = stats.prop_communicated(
                 self.communicated_suffix_l2, label="Suffix L2")
+            self.prop_communicated_prefix = stats.prop_communicated(
+                self.communicated_prefix, label="Prefix")
+            self.prop_communicated_suffix = stats.prop_communicated(
+                self.communicated_suffix, label="Suffix")
 
         if self.steps % RARE_STATS_AFTER_STEPS == 0:
             self.prop_internal_prefix_l1 = stats.prop_internal_filled_agents(self.agents_l1, "prefix")
