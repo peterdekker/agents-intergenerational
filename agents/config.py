@@ -4,7 +4,7 @@ import sys
 import datetime
 import os
 from panphon.distance import Distance
-from mesa.visualization.UserParam import UserSettableParameter, Slider, Checkbox
+from mesa.visualization.UserParam import Slider, Checkbox
 
 logging.basicConfig(stream=sys.stderr, level=logging.ERROR)
 
@@ -13,14 +13,9 @@ CLTS_ARCHIVE_PATH = os.path.join(CURRENTDIR, "2.1.0.tar.gz")
 CLTS_ARCHIVE_URL = "https://github.com/cldf-clts/clts/archive/refs/tags/v2.1.0.tar.gz"
 CLTS_PATH = os.path.join(CURRENTDIR, "clts-2.1.0")
 
-HEIGHT = 8
-WIDTH = 8
-MAX_RADIUS = max(HEIGHT, WIDTH)
-
-N_AGENTS = HEIGHT*WIDTH
-SAMPLE = HEIGHT
-DATA_FILE = "data/data-sample.csv"
-DATA_FILE_SYNTHETIC = "data/data-syntheticforms-sample.csv"
+N_AGENTS = 10
+DATA_FILE = "data/data-sample3.csv"
+# DATA_FILE_SYNTHETIC = "data/data-syntheticforms-sample.csv"
 PERSONS = ['1sg', '2sg', '3sg', '1pl.incl', '1pl.excl', '2pl', '3pl']
 
 dst = Distance()
@@ -34,40 +29,16 @@ ROLLING_AVG_WINDOW = 100
 IMG_FORMAT = "pdf"
 OUTPUT_DIR = f'output-{str(datetime.datetime.now()).replace(" ","-")}'
 
-GENERALIZE_LEX_CONCEPTS = True
-GENERALIZE_PERSONS = True
 
 # Defaults for UserSettableParameters
 # Independent variable
 PROPORTION_L2 = 0.5
-# Only crucial parameter
-PRONOUN_DROP_PROB = 1.0
-# Model expansions turned off by default
-CAPACITY_L1 = 0  # (0=off)
-CAPACITY_L2 = 0
-# MIN_BOUNDARY_FEATURE_DIST = 0.0
-# REDUCTION_HH = False
 REDUCTION_PHONOTACTICS_L1 = False
 REDUCTION_PHONOTACTICS_L2 = False
-NEGATIVE_UPDATE = False
-GEN_PRODUCTION_OLD_L1 = 0.0
-GEN_PRODUCTION_OLD_L2 = 0.0
-GEN_UPDATE_OLD_L1 = 0.0
-GEN_UPDATE_OLD_L2 = 0.0
 AFFIX_PRIOR_L1 = False
 AFFIX_PRIOR_L2 = False
-ALPHA_L1 = 1  # (0=off)
-ALPHA_L2 = 1000
-# Always affix setting simplifies model and disables suffix_prob
-ALWAYS_AFFIX = True
-SUFFIX_PROB = 0.5
-# Settings to check which model results come from data artefacts
-BALANCE_PREFIX_SUFFIX_VERBS = False
-UNIQUE_AFFIX = False
-
-SEND_EMPTY_IF_NONE = False
-SYNTHETIC_FORMS = False
-L2_INIT_FULL = False
+ALPHA_L1 = 1 
+ALPHA_L2 = 1 #1000
 
 
 # For evaluation script (not browser visualization)
@@ -76,33 +47,10 @@ STEPS = [10000]
 
 
 model_params = {
-    "height": {"ui": HEIGHT, "script": HEIGHT},
-    "width": {"ui": WIDTH, "script": WIDTH},
+    "n_agents": {"ui": N_AGENTS, "script": N_AGENTS},
     "proportion_l2": {"ui": Slider("Proportion L2", PROPORTION_L2, 0.0, 1.0, 0.1), "script": PROPORTION_L2},
-    "suffix_prob": {"ui": Slider("Suffix prob (intrans)", SUFFIX_PROB, 0.0, 1.0, 0.1), "script": SUFFIX_PROB},
-    "capacity_l1": {"ui": Slider("Exemplar capacity L1", CAPACITY_L1, 0, 50, 1), "script": CAPACITY_L1},
-    "capacity_l2": {"ui": Slider("Exemplar capacity L2", CAPACITY_L2, 0, 50, 1), "script": CAPACITY_L2},
-    "pronoun_drop_prob": {"ui": Slider("Pronoun drop prob", PRONOUN_DROP_PROB, 0, 1, 0.1), "script": PRONOUN_DROP_PROB},
-    # "min_boundary_feature_dist": {"ui": Slider("Min boundary feature dist",
-    #                                                          MIN_BOUNDARY_FEATURE_DIST, 0, 10, 0.1), "script": MIN_BOUNDARY_FEATURE_DIST},
-    # "reduction_hh": {"ui": Checkbox('Reduction H&H', value=REDUCTION_HH), "script": REDUCTION_HH},
     "reduction_phonotactics_l1": {"ui": Checkbox('Reduction phonotactics L1', value=REDUCTION_PHONOTACTICS_L1), "script": REDUCTION_PHONOTACTICS_L1},
     "reduction_phonotactics_l2": {"ui": Checkbox('Reduction phonotactics L2', value=REDUCTION_PHONOTACTICS_L2), "script": REDUCTION_PHONOTACTICS_L2},
-    "negative_update": {"ui": Checkbox('Negative update', value=NEGATIVE_UPDATE), "script": NEGATIVE_UPDATE},
-    "always_affix": {"ui": Checkbox('Always affix', value=ALWAYS_AFFIX), "script": ALWAYS_AFFIX},
-    "balance_prefix_suffix_verbs": {"ui": Checkbox('Balance prefix/suffix', value=BALANCE_PREFIX_SUFFIX_VERBS), "script": BALANCE_PREFIX_SUFFIX_VERBS},
-    "unique_affix": {"ui": Checkbox('Unique affix', value=UNIQUE_AFFIX), "script": UNIQUE_AFFIX},
-    "send_empty_if_none": {"ui": Checkbox('Send empty if none', value=SEND_EMPTY_IF_NONE), "script": SEND_EMPTY_IF_NONE},
-    "synthetic_forms": {"ui": Checkbox('Synthetic forms', value=SYNTHETIC_FORMS), "script": SYNTHETIC_FORMS},
-    "l2_init_full": {"ui": Checkbox('L2 init full', value=L2_INIT_FULL), "script": L2_INIT_FULL},
-    "gen_production_old_l1": {"ui": Slider("Gen production L1 OLD",
-                                                          GEN_PRODUCTION_OLD_L1, 0, 1, 0.1), "script": GEN_PRODUCTION_OLD_L1},
-    "gen_production_old_l2": {"ui": Slider("Gen production L2 OLD",
-                                                          GEN_PRODUCTION_OLD_L2, 0, 1, 0.1), "script": GEN_PRODUCTION_OLD_L2},
-    "gen_update_old_l1": {"ui": Slider("Gen update L1 OLD",
-                                                      GEN_UPDATE_OLD_L1, 0, 1, 0.01), "script": GEN_UPDATE_OLD_L1},
-    "gen_update_old_l2": {"ui": Slider("Gen update L2 OLD",
-                                                      GEN_UPDATE_OLD_L2, 0, 1, 0.01), "script": GEN_UPDATE_OLD_L2},
     "affix_prior_l1": {"ui": Checkbox('Affix prior L1', value=AFFIX_PRIOR_L1), "script": AFFIX_PRIOR_L1},
     "affix_prior_l2": {"ui": Checkbox('Affix prior L2', value=AFFIX_PRIOR_L2), "script": AFFIX_PRIOR_L2},
     "alpha_l1": {"ui": Slider("alpha L1", ALPHA_L1, 0, 10000, 100), "script": ALPHA_L1},
@@ -120,8 +68,6 @@ evaluation_params = {
     "plot_from_raw": ""
 }
 
-bool_params = ["reduction_hh", "reduction_phonotactics_l1", "reduction_phonotactics_l2", "negative_update", "always_affix",
-               "balance_prefix_suffix_verbs", "unique_affix", "send_empty_if_none",
-               "synthetic_forms", "l2_init_full", "affix_prior_l1", "affix_prior_l2", "browser_visualization"]
+bool_params = ["reduction_phonotactics_l1", "reduction_phonotactics_l2", "affix_prior_l1", "affix_prior_l2", "browser_visualization"]
 
 string_params = ["runlabel", "plot_from_raw"]

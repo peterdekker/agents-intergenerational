@@ -10,7 +10,7 @@ from agents import stats
 
 
 class Agent(Agent):
-    def __init__(self, pos, model, data, init, capacity, gen_production_old, gen_update_old, affix_prior, reduction_phonotactics, alpha, l2):
+    def __init__(self, pos, model, data, init, affix_prior, reduction_phonotactics, alpha, l2):
         '''
          Create a new speech agent.
 
@@ -21,9 +21,6 @@ class Agent(Agent):
         '''
         super().__init__(pos, model)
         self.pos = pos
-        self.capacity = capacity
-        self.gen_production_old = gen_production_old
-        self.gen_update_old = gen_update_old
         self.affix_prior = affix_prior
         self.reduction_phonotactics = reduction_phonotactics
         self.alpha = alpha
@@ -43,18 +40,12 @@ class Agent(Agent):
             self.affixes = copy.deepcopy(data.affixes)
         elif init == "empty":
             self.affixes = defaultdict(list)
-        
-        if self.model.browser_visualization:
-            self.colours = stats.compute_colours(self)
 
     def step(self):
         '''
          Perform one interaction for this agent, with this agent as speaker
         '''
-        # If radius==MAX_RADIUS, every agent speaks with every other, so random mixing
-        neighbors = self.model.grid.get_neighbors(self.pos, True, False, self.model.radius)
-        listener = RG.choice(neighbors)
-        self.speak(listener)
+        
 
     # Methods used when agent speaks
 
@@ -71,10 +62,9 @@ class Agent(Agent):
         # (1) Choose the concept to be expressed, by picking a combination of:
         # 1. Lexical concept (row) (e.g. ala)
         # 2. Grammatical person (column) (e.g. 1SG)
-        # 3. Transitive or intransitive (depending on allowed modes for this verb)
-        concept_speaker, lex_concept, person, transitivity = ConceptMessage.draw_new_concept(self.lex_concepts,
-                                                                                             self.persons,
-                                                                                             self.lex_concept_data)
+        concept_speaker, lex_concept, person = ConceptMessage.draw_new_concept(self.lex_concepts,
+                                                                               self.persons,
+                                                                               self.lex_concept_data)
 
         logging.debug(f"Speaker chose concept: {concept_speaker!s}")
 
@@ -85,9 +75,6 @@ class Agent(Agent):
         suffixing = self.lex_concept_data[lex_concept]["suffix"]
         prefix = None
         suffix = None
-        # (2) Based on verb and transitivity, add prefix or suffix:
-        #  - prefixing verb:
-        #     -- regardless of transitive or intransitive: use prefix
         if prefixing:
             if self.affix_prior:
 
@@ -95,27 +82,14 @@ class Agent(Agent):
                 prefixes = misc.weighted_affixes_prior(lex_concept, person, "prefix", self.affixes)
             else:
                 prefixes = misc.distribution_from_exemplars(lex_concept, person, "prefix", self.affixes, alpha=self.alpha)
-                # Do not use probabilities and prior probabilities of affixes in whole model.
-                # Use plain exemplar lists. prefixes=unweighted list
-                # prefixes = misc.retrieve_affixes_generalize(lex_concept, person, "prefix",
-                #                                             self.affixes, self.gen_production_old)
             if len(prefixes) > 0:
                 prefix = misc.affix_choice(prefixes)
-                # # Drop affix based on estimated intelligibility for listener (H&H)
-                # prefix = misc.reduce_hh("prefix", prefix, listener, self.model.reduction_hh)
-                # # Drop affix based on phonetic distance between stem/affix boundary phonemes
-                # prefix = misc.reduce_boundary_feature_dist("prefix", prefix, form,
-                #                                                  self.model.min_boundary_feature_dist,
-                #                                                  listener)
                 prefix = misc.reduce_phonotactics("prefix", prefix, form,
                                                   self.reduction_phonotactics, self.model.clts, speaker_type=self.l2)
             else:
-                if self.model.send_empty_if_none:
-                    prefix = ""
-                else:
-                    # Without option on: just skip this whole interaction. Only listen for this concept until it gets filled with at least one form.
-                    logging.debug(f"No affixes for this concept: skip speaking.\n")
-                    return
+                # Just skip this whole interaction. Only listen for this concept until it gets filled with at least one form.
+                return
+                    
             # if prefix=="":
             #     raise ValueError("Prefix is empty")
             signal.prefix = prefix
@@ -135,33 +109,16 @@ class Agent(Agent):
                 #     lex_concept, person, "suffix", self.affixes, self.gen_production_old)
 
             if len(suffixes) > 0:
-                if self.model.always_affix or transitivity == "intrans":
-                    if self.model.always_affix or RG.random() < self.model.suffix_prob:
-                        suffix = misc.affix_choice(suffixes)
-                        # suffix = misc.reduce_hh("suffix", suffix, listener, self.model.reduction_hh)
-                        # suffix = misc.reduce_boundary_feature_dist("suffix", suffix, form,
-                        #                                                  self.model.min_boundary_feature_dist,
-                        #                                                  listener)
-                        suffix = misc.reduce_phonotactics("suffix", suffix, form,
-                                                          self.reduction_phonotactics, self.model.clts, speaker_type=self.l2)
-                else:
-                    suffix = ""
+                suffix = misc.affix_choice(suffixes)
+                suffix = misc.reduce_phonotactics("suffix", suffix, form,
+                                                  self.reduction_phonotactics, self.model.clts, speaker_type=self.l2)
             else:
-                if self.model.send_empty_if_none:
-                    suffix = ""
-                else:
-                    # Without option on: just skip this whole interaction. Only listen for this concept until it gets filled with at least one form.
-                    logging.debug(f"No affixes for this concept: skip speaking.")
-                    return
-            # if suffix=="":
-            #     raise ValueError("Suffix is empty")
+                # Just skip this whole interaction. Only listen for this concept until it gets filled with at least one form.
+                return
             signal.suffix = suffix
         stats.update_communicated_model_stats(
             self.model, prefix, suffix, prefixing, suffixing, self.l2)
 
-        # (3) Add context from sentence (subject)
-        if RG.random() >= self.model.pronoun_drop_prob:
-            signal.subject = person
 
         # Send signal.
         logging.debug(f"Speaker sends signal: {signal!s}")
@@ -221,15 +178,7 @@ class Agent(Agent):
             suffix_recv = self.signal_recv.suffix
             misc.update_affix_list(prefix_recv, suffix_recv, self.affixes, self.lex_concepts_type,
                                    self.lex_concept_data, self.persons, self.concept_listener,
-                                   self.capacity, self.gen_update_old, self.l2)
-        else:
-            if self.model.negative_update:
-                # Do negative update!
-                prefix_recv = self.signal_recv.prefix
-                suffix_recv = self.signal_recv.suffix
-                misc.update_affix_list(prefix_recv, suffix_recv, self.affixes, self.lex_concepts_type,
-                                       self.lex_concept_data, self.persons, self.concept_listener,
-                                       self.capacity, self.gen_update_old, self.l2, negative=True)
+                                   self.l2)
 
     def is_l2(self):
         return self.l2

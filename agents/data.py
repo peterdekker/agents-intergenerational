@@ -5,17 +5,17 @@ from agents.config import PERSONS
 
 
 class Data():
-    def __init__(self, data_file, balance_prefix_suffix_verbs, unique_affix):
+    def __init__(self, data_file):
         unique_affix_id = 0
         self.data = pd.read_csv(data_file, sep="\t").fillna(value="")
         # Filter on only cells which have Lewoingu form
         self.data = self.data[self.data["form_lewoingu"] != ""]
 
-        if balance_prefix_suffix_verbs:
-            prefixing = self.data[self.data["prefix"] == 1]
-            n_prefixing = len(prefixing)
-            suffixing = self.data[self.data["suffix"] == 1]
-            self.data = pd.concat([prefixing, suffixing.head(n_prefixing)])
+        # if balance_prefix_suffix_verbs:
+        #     prefixing = self.data[self.data["prefix"] == 1]
+        #     n_prefixing = len(prefixing)
+        #     suffixing = self.data[self.data["suffix"] == 1]
+        #     self.data = pd.concat([prefixing, suffixing.head(n_prefixing)])
 
         self.lex_concepts = list(self.data["concept"])
         self.lex_concepts_type = {"prefix": [], "suffix": []}
@@ -65,12 +65,12 @@ class Data():
                         # if len(affixes_processed) > 1:
                         #     affixes_processed = [affixes_processed[0]]
                         ###
-                        if unique_affix:
-                            affixes_processed_unique = []
-                            for a in affixes_processed:
-                                affixes_processed_unique.append(a+str(unique_affix_id))
-                                unique_affix_id += 1
-                            affixes_processed = affixes_processed_unique
+                        # if unique_affix:
+                        #     affixes_processed_unique = []
+                        #     for a in affixes_processed:
+                        #         affixes_processed_unique.append(a+str(unique_affix_id))
+                        #         unique_affix_id += 1
+                        #     affixes_processed = affixes_processed_unique
 
                         self.affixes[(lex_concept, person, affix_type)] = affixes_processed
 

@@ -18,62 +18,33 @@ class Model(Model):
     Model class
     '''
 
-    def __init__(self, height, width, proportion_l2, suffix_prob,
-                 capacity_l1, capacity_l2, pronoun_drop_prob,
+    def __init__(self, n_agents, proportion_l2, 
                  reduction_phonotactics_l1, reduction_phonotactics_l2, alpha_l1, alpha_l2,
-                 negative_update, always_affix, balance_prefix_suffix_verbs, unique_affix, send_empty_if_none, synthetic_forms, l2_init_full,
-                 gen_production_old_l1,
-                 gen_production_old_l2, gen_update_old_l1,
-                 gen_update_old_l2, affix_prior_l1, affix_prior_l2, browser_visualization):
+                 affix_prior_l1, affix_prior_l2, browser_visualization):
         '''
         Initialize field
         '''
-        assert height % 1 == 0
-        assert width % 1 == 0
+        assert n_agents % 1 == 0
         assert proportion_l2 >= 0 and proportion_l2 <= 1
-        assert suffix_prob >= 0 and suffix_prob <= 1
-        assert capacity_l1 % 1 == 0
-        assert capacity_l2 % 1 == 0
-        assert pronoun_drop_prob >= 0 and pronoun_drop_prob <= 1
         assert isinstance(reduction_phonotactics_l1, bool)
         assert isinstance(reduction_phonotactics_l2, bool)
         assert alpha_l1 % 1 == 0
         assert alpha_l2 % 1 == 0
-        assert isinstance(negative_update, bool)
-        assert isinstance(always_affix, bool)
-        assert isinstance(balance_prefix_suffix_verbs, bool)
-        assert isinstance(unique_affix, bool)
-        assert isinstance(send_empty_if_none, bool)
-        assert isinstance(synthetic_forms, bool)
-        assert isinstance(l2_init_full, bool)
-        assert gen_production_old_l1 >= 0 and gen_production_old_l1 <= 1
-        assert gen_production_old_l2 >= 0 and gen_production_old_l2 <= 1
-        assert gen_update_old_l1 >= 0 and gen_update_old_l1 <= 1
-        assert gen_update_old_l2 >= 0 and gen_update_old_l2 <= 1
         assert isinstance(affix_prior_l1, bool)
         assert isinstance(affix_prior_l2, bool)
         assert type(browser_visualization) == bool
 
-        self.height = height
-        self.width = width
+        self.n_agents = n_agents
         self.proportion_l2 = proportion_l2
-        self.radius = MAX_RADIUS
-        self.suffix_prob = suffix_prob
-        self.pronoun_drop_prob = pronoun_drop_prob
-        # self.min_boundary_feature_dist = min_boundary_feature_dist
-        # self.reduction_hh = reduction_hh
-        self.negative_update = negative_update
-        self.always_affix = always_affix
-        self.send_empty_if_none = send_empty_if_none
+        
         self.browser_visualization = browser_visualization
 
 
         self.schedule = RandomActivation(self)
-        self.grid = SingleGrid(width, height, torus=True)
         self.steps = 0
 
         # Agent language model object is created from data file
-        self.data = Data(DATA_FILE_SYNTHETIC if synthetic_forms else DATA_FILE, balance_prefix_suffix_verbs, unique_affix)
+        self.data = Data(DATA_FILE)
         self.clts = misc.load_clts(CLTS_ARCHIVE_PATH, CLTS_ARCHIVE_URL, CLTS_PATH)
 
         # Stats
@@ -137,20 +108,14 @@ class Model(Model):
         # We use a grid iterator that returns
         # the coordinates of a cell as well as
         # its contents. (coord_iter)
-        for i, cell in enumerate(self.grid.coord_iter()):
-            x = cell[1]
-            y = cell[2]
-            agent = Agent((x, y), self, self.data, init="empty" if (l2[i] and not l2_init_full) else "data",
-                          capacity=capacity_l2 if l2[i] else capacity_l1, l2=l2[i],
-                          gen_production_old=gen_production_old_l2 if l2[i] else gen_production_old_l1,
-                          gen_update_old=gen_update_old_l2 if l2[i] else gen_update_old_l1,
+        for i in range(self.n_agents):
+            agent = Agent(i, self, self.data, init="empty" if l2[i] else "data",
                           affix_prior=affix_prior_l2 if l2[i] else affix_prior_l1,
                           reduction_phonotactics=reduction_phonotactics_l2 if l2[i] else reduction_phonotactics_l1,
                           alpha=alpha_l2 if l2[i] else alpha_l1)
-            self.grid.position_agent(agent, (x, y))
             self.schedule.add(agent)
+            self.aggents.append(agent)
 
-        self.agents = [a for a, x, y in self.grid.coord_iter()]
         self.agents_l1 = [a for a in self.agents if not a.is_l2()]
         self.agents_l2 = [a for a in self.agents if a.is_l2()]
 
@@ -201,9 +166,6 @@ class Model(Model):
             #     self.agents_l2, "suffix")
             # self.affixes_internal_prefix_l1 = stats.internal_affix_frequencies_agents(
             #     self.agents_l1, "prefix")
-            if self.browser_visualization:
-                print("Computing agent colour)")
-                stats.compute_colours_agents(self.agents)
         if self.steps % COMM_SUCCESS_AFTER_STEPS == 0:
             # Now compute proportion of correct interaction
             self.proportion_correct_interactions = self.correct_interactions/float(N_AGENTS)

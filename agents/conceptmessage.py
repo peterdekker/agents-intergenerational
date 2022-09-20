@@ -10,9 +10,8 @@ class ConceptMessage:
     def draw_new_concept(concept_message_class, lex_concepts, persons, lex_concept_data):
         lex_concept = RG.choice(lex_concepts)
         person = RG.choice(persons)
-        transitivity = RG.choice(lex_concept_data[lex_concept]["transitivities"])
         concept_message_instance = concept_message_class(lex_concept, person)
-        return concept_message_instance, lex_concept, person, transitivity
+        return concept_message_instance, lex_concept, person
 
     def __str__(self):
         return f"{self.lex_concept}-{self.person}"
