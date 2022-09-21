@@ -27,8 +27,8 @@ import os
 
 stats_internal = ["prop_internal_prefix_l1", "prop_internal_suffix_l1",
                   "prop_internal_prefix_l2", "prop_internal_suffix_l2"]
-stats_communicated = ["prop_communicated_prefix_l1", "prop_communicated_suffix_l1",
-                      "prop_communicated_prefix_l2", "prop_communicated_suffix_l2", "prop_communicated_prefix", "prop_communicated_suffix"]
+# stats_communicated = ["prop_communicated_prefix_l1", "prop_communicated_suffix_l1",
+#                       "prop_communicated_prefix_l2", "prop_communicated_suffix_l2", "prop_communicated_prefix", "prop_communicated_suffix"]
 
 #stats = {**stats_internal, **stats_communicated}
 

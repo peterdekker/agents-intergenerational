@@ -21,7 +21,7 @@ class Data():
         self.lex_concepts_type = {"prefix": [], "suffix": []}
         self.persons = PERSONS
 
-        general_cols = ["concept", "form_lewoingu", "trans", "intrans", "prefix", "suffix"]
+        general_cols = ["concept", "form_lewoingu", "prefix", "suffix"]
         person_affix_cols = [col for col in self.data if col.startswith(tuple(PERSONS))]
         data_reindexed = self.data[general_cols+person_affix_cols].set_index("concept")
         data_dict = data_reindexed.to_dict(orient="index")
@@ -36,8 +36,6 @@ class Data():
             # Just use first form
             forms = data_dict[lex_concept]["form_lewoingu"]
             form = [f.strip("* -") for f in re.split(",|/", forms)][0]
-            transitivities = [k for k, v in data_dict[lex_concept].items() if (
-                k == "trans" or k == "intrans") and v == 1]
             prefixing = bool(data_dict[lex_concept]["prefix"])
             suffixing = bool(data_dict[lex_concept]["suffix"])
             # For now, make it not possible for prefixing verbs to be also suffixing
@@ -47,7 +45,6 @@ class Data():
             else:
                 self.lex_concepts_type["suffix"].append(lex_concept)
             self.lex_concept_data[lex_concept] = {"form": form,
-                                                  "transitivities": transitivities,
                                                   "prefix": prefixing,
                                                   "suffix": suffixing}
 

@@ -4,70 +4,28 @@ from collections import defaultdict, Counter
 
 
 def prop_internal_filled(agent, affix_type):
-    total = 0
-    filled = 0
+    prop_filled_cells = []
     for lex_concept in agent.lex_concepts_type[affix_type]:
         for person in agent.persons:
-            total += 1
-            # affix_set = set(agent.affixes[(lex_concept, person, affix_type)])
-            # affix_set.discard("")
-            # if len(affix_set) > 0:
-            #     filled += 1
             affixes = agent.affixes[(lex_concept, person, affix_type)]
-            if len(affixes) > 0:
-                # Find, possibly multiple, most common elements
-                most_common_list = Counter(affixes).most_common()
-                max_freq = max([v for k, v in most_common_list])
-                most_common = [k for k, v in most_common_list if v == max_freq]
-                # Cell is filled if "" is not most common, or even among the most common
-                if "" not in most_common:
-                    filled += 1
-                # most_common = Counter(affixes).most_common(1)[0][0]
-                # if most_common != "":
-                #     filled += 1
+            n_affixes = len(affixes)
+            n_nonzero = len([x != "" for x in affixes])
+            if n_affixes > 0:
+                prop_filled_cell = n_nonzero/n_affixes
+                prop_filled_cells.append(prop_filled_cell)
 
-    return filled/total
+    return np.mean(prop_filled_cells) if len(prop_filled_cells) > 0 else None
 
 
 def prop_internal_filled_agents(agents, affix_type):
     filled_props = [prop_internal_filled(a, affix_type) for a in agents]
-    return np.mean(filled_props) if len(filled_props) > 0 else 0
-
-
-def internal_affix_frequencies(agent, affix_type, freq_dict):
-    for lex_concept in agent.lex_concepts_type[affix_type]:
-        for person in agent.persons:
-            affix_list = agent.affixes[(lex_concept, person, affix_type)]
-            for aff in affix_list:
-                freq_dict[f"'{aff}'-{person}"] += 1
-
-
-def internal_affix_frequencies_agents(agents, affix_type):
-    freq_dict = defaultdict(int)
-    for a in agents:
-        internal_affix_frequencies(a, affix_type, freq_dict)
-    return freq_dict
-
-
-def compute_colours_agents(agents):
-    for agent in agents:
-        agent.colours = compute_colours(agent)
-
-
-def compute_colours(agent):
-    agg_prefix = prop_internal_filled(agent, "prefix") * 50
-    agg_suffix = prop_internal_filled(agent, "suffix") * 50
-    # HSL: H->0-360,  S->0-100%, L->100% L50% is maximum color, 100% is white
-    return {"prefix": colour_str([250, 80, agg_prefix]), "suffix": colour_str([250, 80, agg_suffix])}
-
-
-def colour_str(c):
-    return f"hsl({c[0]},{c[1]}%,{c[2]}%)"
+    filled_props = [x for x in filled_props if x != None]
+    return np.mean(filled_props) if len(filled_props) > 0 else None
 
 
 def update_communicated_model_stats(model, prefix, suffix, prefixing, suffixing, l2):
     if prefixing:
-        assert isinstance(prefix, str) # check that it is not none
+        assert isinstance(prefix, str)  # check that it is not none
         model.communicated_prefix.append(prefix)
         if l2:
             model.communicated_prefix_l2.append(prefix)
@@ -75,7 +33,7 @@ def update_communicated_model_stats(model, prefix, suffix, prefixing, suffixing,
             model.communicated_prefix_l1.append(prefix)
 
     if suffixing:
-        assert isinstance(suffix, str) # check that it is not none
+        assert isinstance(suffix, str)  # check that it is not none
         model.communicated_suffix.append(suffix)
         if l2:
             model.communicated_suffix_l2.append(suffix)

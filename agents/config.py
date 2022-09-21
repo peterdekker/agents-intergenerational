@@ -18,12 +18,8 @@ DATA_FILE = "data/data-sample3.csv"
 # DATA_FILE_SYNTHETIC = "data/data-syntheticforms-sample.csv"
 PERSONS = ['1sg', '2sg', '3sg', '1pl.incl', '1pl.excl', '2pl', '3pl']
 
-dst = Distance()
 RG = np.random.default_rng()
 
-COMMUNICATED_STATS_AFTER_STEPS = 1
-RARE_STATS_AFTER_STEPS = 1000
-COMM_SUCCESS_AFTER_STEPS = 50
 ROLLING_AVG_WINDOW = 100
 
 IMG_FORMAT = "pdf"
@@ -37,11 +33,12 @@ REDUCTION_PHONOTACTICS_L1 = False
 REDUCTION_PHONOTACTICS_L2 = False
 AFFIX_PRIOR_L1 = False
 AFFIX_PRIOR_L2 = False
+GENERALIZE_PERSONS = True
+GENERALIZE_LEX_CONCEPTS = True
 ALPHA_L1 = 1 
 ALPHA_L2 = 1 #1000
 
 
-# For evaluation script (not browser visualization)
 ITERATIONS = [5]
 STEPS = [10000]
 
@@ -55,7 +52,6 @@ model_params = {
     "affix_prior_l2": {"ui": Checkbox('Affix prior L2', value=AFFIX_PRIOR_L2), "script": AFFIX_PRIOR_L2},
     "alpha_l1": {"ui": Slider("alpha L1", ALPHA_L1, 0, 10000, 100), "script": ALPHA_L1},
     "alpha_l2": {"ui": Slider("alpha L2", ALPHA_L2, 0, 10000, 100), "script": ALPHA_L2},
-    "browser_visualization": {"ui": True, "script": False},
 }
 
 model_params_ui = {k: v["ui"] for k, v in model_params.items()}
@@ -68,6 +64,6 @@ evaluation_params = {
     "plot_from_raw": ""
 }
 
-bool_params = ["reduction_phonotactics_l1", "reduction_phonotactics_l2", "affix_prior_l1", "affix_prior_l2", "browser_visualization"]
+bool_params = ["reduction_phonotactics_l1", "reduction_phonotactics_l2", "affix_prior_l1", "affix_prior_l2"]
 
 string_params = ["runlabel", "plot_from_raw"]

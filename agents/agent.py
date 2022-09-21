@@ -1,4 +1,4 @@
-from mesa import Agent
+# from mesa import Agent
 import copy
 from collections import defaultdict
 
@@ -9,7 +9,7 @@ from agents import misc
 from agents import stats
 
 
-class Agent(Agent):
+class Agent:
     def __init__(self, pos, model, data, init, affix_prior, reduction_phonotactics, alpha, l2):
         '''
          Create a new speech agent.
@@ -19,7 +19,7 @@ class Agent(Agent):
             model: Model in which agent is located.
             init: Initialization mode of forms and affixes: random or data
         '''
-        super().__init__(pos, model)
+        self.model = model
         self.pos = pos
         self.affix_prior = affix_prior
         self.reduction_phonotactics = reduction_phonotactics
@@ -40,11 +40,16 @@ class Agent(Agent):
             self.affixes = copy.deepcopy(data.affixes)
         elif init == "empty":
             self.affixes = defaultdict(list)
-
-    def step(self):
-        '''
-         Perform one interaction for this agent, with this agent as speaker
-        '''
+    
+    def __str__(self):
+        prop_prefix = stats.prop_internal_filled(self, "prefix")
+        prop_suffix = stats.prop_internal_filled(self, "suffix")
+        return f"ID:{self.pos}, l2: {self.l2}, prop_prefix: {prop_prefix}, prop_suffix: {prop_suffix}"
+    
+    def copy_parent(self, agents_prev):
+        parent = RG.choice(agents_prev)
+        # print(f"Agent {self.pos} learning from prev gen agent {parent.pos}")
+        self.affixes = copy.deepcopy(parent.affixes)
         
 
     # Methods used when agent speaks
@@ -116,8 +121,8 @@ class Agent(Agent):
                 # Just skip this whole interaction. Only listen for this concept until it gets filled with at least one form.
                 return
             signal.suffix = suffix
-        stats.update_communicated_model_stats(
-            self.model, prefix, suffix, prefixing, suffixing, self.l2)
+        # stats.update_communicated_model_stats(
+        #     self.model, prefix, suffix, prefixing, suffixing, self.l2)
 
 
         # Send signal.
@@ -146,15 +151,13 @@ class Agent(Agent):
         # Do reverse lookup in forms dict to find accompanying concept
         lex_concept_inferred = misc.lookup_lex_concept(signal_form, self.lex_concepts, self.lex_concept_data)
 
-        # Infer person from subject
-        person_inferred = self.signal_recv.subject
-        if not person_inferred:
-            # If person not inferred from context, try using affix
-            person_inferred = misc.infer_person_from_signal(lex_concept_inferred,
-                                                            self.lex_concept_data,
-                                                            self.affixes,
-                                                            self.persons,
-                                                            signal)
+
+        # Use affix to infer person
+        person_inferred = misc.infer_person_from_signal(lex_concept_inferred,
+                                                        self.lex_concept_data,
+                                                        self.affixes,
+                                                        self.persons,
+                                                        signal)
 
         self.concept_listener = ConceptMessage(
             lex_concept=lex_concept_inferred, person=person_inferred)
@@ -173,12 +176,11 @@ class Agent(Agent):
         '''
 
         if feedback_speaker:
-            self.model.correct_interactions += 1
+            # self.model.correct_interactions += 1
             prefix_recv = self.signal_recv.prefix
             suffix_recv = self.signal_recv.suffix
             misc.update_affix_list(prefix_recv, suffix_recv, self.affixes, self.lex_concepts_type,
-                                   self.lex_concept_data, self.persons, self.concept_listener,
-                                   self.l2)
+                                   self.concept_listener)
 
     def is_l2(self):
         return self.l2
