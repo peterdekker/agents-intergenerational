@@ -40,7 +40,8 @@ ALPHA_L2 = 1 #1000
 
 
 ITERATIONS = [5]
-STEPS = [10000]
+STEPS = [10]
+N_INTERACTIONS_PER_STEP = 10
 
 
 model_params = {
@@ -60,6 +61,7 @@ model_params_script = {k: v["script"] for k, v in model_params.items()}
 evaluation_params = {
     "iterations": ITERATIONS,
     "steps": STEPS,
+    "n_interactions_per_step": N_INTERACTIONS_PER_STEP,
     "runlabel": "",
     "plot_from_raw": ""
 }

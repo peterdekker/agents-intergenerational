@@ -68,17 +68,22 @@ def evaluate_model(fixed_params, variable_params, iterations, steps):
     # print(run_data_old.columns)
 
     all_params = variable_params | fixed_params
-    results = batch_run(Model, 
-                        parameters=all_params,
-                        number_processes=None,
-                        iterations=iterations,
-                        data_collection_period=1,
-                        max_steps=steps)
-    run_data = pd.DataFrame(results)
-    run_data = run_data.rename(columns={"Step":"timesteps", "RunId": "run"})
-    # Drop first timestep
-    run_data = run_data[run_data.timesteps != 0]
-    return run_data
+    # results = batch_run(Model, 
+    #                     parameters=all_params,
+    #                     number_processes=None,
+    #                     iterations=iterations,
+    #                     data_collection_period=1,
+    #                     max_steps=steps)
+    # run_data = pd.DataFrame(results)
+    # run_data = run_data.rename(columns={"Step": "timesteps", "RunId": "run"})
+    # # Drop first timestep
+    # run_data = run_data[run_data.timesteps != 0]
+    dfs = []
+    for i in range(iterations):
+        m = Model(**all_params, run_id=i)
+        stats_df = m.run()
+        dfs.append(stats_df)
+    return pd.concat(dfs)
 
 
 # def create_graph_course(run_data, fixed_params, variable_param, variable_param_settings, mode, stats, stat, output_dir):
@@ -89,7 +94,7 @@ def evaluate_model(fixed_params, variable_params, iterations, steps):
 
 # def create_graph_end(run_data, fixed_params, variable_param, variable_param_settings, mode, stats, output_dir):
 #     course_df = get_course_df(run_data, variable_param, variable_param_settings, stats)
-#     course_tail_avg = course_df.tail(LAST_N_STEPS_END_GRAPH).mean()
+#     course_tail_avg = course_df.tail(LAST_STEPS_END_GRAPH).mean()
 #     # run_data_means = run_data.groupby(variable_param).mean(numeric_only=True)
 #     labels = variable_param_settings  # run_data_means.index  # variable values
 #     x = np.arange(len(labels))  # the label locations
@@ -184,7 +189,7 @@ def get_course_df_sb(run_data, variable_param, stats, mode, output_dir):
 
 
 def create_graph_course_sb(course_df, variable_param, stats, output_dir, label, runlabel):
-    # n_steps = fixed_params["steps"]
+    # steps = fixed_params["steps"]
     y_label = "proportion utterances non-empty"
     # y_label = "proportion utterances non-empty" if mode=="communicated" else "proportion paradigm cells filled"
     df_melted = course_df.melt(id_vars=["timesteps", variable_param],
@@ -203,8 +208,8 @@ def create_graph_end_sb(course_df, variable_param, stats, output_dir, label, run
                                value_vars=stats, value_name=y_label, var_name="statistic")
 
     # Use last iteration as data
-    n_steps = max(course_df["timesteps"])
-    df_tail = df_melted[df_melted["timesteps"] == n_steps]
+    steps = max(course_df["timesteps"])
+    df_tail = df_melted[df_melted["timesteps"] == steps]
     ax = sns.lineplot(data=df_tail, x=variable_param, y=y_label, hue="statistic")
     ax.set_ylim(0, 1)
     plt.savefig(os.path.join(
@@ -232,7 +237,6 @@ def main():
     iterations = args["iterations"]
     steps = args["steps"]
     runlabel = args["runlabel"]
-    plot_from_raw = args["plot_from_raw"]
     plot_from_raw_on = args["plot_from_raw"] != ""
 
     output_dir_custom = OUTPUT_DIR
@@ -240,20 +244,20 @@ def main():
         output_dir_custom = f'{OUTPUT_DIR}-{runlabel}'
     misc.create_output_dir(output_dir_custom)
 
-    if plot_from_raw_on:
-        course_df_import = pd.read_csv(plot_from_raw, index_col=0)
-        # Assume in the imported file, variable parameter was proportion L2
-        var_param = "proportion_l2"
-        create_graph_course_sb(course_df_import, var_param, [
-            "prop_communicated_suffix"], output_dir_custom, "raw", runlabel)
-        create_graph_end_sb(course_df_import, var_param,
-                            stats_communicated, output_dir_custom, "raw", runlabel)
+    # if plot_from_raw_on:
+    #     course_df_import = pd.read_csv(plot_from_raw, index_col=0)
+    #     # Assume in the imported file, variable parameter was proportion L2
+    #     var_param = "proportion_l2"
+    #     create_graph_course_sb(course_df_import, var_param, [
+    #         "prop_communicated_suffix"], output_dir_custom, "raw", runlabel)
+    #     create_graph_end_sb(course_df_import, var_param,
+    #                         stats_communicated, output_dir_custom, "raw", runlabel)
 
-        course_df_rolling = rolling_avg(course_df_import, ROLLING_AVG_WINDOW, stats_communicated)
-        create_graph_course_sb(course_df_rolling, var_param, [
-            "prop_communicated_suffix"], output_dir_custom, "rolling", runlabel)
-        create_graph_end_sb(course_df_rolling, var_param,
-                            stats_communicated, output_dir_custom, "rolling", runlabel)
+    #     course_df_rolling = rolling_avg(course_df_import, ROLLING_AVG_WINDOW, stats_communicated)
+    #     create_graph_course_sb(course_df_rolling, var_param, [
+    #         "prop_communicated_suffix"], output_dir_custom, "rolling", runlabel)
+    #     create_graph_end_sb(course_df_rolling, var_param,
+    #                         stats_communicated, output_dir_custom, "rolling", runlabel)
 
     # If we are running the model, not just plotting from results file
     if not plot_from_raw_on:
@@ -272,23 +276,20 @@ def main():
         given_params = {k: v for k, v in args.items() if k in model_params_script and v is not None}
         fixed_params = {
             k: (v if k not in given_params else given_params[k]) for k, v in model_params_script.items() if k != var_param}
-        run_data = evaluate_model(fixed_params, {var_param: var_param_settings},
+        course_df = evaluate_model(fixed_params, {var_param: var_param_settings},
                                   iterations_setting, steps_setting)
-        # course_df = get_course_df_sb(run_data, var_param, stats_communicated,
-        #                              "communicated", output_dir_custom)
-        course_df = run_data
-        course_df.to_csv(os.path.join(output_dir_custom, f"{var_param}-communicated-raw.csv"))
+        course_df.to_csv(os.path.join(output_dir_custom, f"{var_param}-raw.csv"))
 
         create_graph_course_sb(course_df, var_param, [
             "prop_communicated_suffix"], output_dir_custom, "raw", runlabel)
         create_graph_end_sb(course_df, var_param,
                             stats_communicated, output_dir_custom, "raw", runlabel)
 
-        course_df_rolling = rolling_avg(course_df, ROLLING_AVG_WINDOW, stats_communicated)
-        create_graph_course_sb(course_df_rolling, var_param, [
-            "prop_communicated_suffix"], output_dir_custom, "rolling", runlabel)
-        create_graph_end_sb(course_df_rolling, var_param,
-                            stats_communicated, output_dir_custom, "rolling", runlabel)
+        # course_df_rolling = rolling_avg(course_df, ROLLING_AVG_WINDOW, stats_communicated)
+        # create_graph_course_sb(course_df_rolling, var_param, [
+        #     "prop_communicated_suffix"], output_dir_custom, "rolling", runlabel)
+        # create_graph_end_sb(course_df_rolling, var_param,
+        #                     stats_communicated, output_dir_custom, "rolling", runlabel)
 
 
 if __name__ == "__main__":

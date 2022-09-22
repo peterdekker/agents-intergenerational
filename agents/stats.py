@@ -22,6 +22,16 @@ def prop_internal_filled_agents(agents, affix_type):
     filled_props = [x for x in filled_props if x != None]
     return np.mean(filled_props) if len(filled_props) > 0 else None
 
+def calculate_internal_stats(agents, step, proportion_l2, stats_entries):
+    agents_l1 = [a for a in agents if not a.is_l2()]
+    agents_l2 = [a for a in agents if a.is_l2()]
+
+    for agents_set, agent_type in zip([agents_l1, agents_l2], ["l1", "l2"]):
+        for affix_type in ["prefix", "suffix"]:
+            stat = prop_internal_filled_agents(agents_set, affix_type)
+            stats_entry = {"timestep": step, "proportion_l2": proportion_l2, "stat_name": f"{affix_type}_{agent_type}", "stat_value": stat}
+            stats_entries.append(stats_entry)
+
 
 def update_communicated_model_stats(model, prefix, suffix, prefixing, suffixing, l2):
     if prefixing:

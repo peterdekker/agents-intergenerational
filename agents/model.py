@@ -3,14 +3,15 @@
 # from mesa.space import SingleGrid
 # from mesa.datacollection import DataCollector
 
-import numpy as np
-
 from agents.config import N_AGENTS, DATA_FILE, CLTS_ARCHIVE_PATH, CLTS_ARCHIVE_URL, CLTS_PATH, RG
 from agents import stats
 from agents import misc
 from agents.agent import Agent
 from agents.data import Data
 
+
+import numpy as np
+import pandas as pd
 
 class Model:
     '''
@@ -19,7 +20,7 @@ class Model:
 
     def __init__(self, n_agents, proportion_l2,
                  reduction_phonotactics_l1, reduction_phonotactics_l2, alpha_l1, alpha_l2,
-                 affix_prior_l1, affix_prior_l2):
+                 affix_prior_l1, affix_prior_l2, steps, n_interactions_per_step, run_id):
         '''
         Initialize field
         '''
@@ -31,6 +32,8 @@ class Model:
         assert alpha_l2 % 1 == 0
         assert isinstance(affix_prior_l1, bool)
         assert isinstance(affix_prior_l2, bool)
+        assert steps % 1 == 0
+        assert n_interactions_per_step % 1 == 0
 
         self.n_agents = n_agents
         self.proportion_l2 = proportion_l2
@@ -40,10 +43,12 @@ class Model:
         self.alpha_l2 = alpha_l2
         self.affix_prior_l1 = affix_prior_l1
         self.affix_prior_l2 = affix_prior_l2
-
+        self.steps = steps
+        self.n_interactions_per_step = n_interactions_per_step
+        self.run_id = run_id
 
         # self.schedule = RandomActivation(self)
-        self.steps = 0
+        self.current_step = 0
         self.agents = []
 
         # Agent language model object is created from data file
@@ -99,16 +104,26 @@ class Model:
         # self.running = True
         # self.datacollector.collect(self)
 
+    def run(self):
+        self.stats_entries = []
+
         # Create first generation with only L1 speakers, which are instantiated with data
         agents_first_gen = self.create_new_generation(proportion_l2=0.0, init_l1="data", init_l2="empty")
-        print(self.steps, list(map(str,agents_first_gen)))
+        print(self.current_step, list(map(str, agents_first_gen)))
         self.agents.append(agents_first_gen)
+
+        stats.calculate_internal_stats(agents_first_gen, self.current_step,
+                                       self.proportion_l2, self.stats_entries)
         # agents_l1 = [a for a in agents if not a.is_l2()]
         # agents_l2 = [a for a in agents if a.is_l2()]
-    
-    def run(self, n_steps, n_interactions_per_step):
-        for i in range(n_steps):
-            self.step(n_interactions_per_step)
+
+        for i in range(self.steps):
+            self.step(self.n_interactions_per_step)
+
+        self.stats_df = pd.DataFrame(self.stats_entries)
+        self.stats_df["run_id"] = self.run_id
+
+        return self.stats_df
 
     def create_new_generation(self, proportion_l2, init_l1, init_l2):
         agents = []
@@ -134,10 +149,11 @@ class Model:
         '''
         Run one step of the model: next generation of iterated learning
         '''
-        self.steps += 1
+        self.current_step += 1
 
         # Create next generation of agents, with proportion L2. Both L1 and L2 are empty
-        agents_new_gen = self.create_new_generation(proportion_l2=self.proportion_l2, init_l1="empty", init_l2="empty")
+        agents_new_gen = self.create_new_generation(
+            proportion_l2=self.proportion_l2, init_l1="empty", init_l2="empty")
         agents_new_gen_l1 = [a for a in agents_new_gen if not a.is_l2()]
         agents_new_gen_l2 = [a for a in agents_new_gen if a.is_l2()]
 
@@ -154,12 +170,10 @@ class Model:
             for agent_prev in agents_prev_gen:
                 agent_prev.speak(RG.choice(agents_new_gen_l2))
 
-        self.prop_internal_prefix_l1 = stats.prop_internal_filled_agents(agents_new_gen_l1, "prefix")
-        self.prop_internal_suffix_l1 = stats.prop_internal_filled_agents(agents_new_gen_l1, "suffix")
-        self.prop_internal_prefix_l2 = stats.prop_internal_filled_agents(agents_new_gen_l2, "prefix")
-        self.prop_internal_suffix_l2 = stats.prop_internal_filled_agents(agents_new_gen_l2, "suffix")
-        
-        print(self.steps, list(map(str,agents_new_gen)))
+        stats.calculate_internal_stats(agents_new_gen, self.current_step,
+                                       self.proportion_l2, self.stats_entries)
+
+        print(self.current_step, list(map(str, agents_new_gen)))
         self.agents.append(agents_new_gen)
 
         # L2 agents in generation n choose
@@ -182,7 +196,6 @@ class Model:
         #     self.communicated_prefix, label="Prefix")
         # self.prop_communicated_suffix = stats.prop_communicated(
         #     self.communicated_suffix, label="Suffix")
-
 
         # Now compute proportion of correct interaction
         # self.proportion_correct_interactions = self.correct_interactions/float(N_AGENTS)
