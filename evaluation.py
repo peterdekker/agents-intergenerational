@@ -48,9 +48,9 @@ def params_print(params):
     return "".join([f"{k}: {v}   " for k, v in params.items()])
 
 
-def evaluate_model(fixed_params, variable_params, iterations, steps):
-    print(f"- Running batch: {iterations} iterations of {steps} steps")
-    print(f"  Variable parameters: {params_print(variable_params)}")
+def evaluate_model(fixed_params, var_param, var_param_settings, iterations):
+    print(f"- Iterations: {iterations}")
+    print(f"  Variable parameters: {params_print({var_param: var_param_settings})}")
     print(f"  Fixed parameters: {params_print(fixed_params)}")
 
     # runner = BatchRunner(
@@ -67,8 +67,8 @@ def evaluate_model(fixed_params, variable_params, iterations, steps):
     # run_data_old = runner.get_model_vars_dataframe()
     # print(run_data_old.columns)
 
-    all_params = variable_params | fixed_params
-    # results = batch_run(Model, 
+    # all_params = fixed_params
+    # results = batch_run(Model,
     #                     parameters=all_params,
     #                     number_processes=None,
     #                     iterations=iterations,
@@ -79,10 +79,12 @@ def evaluate_model(fixed_params, variable_params, iterations, steps):
     # # Drop first timestep
     # run_data = run_data[run_data.timesteps != 0]
     dfs = []
-    for i in range(iterations):
-        m = Model(**all_params, run_id=i)
-        stats_df = m.run()
-        dfs.append(stats_df)
+    for var_param_setting in var_param_settings:
+        all_params = fixed_params | {var_param: var_param_setting}
+        for i in range(iterations):
+            m = Model(**all_params, run_id=i)
+            stats_df = m.run()
+            dfs.append(stats_df)
     return pd.concat(dfs)
 
 
@@ -230,12 +232,13 @@ def main():
         elif param in string_params:
             evaluation_group.add_argument(f'--{param}', type=str, default=evaluation_params[param])
         else:
-            evaluation_group.add_argument(f"--{param}", nargs="+", type=int, default=evaluation_params[param])
+            evaluation_group.add_argument(f"--{param}", type=float, default=evaluation_params[param])
 
     # Parse arguments
     args = vars(parser.parse_args())
+    print(args)
+    # Evaluation params
     iterations = args["iterations"]
-    steps = args["steps"]
     runlabel = args["runlabel"]
     plot_from_raw_on = args["plot_from_raw"] != ""
 
@@ -261,29 +264,27 @@ def main():
 
     # If we are running the model, not just plotting from results file
     if not plot_from_raw_on:
-        if (len(iterations) != 1 or len(steps) != 1):
-            raise ValueError(
-                "Only supply one iterations setting and one steps setting (or none for default).")
-        print(f"Evaluating iterations {iterations} and steps {steps}")
+        # if (len(iterations) != 1 or len(steps) != 1):
+        #     raise ValueError(
+        #         "Only supply one iterations setting and one steps setting (or none for default).")
         # Use proportion L2 as variable (independent) param, set given params as fixed params.
         var_param = "proportion_l2"
         var_param_settings = [0.0, 0.2, 0.4, 0.6, 0.8, 1.0]
-        assert len(iterations) == 1
-        assert len(steps) == 1
-        iterations_setting = iterations[0]
-        steps_setting = steps[0]
+        # assert len(iterations) == 1
+        # assert len(steps) == 1
+        iterations_setting = iterations
 
         given_params = {k: v for k, v in args.items() if k in model_params_script and v is not None}
         fixed_params = {
             k: (v if k not in given_params else given_params[k]) for k, v in model_params_script.items() if k != var_param}
-        course_df = evaluate_model(fixed_params, {var_param: var_param_settings},
-                                  iterations_setting, steps_setting)
+        course_df = evaluate_model(fixed_params, var_param, var_param_settings,
+                                   iterations_setting)
         course_df.to_csv(os.path.join(output_dir_custom, f"{var_param}-raw.csv"))
 
-        create_graph_course_sb(course_df, var_param, [
-            "prop_communicated_suffix"], output_dir_custom, "raw", runlabel)
-        create_graph_end_sb(course_df, var_param,
-                            stats_communicated, output_dir_custom, "raw", runlabel)
+        # create_graph_course_sb(course_df, var_param, [
+        #     "prop_communicated_suffix"], output_dir_custom, "raw", runlabel)
+        # create_graph_end_sb(course_df, var_param,
+        #                     stats_communicated, output_dir_custom, "raw", runlabel)
 
         # course_df_rolling = rolling_avg(course_df, ROLLING_AVG_WINDOW, stats_communicated)
         # create_graph_course_sb(course_df_rolling, var_param, [

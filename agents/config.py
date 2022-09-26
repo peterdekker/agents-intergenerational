@@ -39,8 +39,8 @@ ALPHA_L1 = 1
 ALPHA_L2 = 1 #1000
 
 
-ITERATIONS = [5]
-STEPS = [10]
+ITERATIONS = 5
+STEPS = 10
 N_INTERACTIONS_PER_STEP = 10
 
 
@@ -53,15 +53,15 @@ model_params = {
     "affix_prior_l2": {"ui": Checkbox('Affix prior L2', value=AFFIX_PRIOR_L2), "script": AFFIX_PRIOR_L2},
     "alpha_l1": {"ui": Slider("alpha L1", ALPHA_L1, 0, 10000, 100), "script": ALPHA_L1},
     "alpha_l2": {"ui": Slider("alpha L2", ALPHA_L2, 0, 10000, 100), "script": ALPHA_L2},
+    "n_interactions_per_step": {"script": N_INTERACTIONS_PER_STEP},
+    "steps": {"script": STEPS},
 }
 
-model_params_ui = {k: v["ui"] for k, v in model_params.items()}
+# model_params_ui = {k: v["ui"] for k, v in model_params.items()}
 model_params_script = {k: v["script"] for k, v in model_params.items()}
 
 evaluation_params = {
     "iterations": ITERATIONS,
-    "steps": STEPS,
-    "n_interactions_per_step": N_INTERACTIONS_PER_STEP,
     "runlabel": "",
     "plot_from_raw": ""
 }

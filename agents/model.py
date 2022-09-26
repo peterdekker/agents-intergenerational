@@ -109,7 +109,7 @@ class Model:
 
         # Create first generation with only L1 speakers, which are instantiated with data
         agents_first_gen = self.create_new_generation(proportion_l2=0.0, init_l1="data", init_l2="empty")
-        print(self.current_step, list(map(str, agents_first_gen)))
+        #  print(self.current_step, list(map(str, agents_first_gen)))
         self.agents.append(agents_first_gen)
 
         stats.calculate_internal_stats(agents_first_gen, self.current_step,
@@ -159,7 +159,7 @@ class Model:
 
         agents_prev_gen = self.agents[-1]
         agents_prev_gen_l1 = [a for a in agents_prev_gen if not a.is_l2()]
-        agents_prev_gen_l2 = [a for a in agents_prev_gen if a.is_l2()]
+        # agents_prev_gen_l2 = [a for a in agents_prev_gen if a.is_l2()]
 
         # L1 agents learn directly from a random L1 from the previous generation
         for agent_l1 in agents_new_gen_l1:
@@ -168,12 +168,13 @@ class Model:
         # L2 agents learn by being spoken to by previous generation (both L1 and L2)
         for int in range(n_interactions_per_step):
             for agent_prev in agents_prev_gen:
-                agent_prev.speak(RG.choice(agents_new_gen_l2))
+                if len(agents_new_gen_l2) > 0:
+                    agent_prev.speak(RG.choice(agents_new_gen_l2))
 
         stats.calculate_internal_stats(agents_new_gen, self.current_step,
                                        self.proportion_l2, self.stats_entries)
 
-        print(self.current_step, list(map(str, agents_new_gen)))
+        # print(self.current_step, list(map(str, agents_new_gen)))
         self.agents.append(agents_new_gen)
 
         # L2 agents in generation n choose
