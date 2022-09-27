@@ -1,11 +1,7 @@
-jupyter
 matplotlib
 mesa==1.0.0
 numpy
 pandas
-editdistance
-distance
-panphon
 argparse
 pycldf
 pyclts

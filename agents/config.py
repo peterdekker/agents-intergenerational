@@ -3,7 +3,6 @@ import logging
 import sys
 import datetime
 import os
-from panphon.distance import Distance
 from mesa.visualization.UserParam import Slider, Checkbox
 
 logging.basicConfig(stream=sys.stderr, level=logging.ERROR)

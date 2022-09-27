@@ -88,83 +88,6 @@ def evaluate_model(fixed_params, var_param, var_param_settings, iterations):
     return pd.concat(dfs)
 
 
-# def create_graph_course(run_data, fixed_params, variable_param, variable_param_settings, mode, stats, stat, output_dir):
-#     course_df = get_course_df(run_data, variable_param, variable_param_settings, stats)
-#     plot_graph_course(course_df, fixed_params, variable_param,
-#                       variable_param_settings, stat, mode, output_dir)
-
-
-# def create_graph_end(run_data, fixed_params, variable_param, variable_param_settings, mode, stats, output_dir):
-#     course_df = get_course_df(run_data, variable_param, variable_param_settings, stats)
-#     course_tail_avg = course_df.tail(LAST_STEPS_END_GRAPH).mean()
-#     # run_data_means = run_data.groupby(variable_param).mean(numeric_only=True)
-#     labels = variable_param_settings  # run_data_means.index  # variable values
-#     x = np.arange(len(labels))  # the label locations
-#     width = 0.2  # the width of the bars
-#     fig, ax = plt.subplots()
-#     rects = {}
-#     colors = ["deepskyblue", "royalblue", "orange", "darkgoldenrod"]
-#     for i, stat in enumerate(stats):
-#         stat_label = stat.replace(
-#             "prop_internal_", "") if mode == "internal" else stat.replace("prop_communicated_", "")
-#         rects[stat] = ax.bar(x+i*width, course_tail_avg[:,stat],
-#                              width=width, edgecolor="white", label=stat_label, color=colors[i])
-#     # # Add some text for labels, title and custom x-axis tick labels, etc.
-#     if mode == "internal":
-#         ax.set_ylabel('proportion paradigm cells filled')
-#     elif mode == "communicated":
-#         ax.set_ylabel('proportion utterances non-empty')
-#     ax.set_xlabel(variable_param)
-#     ax.set_title(f"{variable_param} ({mode})")
-#     ax.set_xticks(x+1.5*width)
-#     ax.set_xticklabels(labels)
-#     ax.legend()
-#     graphtext = textwrap.fill(params_print(fixed_params), width=100)
-#     plt.subplots_adjust(bottom=0.25)
-#     plt.figtext(0.05, 0.03, graphtext, fontsize=8, ha="left")
-#     plt.savefig(os.path.join(output_dir, f"{variable_param}-{mode}-end.{IMG_FORMAT}"), format=IMG_FORMAT)
-
-# def plot_graph_course(course_df, fixed_params, variable_param, variable_param_settings, stat, mode, output_dir):
-#     fig, ax = plt.subplots()
-#     steps_ix = course_df.index
-#     for param_setting in variable_param_settings:
-#         ax.plot(steps_ix, course_df[param_setting, stat],
-#                 label=f"{variable_param}={param_setting}", linewidth=1.0)
-#     # Add some text for labels, title and custom x-axis tick labels, etc.
-#     if mode == "internal":
-#         ax.set_ylabel('proportion paradigm cells filled')
-#     elif mode == "communicated":
-#         ax.set_ylabel('proportion non-empty utterances')
-#     ax.set_xlabel(variable_param)
-#     ax.set_title(f"{variable_param} ({mode})")
-#     # ax.set_xticks(x+1.5*width)
-#     # ax.set_xticklabels(labels)
-#     ax.legend()
-#     # fig.tight_layout()
-#     graphtext = textwrap.fill(params_print(fixed_params), width=100)
-#     plt.subplots_adjust(bottom=0.25)
-#     plt.figtext(0.05, 0.03, graphtext, fontsize=8, ha="left")
-#     # bbox_inches="tight"
-#     plt.savefig(os.path.join(output_dir, f"{variable_param}-{mode}-course.{IMG_FORMAT}"), format=IMG_FORMAT)
-
-# def get_course_df(run_data, variable_param, variable_param_settings, stats):
-#     multi_index = pd.MultiIndex.from_product([variable_param_settings, stats])
-#     course_df = pd.DataFrame(columns=multi_index)
-#     for param_setting, group in run_data.groupby(variable_param):
-#         iteration_dfs = []
-#         for i, row in group.iterrows():
-#             iteration_df = row["datacollector"].get_model_vars_dataframe()[stats]
-#             iteration_dfs.append(iteration_df)
-#         iteration_dfs_concat = pd.concat(iteration_dfs)
-#         # Group all iterations together for this index  # TODO: spread?
-#         combined = iteration_dfs_concat.groupby(iteration_dfs_concat.index).mean()
-#         for stat_col in combined:
-#             course_df[param_setting, stat_col] = combined[stat_col]
-#     # Drop first row of course df, because this is logging artefact
-#     course_df = course_df.iloc[1:, :]
-#     return course_df
-#     # TODO: possibly function intersection here later
-
 
 def rolling_avg(df, window, stats):
     # run is unique for combination of run + variable_param, so no need to group also on variable param
@@ -174,29 +97,15 @@ def rolling_avg(df, window, stats):
     return df_rolling
 
 
-def get_course_df_sb(run_data, variable_param, stats, mode, output_dir):
-    iteration_dfs = []
-    for i, row in run_data.iterrows():
-        iteration_df = row["datacollector"].get_model_vars_dataframe()[stats]
-        iteration_df[variable_param] = row[variable_param]
-        iteration_df["run"] = row["Run"]
-        # Drop all rows with index 0, since this is a logging artefact
-        iteration_df = iteration_df.drop(0)
-        iteration_dfs.append(iteration_df)
-    course_df = pd.concat(iteration_dfs)
-    # Old index (with duplicates because of different param settings and runs) becomes explicit column 'timesteps'
-    course_df = course_df.reset_index().rename(columns={"index": "timesteps"})
-    course_df.to_csv(os.path.join(output_dir, f"{variable_param}-{mode}-raw.csv"))
-    return course_df
-
-
+#TODO: Rename stats using ylabel
+# TODO: For course, filter stats on only average L1+l2 statistic
 def create_graph_course_sb(course_df, variable_param, stats, output_dir, label, runlabel):
     # steps = fixed_params["steps"]
-    y_label = "proportion utterances non-empty"
+    y_label = "proportion affixes non-empty"
     # y_label = "proportion utterances non-empty" if mode=="communicated" else "proportion paradigm cells filled"
-    df_melted = course_df.melt(id_vars=["timesteps", variable_param],
-                               value_vars=stats, value_name=y_label, var_name="statistic")
-    ax = sns.lineplot(data=df_melted, x="timesteps", y=y_label, hue=variable_param)
+    # df_melted = course_df.melt(id_vars=["timesteps", variable_param],
+    #                           value_vars=stats, value_name=y_label, var_name="statistic")
+    ax = sns.lineplot(data=course_df, x="timestep", y=stat_value, hue=variable_param)
     ax.set_ylim(0, 1)
     plt.savefig(os.path.join(
         output_dir, f"{variable_param}-{label}-course-{runlabel}.{IMG_FORMAT}"), format=IMG_FORMAT, dpi=300)
@@ -204,15 +113,15 @@ def create_graph_course_sb(course_df, variable_param, stats, output_dir, label, 
 
 
 def create_graph_end_sb(course_df, variable_param, stats, output_dir, label, runlabel):
-    y_label = "proportion utterances non-empty"
+    y_label = "proportion affixes non-empty"
     # y_label = "proportion utterances non-empty" if mode=="communicated" else "proportion paradigm cells filled"
-    df_melted = course_df.melt(id_vars=["timesteps", variable_param],
-                               value_vars=stats, value_name=y_label, var_name="statistic")
+    #df_melted = course_df.melt(id_vars=["timesteps", variable_param],
+    #                           value_vars=stats, value_name=y_label, var_name="statistic")
 
     # Use last iteration as data
     steps = max(course_df["timesteps"])
-    df_tail = df_melted[df_melted["timesteps"] == steps]
-    ax = sns.lineplot(data=df_tail, x=variable_param, y=y_label, hue="statistic")
+    df_tail = course_df[course_df["timesteps"] == steps]
+    ax = sns.lineplot(data=df_tail, x=variable_param, y="stat_value", hue="stat_name")
     ax.set_ylim(0, 1)
     plt.savefig(os.path.join(
         output_dir, f"{variable_param}-{label}-end-{runlabel}.{IMG_FORMAT}"), format=IMG_FORMAT, dpi=300)
@@ -281,16 +190,16 @@ def main():
                                    iterations_setting)
         course_df.to_csv(os.path.join(output_dir_custom, f"{var_param}-raw.csv"))
 
-        # create_graph_course_sb(course_df, var_param, [
-        #     "prop_communicated_suffix"], output_dir_custom, "raw", runlabel)
-        # create_graph_end_sb(course_df, var_param,
-        #                     stats_communicated, output_dir_custom, "raw", runlabel)
+        create_graph_course_sb(course_df, var_param, [
+            "prop_communicated_suffix"], output_dir_custom, "raw", runlabel)
+        create_graph_end_sb(course_df, var_param,
+                            stats_communicated, output_dir_custom, "raw", runlabel)
 
-        # course_df_rolling = rolling_avg(course_df, ROLLING_AVG_WINDOW, stats_communicated)
-        # create_graph_course_sb(course_df_rolling, var_param, [
-        #     "prop_communicated_suffix"], output_dir_custom, "rolling", runlabel)
-        # create_graph_end_sb(course_df_rolling, var_param,
-        #                     stats_communicated, output_dir_custom, "rolling", runlabel)
+        course_df_rolling = rolling_avg(course_df, ROLLING_AVG_WINDOW, stats_communicated)
+        create_graph_course_sb(course_df_rolling, var_param, [
+            "prop_communicated_suffix"], output_dir_custom, "rolling", runlabel)
+        create_graph_end_sb(course_df_rolling, var_param,
+                            stats_communicated, output_dir_custom, "rolling", runlabel)
 
 
 if __name__ == "__main__":
