@@ -22,7 +22,7 @@ RG = np.random.default_rng()
 ROLLING_AVG_WINDOW = 100
 
 IMG_FORMAT = "pdf"
-OUTPUT_DIR = f'output-{str(datetime.datetime.now()).replace(" ","-")}'
+OUTPUT_DIR = f'output-{str(datetime.datetime.now()).replace(" ","-").replace(":",".")}'
 
 
 # Defaults for UserSettableParameters
@@ -38,9 +38,9 @@ ALPHA_L1 = 1
 ALPHA_L2 = 1 #1000
 
 
-ITERATIONS = 5
-STEPS = 10
-N_INTERACTIONS_PER_STEP = 10
+ITERATIONS = 3
+STEPS = 1000
+N_INTERACTIONS_PER_STEP = 5
 
 
 model_params = {

@@ -103,19 +103,16 @@ def infer_possible_persons(affix_type, affix_signal, persons, affixes, lex_conce
     return possible_persons
 
 
-def reduce_phonotactics(affix_type, affix, form, reduction_phonotactics, clts, speaker_type=None):
-    if reduction_phonotactics and RG.random() < 0.5:
-        inflected_form = affix+form if affix_type == "prefix" else form+affix
-        # print(inflected_form)
-        spaced_form = " ".join(list(inflected_form))
-        cv_pattern = clts.bipa.translate(spaced_form, clts.soundclass("cv")).replace(" ", "")
-        # print(f"{inflected_form} | {cv_pattern}")
-        # print(cv_pattern)
-        if "CC" in cv_pattern:
-            #print("CONSONANT CLUSTER!")
-            affix = ""
+def reduce_phonotactics(affix_type, affix, form, clts, speaker_type=None):
+    inflected_form = affix+form if affix_type == "prefix" else form+affix
+    spaced_form = " ".join(list(inflected_form))
+    cv_pattern = clts.bipa.translate(spaced_form, clts.soundclass("cv")).replace(" ", "")
+    # print(f"{inflected_form} | {cv_pattern}")
+    # print(cv_pattern)
+    if "CC" in cv_pattern:
+        # print("CONSONANT CLUSTER!")
+        affix = ""
     return affix
-
 
 
 def update_affix_list(prefix_recv, suffix_recv, affixes, lex_concepts_type,
@@ -159,7 +156,7 @@ def weighted_affixes_prior(lex_concept, person, affix_type, affixes):
     logging.debug(f"Probabilities for concept: {p_affix_given_concept}")
 
     affixes_affix_type = {(l, p, t): affixes[(l, p, t)] for (l, p, t) in affixes.keys() if t == affix_type and (
-            GENERALIZE_PERSONS or p == person) and (GENERALIZE_LEX_CONCEPTS or l == lex_concept)}
+        GENERALIZE_PERSONS or p == person) and (GENERALIZE_LEX_CONCEPTS or l == lex_concept)}
     affixes_all = list(chain.from_iterable(affixes_affix_type.values()))
     logging.debug(f"Affixes for all: {affixes_all}")
     n_exemplars_all = len(affixes_all)
@@ -172,7 +169,7 @@ def weighted_affixes_prior(lex_concept, person, affix_type, affixes):
     p_combined = {aff: p_aff_conc * p_affix[aff] for aff, p_aff_conc in p_affix_given_concept.items()}
     logging.debug(f"Combined: {p_combined}")
     total = sum(p_combined.values())
-    p_combined_normalized = {aff: p_comb/total for aff,p_comb in p_combined.items()}
+    p_combined_normalized = {aff: p_comb/total for aff, p_comb in p_combined.items()}
     logging.debug(f"Combined normalized: {p_combined_normalized}")
     return p_combined_normalized
 
@@ -182,7 +179,7 @@ def distribution_from_exemplars(lex_concept, person, affix_type, affixes, alpha)
     logging.debug(f"Affixes for concept: {affixes_concept}")
     if len(affixes_concept) == 0:
         return {}
-    
+
     n_exemplars_concept = len(affixes_concept)
     counts_affixes_concept = Counter(affixes_concept)
     logging.debug(f"Counts for concept: {counts_affixes_concept}")
@@ -193,11 +190,11 @@ def distribution_from_exemplars(lex_concept, person, affix_type, affixes, alpha)
     logging.debug(f"Alpha: {alpha}")
     if math.isclose(alpha, 1.0):
         return dict(zip(counts_keys, p_affix_given_concept))
-    
+
     # Scale probabilities with alpha in log space (make distribution peakier)
     log_scaled = np.log(p_affix_given_concept) * alpha
     logging.debug(f"Log Scaled: {dict(zip(counts_keys, log_scaled))}")
-    log_moved = log_scaled - np.max(log_scaled) # Move highest value to 0
+    log_moved = log_scaled - np.max(log_scaled)  # Move highest value to 0
     logging.debug(f"Log Moved: {dict(zip(counts_keys, log_moved))}")
     # Go back to normal probabilities
     p_moved = np.exp(log_moved)

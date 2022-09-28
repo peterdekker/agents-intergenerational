@@ -9,7 +9,7 @@ def prop_internal_filled(agent, affix_type):
         for person in agent.persons:
             affixes = agent.affixes[(lex_concept, person, affix_type)]
             n_affixes = len(affixes)
-            n_nonzero = len([x != "" for x in affixes])
+            n_nonzero = len([x for x in affixes if x != ""])
             if n_affixes > 0:
                 prop_filled_cell = n_nonzero/n_affixes
                 prop_filled_cells.append(prop_filled_cell)
@@ -26,10 +26,10 @@ def calculate_internal_stats(agents, step, proportion_l2, stats_entries):
     agents_l1 = [a for a in agents if not a.is_l2()]
     agents_l2 = [a for a in agents if a.is_l2()]
 
-    for agents_set, agent_type in zip([agents_l1, agents_l2], ["l1", "l2"]):
+    for agents_set, agent_type in zip([agents_l1, agents_l2, agents], ["l1", "l2", "total"]):
         for affix_type in ["prefix", "suffix"]:
             stat = prop_internal_filled_agents(agents_set, affix_type)
-            stats_entry = {"timestep": step, "proportion_l2": proportion_l2, "stat_name": f"{affix_type}_{agent_type}", "stat_value": stat}
+            stats_entry = {"timestep": step, "proportion_l2": proportion_l2, "stat_name": f"prop_internal_{affix_type}" if agent_type == "total" else f"prop_internal_{affix_type}_{agent_type}", "stat_value": stat}
             stats_entries.append(stats_entry)
 
 

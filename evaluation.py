@@ -10,8 +10,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import seaborn as sns
-
-import textwrap
 import os
 
 # stats_internal = {"prop_internal_prefix_l1": lambda m: m.prop_internal_prefix_l1,
@@ -26,7 +24,7 @@ import os
 #                       "prop_communicated_suffix_l2": lambda m: m.prop_communicated_suffix_l2}
 
 stats_internal = ["prop_internal_prefix_l1", "prop_internal_suffix_l1",
-                  "prop_internal_prefix_l2", "prop_internal_suffix_l2"]
+                  "prop_internal_prefix_l2", "prop_internal_suffix_l2", "prop_internal_prefix", "prop_internal_suffix"]
 # stats_communicated = ["prop_communicated_prefix_l1", "prop_communicated_suffix_l1",
 #                       "prop_communicated_prefix_l2", "prop_communicated_suffix_l2", "prop_communicated_prefix", "prop_communicated_suffix"]
 
@@ -49,9 +47,9 @@ def params_print(params):
 
 
 def evaluate_model(fixed_params, var_param, var_param_settings, iterations):
-    print(f"- Iterations: {iterations}")
-    print(f"  Variable parameters: {params_print({var_param: var_param_settings})}")
-    print(f"  Fixed parameters: {params_print(fixed_params)}")
+    print(f"Iterations: {iterations}")
+    print(f"Variable parameters: {params_print({var_param: var_param_settings})}")
+    print(f"Fixed parameters: {params_print(fixed_params)}")
 
     # runner = BatchRunner(
     #     Model,
@@ -80,12 +78,15 @@ def evaluate_model(fixed_params, var_param, var_param_settings, iterations):
     # run_data = run_data[run_data.timesteps != 0]
     dfs = []
     for var_param_setting in var_param_settings:
+        print(f" - {var_param}: {var_param_setting}. Iteration: ", end="", flush=True)
         all_params = fixed_params | {var_param: var_param_setting}
         for i in range(iterations):
             m = Model(**all_params, run_id=i)
             stats_df = m.run()
             dfs.append(stats_df)
-    return pd.concat(dfs)
+            print(i, end="|", flush=True)
+        print("")
+    return pd.concat(dfs).reset_index(drop=True)
 
 
 
@@ -105,26 +106,27 @@ def create_graph_course_sb(course_df, variable_param, stats, output_dir, label, 
     # y_label = "proportion utterances non-empty" if mode=="communicated" else "proportion paradigm cells filled"
     # df_melted = course_df.melt(id_vars=["timesteps", variable_param],
     #                           value_vars=stats, value_name=y_label, var_name="statistic")
-    ax = sns.lineplot(data=course_df, x="timestep", y=stat_value, hue=variable_param)
+    course_df_stat = course_df[course_df["stat_name"].isin(stats)]
+    ax = sns.lineplot(data=course_df_stat, x="timestep", y="stat_value", hue=variable_param)
     ax.set_ylim(0, 1)
     plt.savefig(os.path.join(
-        output_dir, f"{variable_param}-{label}-course-{runlabel}.{IMG_FORMAT}"), format=IMG_FORMAT, dpi=300)
+        output_dir, f"{variable_param}-{label}-course{'-'+runlabel if runlabel else ''}.{IMG_FORMAT}"), format=IMG_FORMAT, dpi=300)
     plt.clf()
 
 
-def create_graph_end_sb(course_df, variable_param, stats, output_dir, label, runlabel):
+def create_graph_end_sb(course_df, variable_param, output_dir, label, runlabel):
     y_label = "proportion affixes non-empty"
     # y_label = "proportion utterances non-empty" if mode=="communicated" else "proportion paradigm cells filled"
     #df_melted = course_df.melt(id_vars=["timesteps", variable_param],
     #                           value_vars=stats, value_name=y_label, var_name="statistic")
 
     # Use last iteration as data
-    steps = max(course_df["timesteps"])
-    df_tail = course_df[course_df["timesteps"] == steps]
+    steps = max(course_df["timestep"])
+    df_tail = course_df[course_df["timestep"] == steps]
     ax = sns.lineplot(data=df_tail, x=variable_param, y="stat_value", hue="stat_name")
     ax.set_ylim(0, 1)
     plt.savefig(os.path.join(
-        output_dir, f"{variable_param}-{label}-end-{runlabel}.{IMG_FORMAT}"), format=IMG_FORMAT, dpi=300)
+        output_dir, f"{variable_param}-{label}-end{'-'+runlabel if runlabel else ''}.{IMG_FORMAT}"), format=IMG_FORMAT, dpi=300)
     plt.clf()
 
 
@@ -145,9 +147,8 @@ def main():
 
     # Parse arguments
     args = vars(parser.parse_args())
-    print(args)
     # Evaluation params
-    iterations = args["iterations"]
+    iterations = int(args["iterations"])
     runlabel = args["runlabel"]
     plot_from_raw_on = args["plot_from_raw"] != ""
 
@@ -181,25 +182,22 @@ def main():
         var_param_settings = [0.0, 0.2, 0.4, 0.6, 0.8, 1.0]
         # assert len(iterations) == 1
         # assert len(steps) == 1
-        iterations_setting = iterations
 
         given_params = {k: v for k, v in args.items() if k in model_params_script and v is not None}
         fixed_params = {
             k: (v if k not in given_params else given_params[k]) for k, v in model_params_script.items() if k != var_param}
         course_df = evaluate_model(fixed_params, var_param, var_param_settings,
-                                   iterations_setting)
+                                   iterations)
         course_df.to_csv(os.path.join(output_dir_custom, f"{var_param}-raw.csv"))
-
         create_graph_course_sb(course_df, var_param, [
-            "prop_communicated_suffix"], output_dir_custom, "raw", runlabel)
-        create_graph_end_sb(course_df, var_param,
-                            stats_communicated, output_dir_custom, "raw", runlabel)
+            "prop_internal_suffix"], output_dir_custom, "raw", runlabel)
+        create_graph_end_sb(course_df, var_param, output_dir_custom, "raw", runlabel)
 
-        course_df_rolling = rolling_avg(course_df, ROLLING_AVG_WINDOW, stats_communicated)
-        create_graph_course_sb(course_df_rolling, var_param, [
-            "prop_communicated_suffix"], output_dir_custom, "rolling", runlabel)
-        create_graph_end_sb(course_df_rolling, var_param,
-                            stats_communicated, output_dir_custom, "rolling", runlabel)
+        # course_df_rolling = rolling_avg(course_df, ROLLING_AVG_WINDOW, stats_internal)
+        # create_graph_course_sb(course_df_rolling, var_param, [
+        #     "prop_internal_suffix"], output_dir_custom, "rolling", runlabel)
+        # create_graph_end_sb(course_df_rolling, var_param,
+        #                     stats_internal, output_dir_custom, "rolling", runlabel)
 
 
 if __name__ == "__main__":

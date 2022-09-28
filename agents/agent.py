@@ -89,14 +89,14 @@ class Agent:
                 prefixes = misc.distribution_from_exemplars(lex_concept, person, "prefix", self.affixes, alpha=self.alpha)
             if len(prefixes) > 0:
                 prefix = misc.affix_choice(prefixes)
-                prefix = misc.reduce_phonotactics("prefix", prefix, form,
-                                                  self.reduction_phonotactics, self.model.clts, speaker_type=self.l2)
+                if self.reduction_phonotactics:
+                    prefix = misc.reduce_phonotactics("prefix", prefix, form, self.model.clts, speaker_type=self.l2)
             else:
                 # Just skip this whole interaction. Only listen for this concept until it gets filled with at least one form.
                 return
                     
-            # if prefix=="":
-            #     raise ValueError("Prefix is empty")
+            if prefix == "":
+                raise ValueError("Prefix is empty")
             signal.prefix = prefix
 
         #  - suffixing verb:
@@ -115,8 +115,8 @@ class Agent:
 
             if len(suffixes) > 0:
                 suffix = misc.affix_choice(suffixes)
-                suffix = misc.reduce_phonotactics("suffix", suffix, form,
-                                                  self.reduction_phonotactics, self.model.clts, speaker_type=self.l2)
+                if self.reduction_phonotactics:
+                    suffix = misc.reduce_phonotactics("suffix", suffix, form, self.model.clts, speaker_type=self.l2)
             else:
                 # Just skip this whole interaction. Only listen for this concept until it gets filled with at least one form.
                 return
@@ -175,12 +175,12 @@ class Agent:
             feedback_speaker: feedback from the speaker
         '''
 
-        if feedback_speaker:
+        if feedback_speaker: # or True
             # self.model.correct_interactions += 1
             prefix_recv = self.signal_recv.prefix
             suffix_recv = self.signal_recv.suffix
             misc.update_affix_list(prefix_recv, suffix_recv, self.affixes, self.lex_concepts_type,
-                                   self.concept_listener)
+                                    self.concept_listener)
 
     def is_l2(self):
         return self.l2

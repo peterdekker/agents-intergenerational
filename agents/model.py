@@ -28,14 +28,12 @@ class Model:
         assert proportion_l2 >= 0 and proportion_l2 <= 1
         assert isinstance(reduction_phonotactics_l1, bool)
         assert isinstance(reduction_phonotactics_l2, bool)
-        assert alpha_l1 % 1 == 0
-        assert alpha_l2 % 1 == 0
         assert isinstance(affix_prior_l1, bool)
         assert isinstance(affix_prior_l2, bool)
         assert steps % 1 == 0
         assert n_interactions_per_step % 1 == 0
 
-        self.n_agents = n_agents
+        self.n_agents = int(n_agents)
         self.proportion_l2 = proportion_l2
         self.reduction_phonotactics_l1 = reduction_phonotactics_l1
         self.reduction_phonotactics_l2 = reduction_phonotactics_l2
@@ -43,8 +41,8 @@ class Model:
         self.alpha_l2 = alpha_l2
         self.affix_prior_l1 = affix_prior_l1
         self.affix_prior_l2 = affix_prior_l2
-        self.steps = steps
-        self.n_interactions_per_step = n_interactions_per_step
+        self.steps = int(steps)
+        self.n_interactions_per_step = int(n_interactions_per_step)
         self.run_id = run_id
 
         # self.schedule = RandomActivation(self)
@@ -60,10 +58,12 @@ class Model:
         # self.proportion_correct_interactions = 0.0
         # self.avg_proportion_correct_interactions = 0.0
 
-        self.prop_internal_prefix_l1 = 0.0
-        self.prop_internal_suffix_l1 = 0.0
-        self.prop_internal_prefix_l2 = 0.0
-        self.prop_internal_suffix_l2 = 0.0
+        # self.prop_internal_prefix_l1 = 0.0
+        # self.prop_internal_suffix_l1 = 0.0
+        # self.prop_internal_prefix_l2 = 0.0
+        # self.prop_internal_suffix_l2 = 0.0
+        # self.prop_internal_prefix = 0.0
+        # self.prop_internal_suffix = 0.0
 
         # Behaviourist
         # self.prop_communicated_prefix_l1 = 0.0
@@ -129,7 +129,7 @@ class Model:
         agents = []
 
         # Always use same # L2 agents, but randomly divide them
-        l2 = misc.spread_l2_agents(proportion_l2, N_AGENTS)
+        l2 = misc.spread_l2_agents(proportion_l2, self.n_agents)
 
         # Set up agents
         # We use a grid iterator that returns
