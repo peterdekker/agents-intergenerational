@@ -98,7 +98,6 @@ def evaluate_model(fixed_params, var_param, var_param_settings, iterations):
     #         print(i, end="|", flush=True)
     #     print("")
     cartesian_var_params_runs = [(fixed_params, var_param, var_param_setting, run_id) for var_param_setting in var_param_settings for run_id in range(iterations)]
-    print(len(cartesian_var_params_runs))
     with Pool(processes=None) as pool:
         dfs_multi = pool.map(model_wrapper, cartesian_var_params_runs)
     return pd.concat(dfs_multi).reset_index(drop=True)
