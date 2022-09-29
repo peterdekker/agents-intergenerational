@@ -11,6 +11,7 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 import os
+from multiprocessing import Pool
 
 # stats_internal = {"prop_internal_prefix_l1": lambda m: m.prop_internal_prefix_l1,
 #                   "prop_internal_suffix_l1": lambda m: m.prop_internal_suffix_l1,
@@ -46,6 +47,15 @@ def params_print(params):
     return "".join([f"{k}: {v}   " for k, v in params.items()])
 
 
+def model_wrapper(arg):
+    fixed_params, var_param, var_param_setting, run_id = arg
+    all_params = fixed_params | {var_param: var_param_setting}
+    m = Model(**all_params, run_id=run_id)
+    stats_df = m.run()
+    print(f" - {var_param}: {var_param_setting}. Iteration {run_id}.")
+    return stats_df
+
+
 def evaluate_model(fixed_params, var_param, var_param_settings, iterations):
     print(f"Iterations: {iterations}")
     print(f"Variable parameters: {params_print({var_param: var_param_settings})}")
@@ -76,18 +86,22 @@ def evaluate_model(fixed_params, var_param, var_param_settings, iterations):
     # run_data = run_data.rename(columns={"Step": "timesteps", "RunId": "run"})
     # # Drop first timestep
     # run_data = run_data[run_data.timesteps != 0]
-    dfs = []
-    for var_param_setting in var_param_settings:
-        print(f" - {var_param}: {var_param_setting}. Iteration: ", end="", flush=True)
-        all_params = fixed_params | {var_param: var_param_setting}
-        for i in range(iterations):
-            m = Model(**all_params, run_id=i)
-            stats_df = m.run()
-            dfs.append(stats_df)
-            print(i, end="|", flush=True)
-        print("")
-    return pd.concat(dfs).reset_index(drop=True)
 
+    # dfs = []
+    # for var_param_setting in var_param_settings:
+    #     print(f" - {var_param}: {var_param_setting}. Iteration: ", end="", flush=True)
+    #     all_params = fixed_params | {var_param: var_param_setting}
+    #     for i in range(iterations):
+    #         m = Model(**all_params, run_id=i)
+    #         stats_df = m.run()
+    #         dfs.append(stats_df)
+    #         print(i, end="|", flush=True)
+    #     print("")
+    cartesian_var_params_runs = [(fixed_params, var_param, var_param_setting, run_id) for var_param_setting in var_param_settings for run_id in range(iterations)]
+    print(len(cartesian_var_params_runs))
+    with Pool(processes=None) as pool:
+        dfs_multi = pool.map(model_wrapper, cartesian_var_params_runs)
+    return pd.concat(dfs_multi).reset_index(drop=True)
 
 
 def rolling_avg(df, window, stats):
@@ -98,7 +112,7 @@ def rolling_avg(df, window, stats):
     return df_rolling
 
 
-#TODO: Rename stats using ylabel
+# TODO: Rename stats using ylabel
 # TODO: For course, filter stats on only average L1+l2 statistic
 def create_graph_course_sb(course_df, variable_param, stats, output_dir, label, runlabel):
     # steps = fixed_params["steps"]
@@ -117,7 +131,7 @@ def create_graph_course_sb(course_df, variable_param, stats, output_dir, label, 
 def create_graph_end_sb(course_df, variable_param, output_dir, label, runlabel):
     y_label = "proportion affixes non-empty"
     # y_label = "proportion utterances non-empty" if mode=="communicated" else "proportion paradigm cells filled"
-    #df_melted = course_df.melt(id_vars=["timesteps", variable_param],
+    # df_melted = course_df.melt(id_vars=["timesteps", variable_param],
     #                           value_vars=stats, value_name=y_label, var_name="statistic")
 
     # Use last iteration as data
