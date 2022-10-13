@@ -20,7 +20,7 @@ class Model:
 
     def __init__(self, n_agents, proportion_l2,
                  reduction_phonotactics_l1, reduction_phonotactics_l2, alpha_l1, alpha_l2,
-                 affix_prior_l1, affix_prior_l2, steps, n_interactions_per_step, run_id):
+                 affix_prior_l1, affix_prior_l2, interaction_l1, interaction_l1_shield_initialization, steps, interactions_per_step, run_id):
         '''
         Initialize field
         '''
@@ -30,8 +30,10 @@ class Model:
         assert isinstance(reduction_phonotactics_l2, bool)
         assert isinstance(affix_prior_l1, bool)
         assert isinstance(affix_prior_l2, bool)
+        assert isinstance(interaction_l1, bool)
+        assert interaction_l1_shield_initialization % 1 == 0
         assert steps % 1 == 0
-        assert n_interactions_per_step % 1 == 0
+        assert interactions_per_step % 1 == 0
 
         self.n_agents = int(n_agents)
         self.proportion_l2 = proportion_l2
@@ -41,8 +43,10 @@ class Model:
         self.alpha_l2 = alpha_l2
         self.affix_prior_l1 = affix_prior_l1
         self.affix_prior_l2 = affix_prior_l2
+        self.interaction_l1 = interaction_l1
+        self.interaction_l1_shield_initialization = int(interaction_l1_shield_initialization)
         self.steps = int(steps)
-        self.n_interactions_per_step = int(n_interactions_per_step)
+        self.interactions_per_step = int(interactions_per_step)
         self.run_id = run_id
 
         # self.schedule = RandomActivation(self)
@@ -50,7 +54,7 @@ class Model:
         self.agents = []
 
         # Agent language model object is created from data file
-        self.data = Data(DATA_FILE)
+        self.data = Data(DATA_FILE, interaction_l1, interaction_l1_shield_initialization)
         self.clts = misc.load_clts(CLTS_ARCHIVE_PATH, CLTS_ARCHIVE_URL, CLTS_PATH)
 
         # Stats
@@ -118,7 +122,7 @@ class Model:
         # agents_l2 = [a for a in agents if a.is_l2()]
 
         for i in range(self.steps):
-            self.step(self.n_interactions_per_step)
+            self.step(self.interactions_per_step)
 
         self.stats_df = pd.DataFrame(self.stats_entries)
         self.stats_df["run_id"] = self.run_id
@@ -145,7 +149,7 @@ class Model:
             agents.append(agent)
         return agents
 
-    def step(self, n_interactions_per_step):
+    def step(self, interactions_per_step):
         '''
         Run one step of the model: next generation of iterated learning
         '''
@@ -166,7 +170,7 @@ class Model:
             agent_l1.copy_parent(agents_prev_gen_l1)
 
         # L2 agents learn by being spoken to by previous generation (both L1 and L2)
-        for int in range(n_interactions_per_step):
+        for i in range(interactions_per_step):
             for agent_prev in agents_prev_gen:
                 if len(agents_new_gen_l2) > 0:
                     agent_prev.speak(RG.choice(agents_new_gen_l2))

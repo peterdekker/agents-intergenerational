@@ -5,8 +5,8 @@ from agents.config import PERSONS
 
 
 class Data():
-    def __init__(self, data_file):
-        unique_affix_id = 0
+    def __init__(self, data_file, interaction_l1, interaction_l1_shield_initialization):
+        # unique_affix_id = 0
         self.data = pd.read_csv(data_file, sep="\t").fillna(value="")
         # Filter on only cells which have Lewoingu form
         self.data = self.data[self.data["form_lewoingu"] != ""]
@@ -69,7 +69,12 @@ class Data():
                         #         unique_affix_id += 1
                         #     affixes_processed = affixes_processed_unique
 
-                        self.affixes[(lex_concept, person, affix_type)] = affixes_processed
+                        # Double affix if there is only 1 affix. So length of list is always 2,
+                        # regardless if there are 1 or 2 variants.
+                        if len(affixes_processed) == 1:
+                            affixes_processed *= 2
+                        repeat_list = interaction_l1_shield_initialization if interaction_l1 else 1
+                        self.affixes[(lex_concept, person, affix_type)] = affixes_processed * repeat_list
 
         #print(f"Number of concept cells: {len(self.affixes.keys())}")
         # check double items: print([item for item, count in collections.Counter(self.concepts).items() if count > 1])

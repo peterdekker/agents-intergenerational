@@ -36,11 +36,13 @@ GENERALIZE_PERSONS = True
 GENERALIZE_LEX_CONCEPTS = True
 ALPHA_L1 = 1 
 ALPHA_L2 = 1 #1000
+INTERACTION_L1 = False
+INTERACTION_L1_SHIELD_INITIALIZATION = 10
 
 
-ITERATIONS = 5
+ITERATIONS = 50
 STEPS = 1000
-N_INTERACTIONS_PER_STEP = 5
+INTERACTIONS_PER_STEP = 5
 
 
 model_params = {
@@ -52,7 +54,9 @@ model_params = {
     "affix_prior_l2": {"ui": Checkbox('Affix prior L2', value=AFFIX_PRIOR_L2), "script": AFFIX_PRIOR_L2},
     "alpha_l1": {"ui": Slider("alpha L1", ALPHA_L1, 0, 10000, 100), "script": ALPHA_L1},
     "alpha_l2": {"ui": Slider("alpha L2", ALPHA_L2, 0, 10000, 100), "script": ALPHA_L2},
-    "n_interactions_per_step": {"script": N_INTERACTIONS_PER_STEP},
+    "interaction_l1": {"ui": Checkbox('Interaction L1', value=INTERACTION_L1), "script": INTERACTION_L1},
+    "interaction_l1_shield_initialization": {"ui": Slider("Interaction L1 shield initialization", INTERACTION_L1_SHIELD_INITIALIZATION, 0, 1000, 10), "script": INTERACTION_L1_SHIELD_INITIALIZATION},
+    "interactions_per_step": {"script": INTERACTIONS_PER_STEP},
     "steps": {"script": STEPS},
 }
 
@@ -65,6 +69,6 @@ evaluation_params = {
     "plot_from_raw": ""
 }
 
-bool_params = ["reduction_phonotactics_l1", "reduction_phonotactics_l2", "affix_prior_l1", "affix_prior_l2"]
+bool_params = ["reduction_phonotactics_l1", "reduction_phonotactics_l2", "affix_prior_l1", "affix_prior_l2", "interaction_l1"]
 
 string_params = ["runlabel", "plot_from_raw"]
