@@ -1,5 +1,5 @@
 import argparse
-from mesa.batchrunner import BatchRunner, batch_run
+# from mesa.batchrunner import BatchRunner, batch_run
 # from mesa import batch_run
 
 from agents.model import Model

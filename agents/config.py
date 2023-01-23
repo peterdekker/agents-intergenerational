@@ -3,7 +3,7 @@ import logging
 import sys
 import datetime
 import os
-from mesa.visualization.UserParam import Slider, Checkbox
+#from mesa.visualization.UserParam import Slider, Checkbox
 
 logging.basicConfig(stream=sys.stderr, level=logging.ERROR)
 
@@ -44,18 +44,33 @@ ITERATIONS = 50
 STEPS = 1000
 INTERACTIONS_PER_STEP = 5
 
+# Bkacup with UI elements
+# model_params = {
+#     "n_agents": {"ui": N_AGENTS, "script": N_AGENTS},
+#     "proportion_l2": {"ui": Slider("Proportion L2", PROPORTION_L2, 0.0, 1.0, 0.1), "script": PROPORTION_L2},
+#     "reduction_phonotactics_l1": {"ui": Checkbox('Reduction phonotactics L1', value=REDUCTION_PHONOTACTICS_L1), "script": REDUCTION_PHONOTACTICS_L1},
+#     "reduction_phonotactics_l2": {"ui": Checkbox('Reduction phonotactics L2', value=REDUCTION_PHONOTACTICS_L2), "script": REDUCTION_PHONOTACTICS_L2},
+#     "affix_prior_l1": {"ui": Checkbox('Affix prior L1', value=AFFIX_PRIOR_L1), "script": AFFIX_PRIOR_L1},
+#     "affix_prior_l2": {"ui": Checkbox('Affix prior L2', value=AFFIX_PRIOR_L2), "script": AFFIX_PRIOR_L2},
+#     "alpha_l1": {"ui": Slider("alpha L1", ALPHA_L1, 0, 10000, 100), "script": ALPHA_L1},
+#     "alpha_l2": {"ui": Slider("alpha L2", ALPHA_L2, 0, 10000, 100), "script": ALPHA_L2},
+#     "interaction_l1": {"ui": Checkbox('Interaction L1', value=INTERACTION_L1), "script": INTERACTION_L1},
+#     "interaction_l1_shield_initialization": {"ui": Slider("Interaction L1 shield initialization", INTERACTION_L1_SHIELD_INITIALIZATION, 0, 1000, 10), "script": INTERACTION_L1_SHIELD_INITIALIZATION},
+#     "interactions_per_step": {"script": INTERACTIONS_PER_STEP},
+#     "steps": {"script": STEPS},
+# }
 
 model_params = {
     "n_agents": {"ui": N_AGENTS, "script": N_AGENTS},
-    "proportion_l2": {"ui": Slider("Proportion L2", PROPORTION_L2, 0.0, 1.0, 0.1), "script": PROPORTION_L2},
-    "reduction_phonotactics_l1": {"ui": Checkbox('Reduction phonotactics L1', value=REDUCTION_PHONOTACTICS_L1), "script": REDUCTION_PHONOTACTICS_L1},
-    "reduction_phonotactics_l2": {"ui": Checkbox('Reduction phonotactics L2', value=REDUCTION_PHONOTACTICS_L2), "script": REDUCTION_PHONOTACTICS_L2},
-    "affix_prior_l1": {"ui": Checkbox('Affix prior L1', value=AFFIX_PRIOR_L1), "script": AFFIX_PRIOR_L1},
-    "affix_prior_l2": {"ui": Checkbox('Affix prior L2', value=AFFIX_PRIOR_L2), "script": AFFIX_PRIOR_L2},
-    "alpha_l1": {"ui": Slider("alpha L1", ALPHA_L1, 0, 10000, 100), "script": ALPHA_L1},
-    "alpha_l2": {"ui": Slider("alpha L2", ALPHA_L2, 0, 10000, 100), "script": ALPHA_L2},
-    "interaction_l1": {"ui": Checkbox('Interaction L1', value=INTERACTION_L1), "script": INTERACTION_L1},
-    "interaction_l1_shield_initialization": {"ui": Slider("Interaction L1 shield initialization", INTERACTION_L1_SHIELD_INITIALIZATION, 0, 1000, 10), "script": INTERACTION_L1_SHIELD_INITIALIZATION},
+    "proportion_l2": {"script": PROPORTION_L2},
+    "reduction_phonotactics_l1": {"script": REDUCTION_PHONOTACTICS_L1},
+    "reduction_phonotactics_l2": {"script": REDUCTION_PHONOTACTICS_L2},
+    "affix_prior_l1": {"script": AFFIX_PRIOR_L1},
+    "affix_prior_l2": {"script": AFFIX_PRIOR_L2},
+    "alpha_l1": {"script": ALPHA_L1},
+    "alpha_l2": {"script": ALPHA_L2},
+    "interaction_l1": {"script": INTERACTION_L1},
+    "interaction_l1_shield_initialization": {"script": INTERACTION_L1_SHIELD_INITIALIZATION},
     "interactions_per_step": {"script": INTERACTIONS_PER_STEP},
     "steps": {"script": STEPS},
 }

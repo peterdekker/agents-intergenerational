@@ -1,5 +1,5 @@
 matplotlib
-mesa==1.0.0
+#mesa==1.0.0
 numpy
 pandas
 argparse
