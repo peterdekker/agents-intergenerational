@@ -20,7 +20,7 @@ class Model:
 
     def __init__(self, n_agents, proportion_l2,
                  reduction_phonotactics_l1, reduction_phonotactics_l2, alpha_l1, alpha_l2,
-                 affix_prior_l1, affix_prior_l2, interaction_l1, interaction_l1_shield_initialization, steps, interactions_per_step, run_id):
+                 affix_prior_l1, affix_prior_l2, interaction_l1, interaction_l1_shield_initialization, generations, interactions_per_generation, run_id):
         '''
         Initialize field
         '''
@@ -32,8 +32,8 @@ class Model:
         assert isinstance(affix_prior_l2, bool)
         assert isinstance(interaction_l1, bool)
         assert interaction_l1_shield_initialization % 1 == 0
-        assert steps % 1 == 0
-        assert interactions_per_step % 1 == 0
+        assert generations % 1 == 0
+        assert interactions_per_generation % 1 == 0
 
         self.n_agents = int(n_agents)
         self.proportion_l2 = proportion_l2
@@ -45,12 +45,12 @@ class Model:
         self.affix_prior_l2 = affix_prior_l2
         self.interaction_l1 = interaction_l1
         self.interaction_l1_shield_initialization = int(interaction_l1_shield_initialization)
-        self.steps = int(steps)
-        self.interactions_per_step = int(interactions_per_step)
+        self.generations = int(generations)
+        self.interactions_per_generation = int(interactions_per_generation)
         self.run_id = run_id
 
         # self.schedule = RandomActivation(self)
-        self.current_step = 0
+        self.current_generation = 0
         self.agents = []
 
         # Agent language model object is created from data file
@@ -111,18 +111,18 @@ class Model:
     def run(self):
         self.stats_entries = []
 
-        # Create first generation with only L1 speakers, which are instantiated with data
+        # Create first generation with only L1 speakers (!), which are instantiated with data
         agents_first_gen = self.create_new_generation(proportion_l2=0.0, init_l1="data", init_l2="empty")
-        #  print(self.current_step, list(map(str, agents_first_gen)))
+        #  print(self.current_generation, list(map(str, agents_first_gen)))
         self.agents.append(agents_first_gen)
 
-        stats.calculate_internal_stats(agents_first_gen, self.current_step,
+        stats.calculate_internal_stats(agents_first_gen, self.current_generation,
                                        self.proportion_l2, self.stats_entries)
         # agents_l1 = [a for a in agents if not a.is_l2()]
         # agents_l2 = [a for a in agents if a.is_l2()]
 
-        for i in range(self.steps):
-            self.step(self.interactions_per_step)
+        for i in range(self.generations):
+            self.generation(self.interactions_per_generation)
 
         self.stats_df = pd.DataFrame(self.stats_entries)
         self.stats_df["run_id"] = self.run_id
@@ -130,30 +130,30 @@ class Model:
         return self.stats_df
 
     def create_new_generation(self, proportion_l2, init_l1, init_l2):
+        print("New generation")
         agents = []
 
         # Always use same # L2 agents, but randomly divide them
-        l2 = misc.spread_l2_agents(proportion_l2, self.n_agents)
-
+        l2_agents = misc.spread_l2_agents(proportion_l2, self.n_agents)
         # Set up agents
         # We use a grid iterator that returns
         # the coordinates of a cell as well as
         # its contents.
         for i in range(self.n_agents):
-            agent = Agent(i, self, self.data, init=init_l2 if l2[i] else init_l1,
-                          affix_prior=self.affix_prior_l2 if l2[i] else self.affix_prior_l1,
-                          reduction_phonotactics=self.reduction_phonotactics_l2 if l2[i] else self.reduction_phonotactics_l1,
-                          alpha=self.alpha_l2 if l2[i] else self.alpha_l1,
-                          l2=l2[i])
+            agent = Agent(i, self, self.data, init=init_l2 if l2_agents[i] else init_l1,
+                          affix_prior=self.affix_prior_l2 if l2_agents[i] else self.affix_prior_l1,
+                          reduction_phonotactics=self.reduction_phonotactics_l2 if l2_agents[i] else self.reduction_phonotactics_l1,
+                          alpha=self.alpha_l2 if l2_agents[i] else self.alpha_l1,
+                          l2=l2_agents[i])
             # self.schedule.add(agent)
             agents.append(agent)
         return agents
 
-    def step(self, interactions_per_step):
+    def generation(self, interactions_per_generation):
         '''
-        Run one step of the model: next generation of iterated learning
+        Run one generation of the model: next generation of iterated learning
         '''
-        self.current_step += 1
+        self.current_generation += 1
 
         # Create next generation of agents, with proportion L2. Both L1 and L2 are empty
         agents_new_gen = self.create_new_generation(
@@ -170,15 +170,15 @@ class Model:
             agent_l1.copy_parent(agents_prev_gen_l1)
 
         # L2 agents learn by being spoken to by previous generation (both L1 and L2)
-        for i in range(interactions_per_step):
+        for i in range(interactions_per_generation):
             for agent_prev in agents_prev_gen:
                 if len(agents_new_gen_l2) > 0:
                     agent_prev.speak(RG.choice(agents_new_gen_l2))
 
-        stats.calculate_internal_stats(agents_new_gen, self.current_step,
+        stats.calculate_internal_stats(agents_new_gen, self.current_generation,
                                        self.proportion_l2, self.stats_entries)
 
-        # print(self.current_step, list(map(str, agents_new_gen)))
+        # print(self.current_generation, list(map(str, agents_new_gen)))
         self.agents.append(agents_new_gen)
 
         # L2 agents in generation n choose
@@ -186,7 +186,7 @@ class Model:
         # Reset correct interactions
         #self.correct_interactions = 0
 
-        # self.schedule.step()
+        # self.schedule.generation()
 
         # Compute proportion non-empty cells in communicative measure
         # self.prop_communicated_prefix_l1 = stats.prop_communicated(

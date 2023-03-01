@@ -41,8 +41,8 @@ INTERACTION_L1_SHIELD_INITIALIZATION = 10
 
 
 ITERATIONS = 50
-STEPS = 1000
-INTERACTIONS_PER_STEP = 100
+GENERATIONS = 1000
+INTERACTIONS_PER_GENERATION = 100
 
 # Bkacup with UI elements
 # model_params = {
@@ -56,8 +56,8 @@ INTERACTIONS_PER_STEP = 100
 #     "alpha_l2": {"ui": Slider("alpha L2", ALPHA_L2, 0, 10000, 100), "script": ALPHA_L2},
 #     "interaction_l1": {"ui": Checkbox('Interaction L1', value=INTERACTION_L1), "script": INTERACTION_L1},
 #     "interaction_l1_shield_initialization": {"ui": Slider("Interaction L1 shield initialization", INTERACTION_L1_SHIELD_INITIALIZATION, 0, 1000, 10), "script": INTERACTION_L1_SHIELD_INITIALIZATION},
-#     "interactions_per_step": {"script": INTERACTIONS_PER_STEP},
-#     "steps": {"script": STEPS},
+#     "interactions_per_generation": {"script": INTERACTIONS_PER_GENERATION},
+#     "generations": {"script": GENERATIONS},
 # }
 
 model_params = {
@@ -71,8 +71,8 @@ model_params = {
     "alpha_l2": {"script": ALPHA_L2},
     "interaction_l1": {"script": INTERACTION_L1},
     "interaction_l1_shield_initialization": {"script": INTERACTION_L1_SHIELD_INITIALIZATION},
-    "interactions_per_step": {"script": INTERACTIONS_PER_STEP},
-    "steps": {"script": STEPS},
+    "interactions_per_generation": {"script": INTERACTIONS_PER_GENERATION},
+    "generations": {"script": GENERATIONS},
 }
 
 # model_params_ui = {k: v["ui"] for k, v in model_params.items()}

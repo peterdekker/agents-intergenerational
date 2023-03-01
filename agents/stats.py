@@ -22,14 +22,14 @@ def prop_internal_filled_agents(agents, affix_type):
     filled_props = [x for x in filled_props if x != None]
     return np.mean(filled_props) if len(filled_props) > 0 else None
 
-def calculate_internal_stats(agents, step, proportion_l2, stats_entries):
+def calculate_internal_stats(agents, generation, proportion_l2, stats_entries):
     agents_l1 = [a for a in agents if not a.is_l2()]
     agents_l2 = [a for a in agents if a.is_l2()]
 
     for agents_set, agent_type in zip([agents_l1, agents_l2, agents], ["l1", "l2", "total"]):
         for affix_type in ["prefix", "suffix"]:
             stat = prop_internal_filled_agents(agents_set, affix_type)
-            stats_entry = {"timestep": step, "proportion_l2": proportion_l2, "stat_name": f"prop_internal_{affix_type}" if agent_type == "total" else f"prop_internal_{affix_type}_{agent_type}", "stat_value": stat}
+            stats_entry = {"generation": generation, "proportion_l2": proportion_l2, "stat_name": f"prop_internal_{affix_type}" if agent_type == "total" else f"prop_internal_{affix_type}_{agent_type}", "stat_value": stat}
             stats_entries.append(stats_entry)
 
 
@@ -59,7 +59,7 @@ def prop_communicated(communicated_list, label=""):
     n_total = len(communicated_list)
     # if n_total == 0 and "L1" in label:
     #     print(f"{label}:empty")
-    # Clear communicated list, so new proportion is calculated for next COMMUNICATED_STATS_AFTER_STEPS timesteps
+    # Clear communicated list, so new proportion is calculated for next COMMUNICATED_STATS_AFTER_GENERATIONS generations
     communicated_list.clear()
     # Calculate proportion
     return n_non_empty/n_total if n_total > 0 else None

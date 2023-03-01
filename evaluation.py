@@ -66,7 +66,7 @@ def evaluate_model(fixed_params, var_param, var_param_settings, iterations):
     #     variable_params,
     #     fixed_params,
     #     iterations=iterations,
-    #     max_steps=steps,
+    #     max_generations=generations,
     #     model_reporters={"datacollector": lambda m: m.datacollector}
     # )
 
@@ -81,11 +81,11 @@ def evaluate_model(fixed_params, var_param, var_param_settings, iterations):
     #                     number_processes=None,
     #                     iterations=iterations,
     #                     data_collection_period=1,
-    #                     max_steps=steps)
+    #                     max_generations=generations)
     # run_data = pd.DataFrame(results)
-    # run_data = run_data.rename(columns={"Step": "timesteps", "RunId": "run"})
-    # # Drop first timestep
-    # run_data = run_data[run_data.timesteps != 0]
+    # run_data = run_data.rename(columns={"Generation": "generations", "RunId": "run"})
+    # # Drop first generation
+    # run_data = run_data[run_data.generations != 0]
 
     # dfs = []
     # for var_param_setting in var_param_settings:
@@ -114,14 +114,15 @@ def rolling_avg(df, window, stats):
 # TODO: Rename stats using ylabel
 # TODO: For course, filter stats on only average L1+l2 statistic
 def create_graph_course_sb(course_df, variable_param, stats, output_dir, label, runlabel):
-    # steps = fixed_params["steps"]
+    # generations = fixed_params["generations"]
     y_label = "proportion affixes non-empty"
     # y_label = "proportion utterances non-empty" if mode=="communicated" else "proportion paradigm cells filled"
-    # df_melted = course_df.melt(id_vars=["timesteps", variable_param],
+    # df_melted = course_df.melt(id_vars=["generations", variable_param],
     #                           value_vars=stats, value_name=y_label, var_name="statistic")
     course_df_stat = course_df[course_df["stat_name"].isin(stats)]
-    ax = sns.lineplot(data=course_df_stat, x="timestep", y="stat_value", hue=variable_param)
+    ax = sns.lineplot(data=course_df_stat, x="generation", y="stat_value", hue=variable_param)
     ax.set_ylim(0, 1)
+    sns.despine(left=True, bottom=True)
     plt.savefig(os.path.join(
         output_dir, f"{variable_param}-{label}-course{'-'+runlabel if runlabel else ''}.{IMG_FORMAT}"), format=IMG_FORMAT, dpi=300)
     plt.clf()
@@ -130,14 +131,15 @@ def create_graph_course_sb(course_df, variable_param, stats, output_dir, label, 
 def create_graph_end_sb(course_df, variable_param, output_dir, label, runlabel):
     y_label = "proportion affixes non-empty"
     # y_label = "proportion utterances non-empty" if mode=="communicated" else "proportion paradigm cells filled"
-    # df_melted = course_df.melt(id_vars=["timesteps", variable_param],
+    # df_melted = course_df.melt(id_vars=["generations", variable_param],
     #                           value_vars=stats, value_name=y_label, var_name="statistic")
 
     # Use last iteration as data
-    steps = max(course_df["timestep"])
-    df_tail = course_df[course_df["timestep"] == steps]
+    generations = max(course_df["generation"])
+    df_tail = course_df[course_df["generation"] == generations]
     ax = sns.lineplot(data=df_tail, x=variable_param, y="stat_value", hue="stat_name")
     ax.set_ylim(0, 1)
+    sns.despine(left=True, bottom=True)
     plt.savefig(os.path.join(
         output_dir, f"{variable_param}-{label}-end{'-'+runlabel if runlabel else ''}.{IMG_FORMAT}"), format=IMG_FORMAT, dpi=300)
     plt.clf()
@@ -187,14 +189,14 @@ def main():
 
     # If we are running the model, not just plotting from results file
     if not plot_from_raw_on:
-        # if (len(iterations) != 1 or len(steps) != 1):
+        # if (len(iterations) != 1 or len(generations) != 1):
         #     raise ValueError(
-        #         "Only supply one iterations setting and one steps setting (or none for default).")
+        #         "Only supply one iterations setting and one generations setting (or none for default).")
         # Use proportion L2 as variable (independent) param, set given params as fixed params.
         var_param = "proportion_l2"
         var_param_settings = [0.0, 0.2, 0.4, 0.6, 0.8, 1.0]
         # assert len(iterations) == 1
-        # assert len(steps) == 1
+        # assert len(generations) == 1
 
         given_params = {k: v for k, v in args.items() if k in model_params_script and v is not None}
         fixed_params = {
