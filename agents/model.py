@@ -57,6 +57,8 @@ class Model:
         self.data = Data(DATA_FILE, interaction_l1, interaction_l1_shield_initialization)
         self.clts = misc.load_clts(CLTS_ARCHIVE_PATH, CLTS_ARCHIVE_URL, CLTS_PATH)
 
+        self.stats_entries = []
+
         # Stats
         # self.proportions_correct_interactions = []
         # self.proportion_correct_interactions = 0.0
@@ -109,7 +111,6 @@ class Model:
         # self.datacollector.collect(self)
 
     def run(self):
-        self.stats_entries = []
 
         # Create first generation with only L1 speakers (!), which are instantiated with data
         agents_first_gen = self.create_new_generation(proportion_l2=0.0, init_l1="data", init_l2="empty")
@@ -130,7 +131,7 @@ class Model:
         return self.stats_df
 
     def create_new_generation(self, proportion_l2, init_l1, init_l2):
-        print("New generation")
+        # print("New generation")
         agents = []
 
         # Always use same # L2 agents, but randomly divide them

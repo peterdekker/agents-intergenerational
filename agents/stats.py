@@ -22,6 +22,7 @@ def prop_internal_filled_agents(agents, affix_type):
     filled_props = [x for x in filled_props if x != None]
     return np.mean(filled_props) if len(filled_props) > 0 else None
 
+
 def calculate_internal_stats(agents, generation, proportion_l2, stats_entries):
     agents_l1 = [a for a in agents if not a.is_l2()]
     agents_l2 = [a for a in agents if a.is_l2()]
