@@ -26,6 +26,10 @@ from multiprocessing import Pool
 
 stats_internal = ["prop_internal_prefix_l1", "prop_internal_suffix_l1",
                   "prop_internal_prefix_l2", "prop_internal_suffix_l2", "prop_internal_prefix", "prop_internal_suffix"]
+
+stats_internal_n_affixes = ["prop_internal_n_affixes_prefix_l1", "prop_internal_n_affixes_suffix_l1",
+                  "prop_internal_n_affixes_prefix_l2", "prop_internal_n_affixes_suffix_l2", "prop_internal_n_affixes_prefix", "prop_internal_n_affixes_suffix"]
+
 # stats_communicated = ["prop_communicated_prefix_l1", "prop_communicated_suffix_l1",
 #                       "prop_communicated_prefix_l2", "prop_communicated_suffix_l2", "prop_communicated_prefix", "prop_communicated_suffix"]
 
@@ -128,15 +132,16 @@ def create_graph_course_sb(course_df, variable_param, stats, output_dir, label, 
     plt.clf()
 
 
-def create_graph_end_sb(course_df, variable_param, output_dir, label, runlabel):
+def create_graph_end_sb(course_df, variable_param, stats, output_dir, label, runlabel):
     y_label = "proportion affixes non-empty"
     # y_label = "proportion utterances non-empty" if mode=="communicated" else "proportion paradigm cells filled"
     # df_melted = course_df.melt(id_vars=["generations", variable_param],
     #                           value_vars=stats, value_name=y_label, var_name="statistic")
+    df_stats = course_df[course_df["stat_name"].isin(stats)]
 
     # Use last iteration as data
-    generations = max(course_df["generation"])
-    df_tail = course_df[course_df["generation"] == generations]
+    generations = max(df_stats["generation"])
+    df_tail = df_stats[df_stats["generation"] == generations]
     ax = sns.lineplot(data=df_tail, x=variable_param, y="stat_value", hue="stat_name")
     ax.set_ylim(0, 1)
     sns.despine(left=True, bottom=True)
@@ -206,7 +211,9 @@ def main():
         course_df.to_csv(os.path.join(output_dir_custom, f"{var_param}-raw.csv"))
         create_graph_course_sb(course_df, var_param, [
             "prop_internal_suffix"], output_dir_custom, "raw", runlabel)
-        create_graph_end_sb(course_df, var_param, output_dir_custom, "raw", runlabel)
+        create_graph_end_sb(course_df, var_param, stats_internal, output_dir_custom, "raw", runlabel)
+        # Create extra diagnostic plots for avg #affixes per speaker
+        create_graph_end_sb(course_df, var_param, stats_internal_n_affixes, output_dir_custom, "n_affixes_raw", runlabel)
 
         # course_df_rolling = rolling_avg(course_df, ROLLING_AVG_WINDOW, stats_internal)
         # create_graph_course_sb(course_df_rolling, var_param, [

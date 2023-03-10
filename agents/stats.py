@@ -3,7 +3,24 @@ import numpy as np
 from collections import defaultdict, Counter
 
 
-def prop_internal_filled(agent, affix_type):
+def prop_internal_n_affixes(agent, affix_type):
+    n_affixes_cells = []
+    for lex_concept in agent.lex_concepts_type[affix_type]:
+        for person in agent.persons:
+            affixes = agent.affixes[(lex_concept, person, affix_type)]
+            n_affixes = len(affixes)
+            n_affixes_cells.append(n_affixes)
+
+    return np.mean(n_affixes_cells) if len(n_affixes_cells) > 0 else None
+
+
+def prop_internal_n_affixes_agents(agents, affix_type):
+    n_affixes = [prop_internal_n_affixes(a, affix_type) for a in agents]
+    n_affixes = [x for x in n_affixes if x != None]
+    return np.mean(n_affixes) if len(n_affixes) > 0 else None
+
+
+def prop_internal_nonzero(agent, affix_type):
     prop_filled_cells = []
     for lex_concept in agent.lex_concepts_type[affix_type]:
         for person in agent.persons:
@@ -17,8 +34,8 @@ def prop_internal_filled(agent, affix_type):
     return np.mean(prop_filled_cells) if len(prop_filled_cells) > 0 else None
 
 
-def prop_internal_filled_agents(agents, affix_type):
-    filled_props = [prop_internal_filled(a, affix_type) for a in agents]
+def prop_internal_nonzero_agents(agents, affix_type):
+    filled_props = [prop_internal_nonzero(a, affix_type) for a in agents]
     filled_props = [x for x in filled_props if x != None]
     return np.mean(filled_props) if len(filled_props) > 0 else None
 
@@ -29,9 +46,13 @@ def calculate_internal_stats(agents, generation, proportion_l2, stats_entries):
 
     for agents_set, agent_type in zip([agents_l1, agents_l2, agents], ["l1", "l2", "total"]):
         for affix_type in ["prefix", "suffix"]:
-            stat = prop_internal_filled_agents(agents_set, affix_type)
-            stats_entry = {"generation": generation, "proportion_l2": proportion_l2, "stat_name": f"prop_internal_{affix_type}" if agent_type == "total" else f"prop_internal_{affix_type}_{agent_type}", "stat_value": stat}
-            stats_entries.append(stats_entry)
+            stat_nonzero = prop_internal_nonzero_agents(agents_set, affix_type)
+            stats_entry_nonzero = {"generation": generation, "proportion_l2": proportion_l2, "stat_name": f"prop_internal_{affix_type}" if agent_type == "total" else f"prop_internal_{affix_type}_{agent_type}", "stat_value": stat_nonzero}
+            stats_entries.append(stats_entry_nonzero)
+
+            stat_n_affixes = prop_internal_n_affixes_agents(agents_set, affix_type)
+            stats_entry_n_affixes = {"generation": generation, "proportion_l2": proportion_l2, "stat_name": f"prop_internal_n_affixes_{affix_type}" if agent_type == "total" else f"prop_internal_n_affixes_{affix_type}_{agent_type}", "stat_value": stat_n_affixes}
+            stats_entries.append(stats_entry_n_affixes)
 
 
 def update_communicated_model_stats(model, prefix, suffix, prefixing, suffixing, l2):
