@@ -176,7 +176,7 @@ class Agent:
         '''
 
         if feedback_speaker: # or True
-            # self.model.correct_interactions += 1
+            self.model.correct_interactions += 1
             prefix_recv = self.signal_recv.prefix
             suffix_recv = self.signal_recv.suffix
             misc.update_affix_list(prefix_recv, suffix_recv, self.affixes, self.lex_concepts_type,

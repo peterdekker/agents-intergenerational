@@ -30,6 +30,8 @@ stats_internal = ["prop_internal_prefix_l1", "prop_internal_suffix_l1",
 stats_internal_n_affixes = ["prop_internal_n_affixes_prefix_l1", "prop_internal_n_affixes_suffix_l1",
                   "prop_internal_n_affixes_prefix_l2", "prop_internal_n_affixes_suffix_l2", "prop_internal_n_affixes_prefix", "prop_internal_n_affixes_suffix"]
 
+stats_prop_correct = ["prop_correct"]
+
 # stats_communicated = ["prop_communicated_prefix_l1", "prop_communicated_suffix_l1",
 #                       "prop_communicated_prefix_l2", "prop_communicated_suffix_l2", "prop_communicated_prefix", "prop_communicated_suffix"]
 
@@ -124,7 +126,8 @@ def create_graph_course_sb(course_df, variable_param, stats, output_dir, label, 
     # df_melted = course_df.melt(id_vars=["generations", variable_param],
     #                           value_vars=stats, value_name=y_label, var_name="statistic")
     course_df_stat = course_df[course_df["stat_name"].isin(stats)]
-    ax = sns.lineplot(data=course_df_stat, x="generation", y="stat_value", hue=variable_param)
+    course_df_stat = course_df_stat.rename(columns={"stat_value": y_label})
+    ax = sns.lineplot(data=course_df_stat, x="generation", y=y_label, hue=variable_param)
     ax.set_ylim(0, 1)
     sns.despine(left=True, bottom=True)
     plt.savefig(os.path.join(
@@ -132,18 +135,27 @@ def create_graph_course_sb(course_df, variable_param, stats, output_dir, label, 
     plt.clf()
 
 
-def create_graph_end_sb(course_df, variable_param, stats, output_dir, label, runlabel):
-    y_label = "proportion affixes non-empty"
+def create_graph_end_sb(course_df, variable_param, stats, output_dir, label, runlabel, type):
+    if type=="complexity":
+        y_label = "proportion affixes non-empty"
+    elif type=="n_affixes":
+        y_label = "n affixes"
+    elif type=="prop_correct":
+        y_label = "proportion correct interactions"
+    else:
+        ValueError("Unsupported graph type.")
     # y_label = "proportion utterances non-empty" if mode=="communicated" else "proportion paradigm cells filled"
     # df_melted = course_df.melt(id_vars=["generations", variable_param],
     #                           value_vars=stats, value_name=y_label, var_name="statistic")
     df_stats = course_df[course_df["stat_name"].isin(stats)]
+    df_stats = df_stats.rename(columns={"stat_value": y_label})
 
     # Use last iteration as data
     generations = max(df_stats["generation"])
     df_tail = df_stats[df_stats["generation"] == generations]
-    ax = sns.lineplot(data=df_tail, x=variable_param, y="stat_value", hue="stat_name")
-    ax.set_ylim(0, 1)
+    ax = sns.lineplot(data=df_tail, x=variable_param, y=y_label, hue="stat_name")
+    if type=="complexity" or type=="prop_correct":
+        ax.set_ylim(0, 1)
     sns.despine(left=True, bottom=True)
     plt.savefig(os.path.join(
         output_dir, f"{variable_param}-{label}-end{'-'+runlabel if runlabel else ''}.{IMG_FORMAT}"), format=IMG_FORMAT, dpi=300)
@@ -211,9 +223,12 @@ def main():
         course_df.to_csv(os.path.join(output_dir_custom, f"{var_param}-raw.csv"))
         create_graph_course_sb(course_df, var_param, [
             "prop_internal_suffix"], output_dir_custom, "raw", runlabel)
-        create_graph_end_sb(course_df, var_param, stats_internal, output_dir_custom, "raw", runlabel)
+        create_graph_end_sb(course_df, var_param, stats_internal, output_dir_custom, "raw", runlabel, type="complexity")
         # Create extra diagnostic plots for avg #affixes per speaker
-        create_graph_end_sb(course_df, var_param, stats_internal_n_affixes, output_dir_custom, "n_affixes_raw", runlabel)
+        create_graph_end_sb(course_df, var_param, stats_internal_n_affixes, output_dir_custom, "n_affixes_raw", runlabel, type="n_affixes")
+        # Create extra diagnostic plots for prop correct interactions
+        create_graph_end_sb(course_df, var_param, stats_prop_correct, output_dir_custom, "prop_correct", runlabel, type="prop_correct")
+
 
         # course_df_rolling = rolling_avg(course_df, ROLLING_AVG_WINDOW, stats_internal)
         # create_graph_course_sb(course_df_rolling, var_param, [

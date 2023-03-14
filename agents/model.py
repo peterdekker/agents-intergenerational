@@ -60,9 +60,9 @@ class Model:
         self.stats_entries = []
 
         # Stats
-        # self.proportions_correct_interactions = []
-        # self.proportion_correct_interactions = 0.0
-        # self.avg_proportion_correct_interactions = 0.0
+        self.proportions_correct_interactions = []
+        self.proportion_correct_interactions = 0.0
+        self.avg_proportion_correct_interactions = 0.0
 
         # self.prop_internal_prefix_l1 = 0.0
         # self.prop_internal_suffix_l1 = 0.0
@@ -154,6 +154,10 @@ class Model:
         '''
         Run one generation of the model: next generation of iterated learning
         '''
+
+        # Reset correct interactions
+        self.correct_interactions = 0
+
         self.current_generation += 1
 
         # Create next generation of agents, with proportion L2. Both L1 and L2 are empty
@@ -179,13 +183,18 @@ class Model:
         stats.calculate_internal_stats(agents_new_gen, self.current_generation,
                                        self.proportion_l2, self.stats_entries)
 
+        # Now compute proportion of correct interaction
+        self.proportion_correct_interactions = self.correct_interactions/float(N_AGENTS * interactions_per_generation)
+        #self.proportions_correct_interactions.append(self.proportion_correct_interactions)
+        #self.avg_proportion_correct_interactions = np.mean(self.proportions_correct_interactions)
+        stats_entry_prop_correct = {"generation": self.current_generation, "proportion_l2": self.proportion_l2, "stat_name": "prop_correct", "stat_value": self.proportion_correct_interactions}
+        self.stats_entries.append(stats_entry_prop_correct)
+
         # print(self.current_generation, list(map(str, agents_new_gen)))
         self.agents.append(agents_new_gen)
 
         # L2 agents in generation n choose
 
-        # Reset correct interactions
-        #self.correct_interactions = 0
 
         # self.schedule.generation()
 
@@ -203,9 +212,6 @@ class Model:
         # self.prop_communicated_suffix = stats.prop_communicated(
         #     self.communicated_suffix, label="Suffix")
 
-        # Now compute proportion of correct interaction
-        # self.proportion_correct_interactions = self.correct_interactions/float(N_AGENTS)
-        # self.proportions_correct_interactions.append(self.proportion_correct_interactions)
-        # self.avg_proportion_correct_interactions = np.mean(self.proportions_correct_interactions)
+        
 
         # self.datacollector.collect(self)
