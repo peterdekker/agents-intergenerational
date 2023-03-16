@@ -34,8 +34,8 @@ AFFIX_PRIOR_L1 = False
 AFFIX_PRIOR_L2 = False
 GENERALIZE_PERSONS = True
 GENERALIZE_LEX_CONCEPTS = True
-ALPHA_L1 = 1 
-ALPHA_L2 = 1 #1000
+ALPHA_L1 = 1
+ALPHA_L2 = 1  # 1000
 INTERACTION_L1 = False
 INTERACTION_L1_SHIELD_INITIALIZATION = 10
 
@@ -84,6 +84,7 @@ evaluation_params = {
     "plot_from_raw": ""
 }
 
-bool_params = ["reduction_phonotactics_l1", "reduction_phonotactics_l2", "affix_prior_l1", "affix_prior_l2", "interaction_l1"]
+bool_params = ["reduction_phonotactics_l1", "reduction_phonotactics_l2",
+               "affix_prior_l1", "affix_prior_l2", "interaction_l1"]
 
 string_params = ["runlabel", "plot_from_raw"]

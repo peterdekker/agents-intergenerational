@@ -40,17 +40,16 @@ class Agent:
             self.affixes = copy.deepcopy(data.affixes)
         elif init == "empty":
             self.affixes = defaultdict(list)
-    
+
     def __str__(self):
         prop_prefix = stats.prop_internal_filled(self, "prefix")
         prop_suffix = stats.prop_internal_filled(self, "suffix")
         return f"ID:{self.pos}, l2: {self.l2}, prop_prefix: {prop_prefix}, prop_suffix: {prop_suffix}"
-    
+
     def copy_parent(self, agents_prev):
         parent = RG.choice(agents_prev)
         # print(f"Agent {self.pos} learning from prev gen agent {parent.pos}")
         self.affixes = copy.deepcopy(parent.affixes)
-        
 
     # Methods used when agent speaks
 
@@ -86,15 +85,17 @@ class Agent:
                 # prefixes = list weighted by prob * prior_prob
                 prefixes = misc.weighted_affixes_prior(lex_concept, person, "prefix", self.affixes)
             else:
-                prefixes = misc.distribution_from_exemplars(lex_concept, person, "prefix", self.affixes, alpha=self.alpha)
+                prefixes = misc.distribution_from_exemplars(
+                    lex_concept, person, "prefix", self.affixes, alpha=self.alpha)
             if len(prefixes) > 0:
                 prefix = misc.affix_choice(prefixes)
                 if self.reduction_phonotactics:
-                    prefix = misc.reduce_phonotactics("prefix", prefix, form, self.model.clts, speaker_type=self.l2)
+                    prefix = misc.reduce_phonotactics(
+                        "prefix", prefix, form, self.model.clts, speaker_type=self.l2)
             else:
                 # Just skip this whole interaction. Only listen for this concept until it gets filled with at least one form.
                 return
-                    
+
             if prefix == "":
                 raise ValueError("Prefix is empty")
             signal.prefix = prefix
@@ -107,7 +108,8 @@ class Agent:
                 suffixes = misc.weighted_affixes_prior(lex_concept, person, "suffix", self.affixes)
                 # suffixes = list weighted by prob * prior_prob
             else:
-                suffixes = misc.distribution_from_exemplars(lex_concept, person, "suffix", self.affixes, alpha=self.alpha)
+                suffixes = misc.distribution_from_exemplars(
+                    lex_concept, person, "suffix", self.affixes, alpha=self.alpha)
                 # Do not use probabilities and prior probabilities of affixes in whole model.
                 # Use plain exemplar lists. suffixes=unweighted list
                 # suffixes = misc.retrieve_affixes_generalize(
@@ -116,14 +118,14 @@ class Agent:
             if len(suffixes) > 0:
                 suffix = misc.affix_choice(suffixes)
                 if self.reduction_phonotactics:
-                    suffix = misc.reduce_phonotactics("suffix", suffix, form, self.model.clts, speaker_type=self.l2)
+                    suffix = misc.reduce_phonotactics(
+                        "suffix", suffix, form, self.model.clts, speaker_type=self.l2)
             else:
                 # Just skip this whole interaction. Only listen for this concept until it gets filled with at least one form.
                 return
             signal.suffix = suffix
         # stats.update_communicated_model_stats(
         #     self.model, prefix, suffix, prefixing, suffixing, self.l2)
-
 
         # Send signal.
         logging.debug(f"Speaker sends signal: {signal!s}")
@@ -151,7 +153,6 @@ class Agent:
         # Do reverse lookup in forms dict to find accompanying concept
         lex_concept_inferred = misc.lookup_lex_concept(signal_form, self.lex_concepts, self.lex_concept_data)
 
-
         # Use affix to infer person
         person_inferred = misc.infer_person_from_signal(lex_concept_inferred,
                                                         self.lex_concept_data,
@@ -175,12 +176,12 @@ class Agent:
             feedback_speaker: feedback from the speaker
         '''
 
-        if feedback_speaker: # or True
+        if feedback_speaker:  # or True
             self.model.correct_interactions += 1
             prefix_recv = self.signal_recv.prefix
             suffix_recv = self.signal_recv.suffix
             misc.update_affix_list(prefix_recv, suffix_recv, self.affixes, self.lex_concepts_type,
-                                    self.concept_listener)
+                                   self.concept_listener)
 
     def is_l2(self):
         return self.l2

@@ -13,6 +13,7 @@ from agents.data import Data
 import numpy as np
 import pandas as pd
 
+
 class Model:
     '''
     Model class
@@ -143,7 +144,8 @@ class Model:
         for i in range(self.n_agents):
             agent = Agent(i, self, self.data, init=init_l2 if l2_agents[i] else init_l1,
                           affix_prior=self.affix_prior_l2 if l2_agents[i] else self.affix_prior_l1,
-                          reduction_phonotactics=self.reduction_phonotactics_l2 if l2_agents[i] else self.reduction_phonotactics_l1,
+                          reduction_phonotactics=self.reduction_phonotactics_l2 if l2_agents[
+                              i] else self.reduction_phonotactics_l1,
                           alpha=self.alpha_l2 if l2_agents[i] else self.alpha_l1,
                           l2=l2_agents[i])
             # self.schedule.add(agent)
@@ -164,7 +166,13 @@ class Model:
         agents_new_gen = self.create_new_generation(
             proportion_l2=self.proportion_l2, init_l1="empty", init_l2="empty")
         agents_new_gen_l1 = [a for a in agents_new_gen if not a.is_l2()]
-        agents_new_gen_l2 = [a for a in agents_new_gen if a.is_l2()]
+
+        if self.interaction_l1:
+            # When option interaction_l1 is on, all agents interact
+            agents_new_gen_interacting = agents_new_gen
+        else:
+            # In the basic model, only L2 is interacting
+            agents_new_gen_interacting = [a for a in agents_new_gen if a.is_l2()]
 
         agents_prev_gen = self.agents[-1]
         agents_prev_gen_l1 = [a for a in agents_prev_gen if not a.is_l2()]
@@ -174,27 +182,28 @@ class Model:
         for agent_l1 in agents_new_gen_l1:
             agent_l1.copy_parent(agents_prev_gen_l1)
 
-        # L2 agents learn by being spoken to by previous generation (both L1 and L2)
+        # L2 agents (or all agents if interaction_l1 on) learn by being spoken to by previous generation (both L1 and L2)
         for i in range(interactions_per_generation):
             for agent_prev in agents_prev_gen:
-                if len(agents_new_gen_l2) > 0:
-                    agent_prev.speak(RG.choice(agents_new_gen_l2))
+                if len(agents_new_gen_interacting) > 0:
+                    agent_prev.speak(RG.choice(agents_new_gen_interacting))
 
         stats.calculate_internal_stats(agents_new_gen, self.current_generation,
                                        self.proportion_l2, self.stats_entries)
 
         # Now compute proportion of correct interaction
-        self.proportion_correct_interactions = self.correct_interactions/float(N_AGENTS * interactions_per_generation)
-        #self.proportions_correct_interactions.append(self.proportion_correct_interactions)
-        #self.avg_proportion_correct_interactions = np.mean(self.proportions_correct_interactions)
-        stats_entry_prop_correct = {"generation": self.current_generation, "proportion_l2": self.proportion_l2, "stat_name": "prop_correct", "stat_value": self.proportion_correct_interactions}
+        self.proportion_correct_interactions = self.correct_interactions / \
+            float(N_AGENTS * interactions_per_generation)
+        # self.proportions_correct_interactions.append(self.proportion_correct_interactions)
+        # self.avg_proportion_correct_interactions = np.mean(self.proportions_correct_interactions)
+        stats_entry_prop_correct = {"generation": self.current_generation, "proportion_l2": self.proportion_l2,
+                                    "stat_name": "prop_correct", "stat_value": self.proportion_correct_interactions}
         self.stats_entries.append(stats_entry_prop_correct)
 
         # print(self.current_generation, list(map(str, agents_new_gen)))
         self.agents.append(agents_new_gen)
 
         # L2 agents in generation n choose
-
 
         # self.schedule.generation()
 
@@ -211,7 +220,5 @@ class Model:
         #     self.communicated_prefix, label="Prefix")
         # self.prop_communicated_suffix = stats.prop_communicated(
         #     self.communicated_suffix, label="Suffix")
-
-        
 
         # self.datacollector.collect(self)

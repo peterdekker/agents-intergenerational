@@ -73,6 +73,7 @@ class Data():
                         # regardless if there are 1 or 2 variants.
                         if len(affixes_processed) == 1:
                             affixes_processed *= 2
+                        # Only if interaction_l1 is on, L1 initialization is shielded
                         repeat_list = interaction_l1_shield_initialization if interaction_l1 else 1
                         self.affixes[(lex_concept, person, affix_type)] = affixes_processed * repeat_list
 

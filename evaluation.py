@@ -28,7 +28,7 @@ stats_internal = ["prop_internal_prefix_l1", "prop_internal_suffix_l1",
                   "prop_internal_prefix_l2", "prop_internal_suffix_l2", "prop_internal_prefix", "prop_internal_suffix"]
 
 stats_internal_n_affixes = ["prop_internal_n_affixes_prefix_l1", "prop_internal_n_affixes_suffix_l1",
-                  "prop_internal_n_affixes_prefix_l2", "prop_internal_n_affixes_suffix_l2", "prop_internal_n_affixes_prefix", "prop_internal_n_affixes_suffix"]
+                            "prop_internal_n_affixes_prefix_l2", "prop_internal_n_affixes_suffix_l2", "prop_internal_n_affixes_prefix", "prop_internal_n_affixes_suffix"]
 
 stats_prop_correct = ["prop_correct"]
 
@@ -103,7 +103,8 @@ def evaluate_model(fixed_params, var_param, var_param_settings, iterations):
     #         dfs.append(stats_df)
     #         print(i, end="|", flush=True)
     #     print("")
-    cartesian_var_params_runs = [(fixed_params, var_param, var_param_setting, run_id) for var_param_setting in var_param_settings for run_id in range(iterations)]
+    cartesian_var_params_runs = [(fixed_params, var_param, var_param_setting, run_id)
+                                 for var_param_setting in var_param_settings for run_id in range(iterations)]
     with Pool(processes=None) as pool:
         dfs_multi = pool.map(model_wrapper, cartesian_var_params_runs)
     return pd.concat(dfs_multi).reset_index(drop=True)
@@ -136,11 +137,11 @@ def create_graph_course_sb(course_df, variable_param, stats, output_dir, label, 
 
 
 def create_graph_end_sb(course_df, variable_param, stats, output_dir, label, runlabel, type):
-    if type=="complexity":
+    if type == "complexity":
         y_label = "proportion affixes non-empty"
-    elif type=="n_affixes":
+    elif type == "n_affixes":
         y_label = "n affixes"
-    elif type=="prop_correct":
+    elif type == "prop_correct":
         y_label = "proportion correct interactions"
     else:
         ValueError("Unsupported graph type.")
@@ -154,7 +155,7 @@ def create_graph_end_sb(course_df, variable_param, stats, output_dir, label, run
     generations = max(df_stats["generation"])
     df_tail = df_stats[df_stats["generation"] == generations]
     ax = sns.lineplot(data=df_tail, x=variable_param, y=y_label, hue="stat_name")
-    if type=="complexity" or type=="prop_correct":
+    if type == "complexity" or type == "prop_correct":
         ax.set_ylim(0, 1)
     sns.despine(left=True, bottom=True)
     plt.savefig(os.path.join(
@@ -223,12 +224,14 @@ def main():
         course_df.to_csv(os.path.join(output_dir_custom, f"{var_param}-raw.csv"))
         create_graph_course_sb(course_df, var_param, [
             "prop_internal_suffix"], output_dir_custom, "raw", runlabel)
-        create_graph_end_sb(course_df, var_param, stats_internal, output_dir_custom, "raw", runlabel, type="complexity")
+        create_graph_end_sb(course_df, var_param, stats_internal,
+                            output_dir_custom, "raw", runlabel, type="complexity")
         # Create extra diagnostic plots for avg #affixes per speaker
-        create_graph_end_sb(course_df, var_param, stats_internal_n_affixes, output_dir_custom, "n_affixes_raw", runlabel, type="n_affixes")
+        create_graph_end_sb(course_df, var_param, stats_internal_n_affixes,
+                            output_dir_custom, "n_affixes_raw", runlabel, type="n_affixes")
         # Create extra diagnostic plots for prop correct interactions
-        create_graph_end_sb(course_df, var_param, stats_prop_correct, output_dir_custom, "prop_correct", runlabel, type="prop_correct")
-
+        create_graph_end_sb(course_df, var_param, stats_prop_correct, output_dir_custom,
+                            "prop_correct", runlabel, type="prop_correct")
 
         # course_df_rolling = rolling_avg(course_df, ROLLING_AVG_WINDOW, stats_internal)
         # create_graph_course_sb(course_df_rolling, var_param, [
