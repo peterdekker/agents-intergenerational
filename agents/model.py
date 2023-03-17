@@ -52,7 +52,6 @@ class Model:
 
         # self.schedule = RandomActivation(self)
         self.current_generation = 0
-        self.agents = []
 
         # Agent language model object is created from data file
         self.data = Data(DATA_FILE, interaction_l1, interaction_l1_shield_initialization)
@@ -61,9 +60,6 @@ class Model:
         self.stats_entries = []
 
         # Stats
-        self.proportions_correct_interactions = []
-        self.proportion_correct_interactions = 0.0
-        self.avg_proportion_correct_interactions = 0.0
 
         # self.prop_internal_prefix_l1 = 0.0
         # self.prop_internal_suffix_l1 = 0.0
@@ -111,15 +107,22 @@ class Model:
         # self.running = True
         # self.datacollector.collect(self)
 
+
+
     def run(self):
+
+        self.correct_interactions = 0
 
         # Create first generation with only L1 speakers (!), which are instantiated with data
         agents_first_gen = self.create_new_generation(proportion_l2=0.0, init_l1="data", init_l2="empty")
         #  print(self.current_generation, list(map(str, agents_first_gen)))
-        self.agents.append(agents_first_gen)
+        self.agents_prev_gen = agents_first_gen
 
         stats.calculate_internal_stats(agents_first_gen, self.current_generation,
                                        self.proportion_l2, self.stats_entries)
+        stats.calculate_correct_interactions(self.correct_interactions, self.current_generation,
+                                   self.proportion_l2, self.stats_entries)
+        
         # agents_l1 = [a for a in agents if not a.is_l2()]
         # agents_l2 = [a for a in agents if a.is_l2()]
 
@@ -174,8 +177,7 @@ class Model:
             # In the basic model, only L2 is interacting
             agents_new_gen_interacting = [a for a in agents_new_gen if a.is_l2()]
 
-        agents_prev_gen = self.agents[-1]
-        agents_prev_gen_l1 = [a for a in agents_prev_gen if not a.is_l2()]
+        agents_prev_gen_l1 = [a for a in self.agents_prev_gen if not a.is_l2()]
         # agents_prev_gen_l2 = [a for a in agents_prev_gen if a.is_l2()]
 
         # L1 agents learn directly from a random L1 from the previous generation
@@ -184,28 +186,18 @@ class Model:
 
         # L2 agents (or all agents if interaction_l1 on) learn by being spoken to by previous generation (both L1 and L2)
         for i in range(interactions_per_generation):
-            for agent_prev in agents_prev_gen:
+            for agent_prev in self.agents_prev_gen:
                 if len(agents_new_gen_interacting) > 0:
                     agent_prev.speak(RG.choice(agents_new_gen_interacting))
+        
+        self.agents_prev_gen = agents_new_gen
 
         stats.calculate_internal_stats(agents_new_gen, self.current_generation,
                                        self.proportion_l2, self.stats_entries)
 
         # Now compute proportion of correct interaction
-        self.proportion_correct_interactions = self.correct_interactions / \
-            float(N_AGENTS * interactions_per_generation)
-        # self.proportions_correct_interactions.append(self.proportion_correct_interactions)
-        # self.avg_proportion_correct_interactions = np.mean(self.proportions_correct_interactions)
-        stats_entry_prop_correct = {"generation": self.current_generation, "proportion_l2": self.proportion_l2,
-                                    "stat_name": "prop_correct", "stat_value": self.proportion_correct_interactions}
-        self.stats_entries.append(stats_entry_prop_correct)
-
-        # print(self.current_generation, list(map(str, agents_new_gen)))
-        self.agents.append(agents_new_gen)
-
-        # L2 agents in generation n choose
-
-        # self.schedule.generation()
+        stats.calculate_correct_interactions(self.correct_interactions, self.current_generation,
+                                   self.proportion_l2, self.stats_entries)
 
         # Compute proportion non-empty cells in communicative measure
         # self.prop_communicated_prefix_l1 = stats.prop_communicated(
@@ -220,5 +212,3 @@ class Model:
         #     self.communicated_prefix, label="Prefix")
         # self.prop_communicated_suffix = stats.prop_communicated(
         #     self.communicated_suffix, label="Suffix")
-
-        # self.datacollector.collect(self)

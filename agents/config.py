@@ -13,7 +13,7 @@ CLTS_ARCHIVE_URL = "https://github.com/cldf-clts/clts/archive/refs/tags/v2.1.0.t
 CLTS_PATH = os.path.join(CURRENTDIR, "clts-2.1.0")
 
 N_AGENTS = 10
-DATA_FILE = "data/data-sample3.csv"
+DATA_FILE = "data/data.csv"
 # DATA_FILE_SYNTHETIC = "data/data-syntheticforms-sample.csv"
 PERSONS = ['1sg', '2sg', '3sg', '1pl.incl', '1pl.excl', '2pl', '3pl']
 

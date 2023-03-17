@@ -1,5 +1,6 @@
 
 import numpy as np
+from agents.config import N_AGENTS, INTERACTIONS_PER_GENERATION
 from collections import defaultdict, Counter
 
 
@@ -47,12 +48,23 @@ def calculate_internal_stats(agents, generation, proportion_l2, stats_entries):
     for agents_set, agent_type in zip([agents_l1, agents_l2, agents], ["l1", "l2", "total"]):
         for affix_type in ["prefix", "suffix"]:
             stat_nonzero = prop_internal_nonzero_agents(agents_set, affix_type)
-            stats_entry_nonzero = {"generation": generation, "proportion_l2": proportion_l2, "stat_name": f"prop_internal_{affix_type}" if agent_type == "total" else f"prop_internal_{affix_type}_{agent_type}", "stat_value": stat_nonzero}
+            stats_entry_nonzero = {"generation": generation, "proportion_l2": proportion_l2, "stat_name": f"prop_internal_{affix_type}" if agent_type ==
+                                   "total" else f"prop_internal_{affix_type}_{agent_type}", "stat_value": stat_nonzero}
             stats_entries.append(stats_entry_nonzero)
 
             stat_n_affixes = prop_internal_n_affixes_agents(agents_set, affix_type)
-            stats_entry_n_affixes = {"generation": generation, "proportion_l2": proportion_l2, "stat_name": f"prop_internal_n_affixes_{affix_type}" if agent_type == "total" else f"prop_internal_n_affixes_{affix_type}_{agent_type}", "stat_value": stat_n_affixes}
+            stats_entry_n_affixes = {"generation": generation, "proportion_l2": proportion_l2, "stat_name": f"prop_internal_n_affixes_{affix_type}" if agent_type ==
+                                     "total" else f"prop_internal_n_affixes_{affix_type}_{agent_type}", "stat_value": stat_n_affixes}
             stats_entries.append(stats_entry_n_affixes)
+
+
+def calculate_correct_interactions(correct_interactions, current_generation,
+                                   proportion_l2, stats_entries):
+    proportion_correct_interactions = correct_interactions / \
+        float(N_AGENTS * INTERACTIONS_PER_GENERATION)
+    stats_entry_prop_correct = {"generation": current_generation, "proportion_l2": proportion_l2,
+                                "stat_name": "prop_correct", "stat_value": proportion_correct_interactions}
+    stats_entries.append(stats_entry_prop_correct)
 
 
 def update_communicated_model_stats(model, prefix, suffix, prefixing, suffixing, l2):
