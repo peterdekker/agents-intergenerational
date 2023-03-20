@@ -3,7 +3,7 @@
 # from mesa.space import SingleGrid
 # from mesa.datacollection import DataCollector
 
-from agents.config import N_AGENTS, DATA_FILE, CLTS_ARCHIVE_PATH, CLTS_ARCHIVE_URL, CLTS_PATH, RG
+from agents.config import N_AGENTS, DATA_FILE, CLTS_ARCHIVE_PATH, CLTS_ARCHIVE_URL, CLTS_PATH, RG, INTERACTIONS_PER_GENERATION
 from agents import stats
 from agents import misc
 from agents.agent import Agent
@@ -112,6 +112,7 @@ class Model:
     def run(self):
 
         self.correct_interactions = 0
+        self.total_interactions = 0
 
         # Create first generation with only L1 speakers (!), which are instantiated with data
         agents_first_gen = self.create_new_generation(proportion_l2=0.0, init_l1="data", init_l2="empty")
@@ -120,14 +121,14 @@ class Model:
 
         stats.calculate_internal_stats(agents_first_gen, self.current_generation,
                                        self.proportion_l2, self.stats_entries)
-        stats.calculate_correct_interactions(self.correct_interactions, self.current_generation,
+        stats.calculate_correct_interactions(self.correct_interactions, self.total_interactions, self.current_generation,
                                    self.proportion_l2, self.stats_entries)
         
         # agents_l1 = [a for a in agents if not a.is_l2()]
         # agents_l2 = [a for a in agents if a.is_l2()]
 
         for i in range(self.generations):
-            self.generation(self.interactions_per_generation)
+            self.generation()
 
         self.stats_df = pd.DataFrame(self.stats_entries)
         self.stats_df["run_id"] = self.run_id
@@ -155,13 +156,14 @@ class Model:
             agents.append(agent)
         return agents
 
-    def generation(self, interactions_per_generation):
+    def generation(self):
         '''
         Run one generation of the model: next generation of iterated learning
         '''
 
         # Reset correct interactions
         self.correct_interactions = 0
+        self.total_interactions = 0
 
         self.current_generation += 1
 
@@ -185,7 +187,8 @@ class Model:
             agent_l1.copy_parent(agents_prev_gen_l1)
 
         # L2 agents (or all agents if interaction_l1 on) learn by being spoken to by previous generation (both L1 and L2)
-        for i in range(interactions_per_generation):
+        for i in range(self.interactions_per_generation):
+            assert len(self.agents_prev_gen) == N_AGENTS
             for agent_prev in self.agents_prev_gen:
                 if len(agents_new_gen_interacting) > 0:
                     agent_prev.speak(RG.choice(agents_new_gen_interacting))
@@ -196,7 +199,7 @@ class Model:
                                        self.proportion_l2, self.stats_entries)
 
         # Now compute proportion of correct interaction
-        stats.calculate_correct_interactions(self.correct_interactions, self.current_generation,
+        stats.calculate_correct_interactions(self.correct_interactions, self.total_interactions, self.current_generation,
                                    self.proportion_l2, self.stats_entries)
 
         # Compute proportion non-empty cells in communicative measure

@@ -175,8 +175,8 @@ class Agent:
         Args:
             feedback_speaker: feedback from the speaker
         '''
-
-        if feedback_speaker:  # or True
+        self.model.total_interactions += 1
+        if feedback_speaker:
             self.model.correct_interactions += 1
             prefix_recv = self.signal_recv.prefix
             suffix_recv = self.signal_recv.suffix

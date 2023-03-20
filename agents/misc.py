@@ -188,6 +188,8 @@ def distribution_from_exemplars(lex_concept, person, affix_type, affixes, alpha)
     p_affix_given_concept = counts_values / n_exemplars_concept
     logging.debug(f"Probabilities for concept: {dict(zip(counts_keys, p_affix_given_concept))}")
     logging.debug(f"Alpha: {alpha}")
+
+    # If alpha is 1.0: stop calculation here and return probabilities.
     if math.isclose(alpha, 1.0):
         return dict(zip(counts_keys, p_affix_given_concept))
 

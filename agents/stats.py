@@ -1,6 +1,5 @@
 
 import numpy as np
-from agents.config import N_AGENTS, INTERACTIONS_PER_GENERATION
 from collections import defaultdict, Counter
 
 
@@ -58,10 +57,12 @@ def calculate_internal_stats(agents, generation, proportion_l2, stats_entries):
             stats_entries.append(stats_entry_n_affixes)
 
 
-def calculate_correct_interactions(correct_interactions, current_generation,
+def calculate_correct_interactions(correct_interactions, total_interactions, current_generation,
                                    proportion_l2, stats_entries):
-    proportion_correct_interactions = correct_interactions / \
-        float(N_AGENTS * INTERACTIONS_PER_GENERATION)
+    # Proportion correct interactions is calculated based on total_interactions:
+    # number of interactions where initiator actually speaks.
+    # Interactions where initiator does not speak, because system is empty, are excluded
+    proportion_correct_interactions = correct_interactions / total_interactions if total_interactions > 0 else 0
     stats_entry_prop_correct = {"generation": current_generation, "proportion_l2": proportion_l2,
                                 "stat_name": "prop_correct", "stat_value": proportion_correct_interactions}
     stats_entries.append(stats_entry_prop_correct)

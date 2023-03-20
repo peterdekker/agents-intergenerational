@@ -4,7 +4,7 @@ import argparse
 
 from agents.model import Model
 from agents import misc
-from agents.config import model_params_script, evaluation_params, bool_params, string_params, OUTPUT_DIR, IMG_FORMAT, ROLLING_AVG_WINDOW
+from agents.config import model_params_script, evaluation_params, bool_params, string_params, OUTPUT_DIR, IMG_FORMAT, ENABLE_MULTITHREADING
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -105,7 +105,7 @@ def evaluate_model(fixed_params, var_param, var_param_settings, iterations):
     #     print("")
     cartesian_var_params_runs = [(fixed_params, var_param, var_param_setting, run_id)
                                  for var_param_setting in var_param_settings for run_id in range(iterations)]
-    with Pool(processes=None) as pool:
+    with Pool(processes=None if ENABLE_MULTITHREADING else 1) as pool:
         dfs_multi = pool.map(model_wrapper, cartesian_var_params_runs)
     return pd.concat(dfs_multi).reset_index(drop=True)
 
@@ -155,7 +155,7 @@ def create_graph_end_sb(course_df, variable_param, stats, output_dir, label, run
     generations = max(df_stats["generation"])
     df_tail = df_stats[df_stats["generation"] == generations]
     ax = sns.lineplot(data=df_tail, x=variable_param, y=y_label, hue="stat_name")
-    if type == "complexity" or type == "prop_correct":
+    if type == "complexity": # or type == "prop_correct":
         ax.set_ylim(0, 1)
     sns.despine(left=True, bottom=True)
     plt.savefig(os.path.join(

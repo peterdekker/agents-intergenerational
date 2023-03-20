@@ -5,6 +5,7 @@ import datetime
 import os
 #from mesa.visualization.UserParam import Slider, Checkbox
 
+### Parameters not settable by user
 logging.basicConfig(stream=sys.stderr, level=logging.ERROR)
 
 CURRENTDIR = os.path.dirname(os.path.realpath(__file__))
@@ -21,19 +22,21 @@ RG = np.random.default_rng()
 
 ROLLING_AVG_WINDOW = 100
 
+GENERALIZE_PERSONS = True
+GENERALIZE_LEX_CONCEPTS = True
+
 IMG_FORMAT = "pdf"
 OUTPUT_DIR = f'output-{str(datetime.datetime.now()).replace(" ","-").replace(":",".")}'
 
+ENABLE_MULTITHREADING = True
 
-# Defaults for UserSettableParameters
-# Independent variable
+
+### User settable parameteres
 PROPORTION_L2 = 0.5
 REDUCTION_PHONOTACTICS_L1 = False
 REDUCTION_PHONOTACTICS_L2 = False
 AFFIX_PRIOR_L1 = False
 AFFIX_PRIOR_L2 = False
-GENERALIZE_PERSONS = True
-GENERALIZE_LEX_CONCEPTS = True
 ALPHA_L1 = 1
 ALPHA_L2 = 1  # 1000
 INTERACTION_L1 = False
