@@ -152,6 +152,7 @@ def weighted_affixes_prior(lex_concept, person, affix_type, affixes):
     n_exemplars_concept = len(affixes_concept)
     counts_affixes_concept = Counter(affixes_concept)
     logging.debug(f"Counts for concept: {counts_affixes_concept}")
+    # Division maybe more efficient as numpy array (see distribution_from_exemplars), but we need dict later
     p_affix_given_concept = {aff: count/n_exemplars_concept for aff, count in counts_affixes_concept.items()}
     logging.debug(f"Probabilities for concept: {p_affix_given_concept}")
 
@@ -165,13 +166,16 @@ def weighted_affixes_prior(lex_concept, person, affix_type, affixes):
     p_affix = {aff: count/n_exemplars_all for aff, count in counts_affixes_all.items()}
     logging.debug(f"Probabilities for all: {p_affix}")
 
-    # combined: p(affix|concept) * p(affix) [prior]
-    p_combined = {aff: p_aff_conc * p_affix[aff] for aff, p_aff_conc in p_affix_given_concept.items()}
-    logging.debug(f"Combined: {p_combined}")
-    total = sum(p_combined.values())
-    p_combined_normalized = {aff: p_comb/total for aff, p_comb in p_combined.items()}
-    logging.debug(f"Combined normalized: {p_combined_normalized}")
-    return p_combined_normalized
+    if mode=="only_affix_prior":
+        return p_affix
+    elif mode=="affix_prior_combined":
+        # combined: p(affix|concept) * p(affix) [prior]
+        p_combined = {aff: p_aff_conc * p_affix[aff] for aff, p_aff_conc in p_affix_given_concept.items()}
+        logging.debug(f"Combined: {p_combined}")
+        total = sum(p_combined.values())
+        p_combined_normalized = {aff: p_comb/total for aff, p_comb in p_combined.items()}
+        logging.debug(f"Combined normalized: {p_combined_normalized}")
+        return p_combined_normalized
 
 
 def distribution_from_exemplars(lex_concept, person, affix_type, affixes, alpha):
@@ -186,12 +190,13 @@ def distribution_from_exemplars(lex_concept, person, affix_type, affixes, alpha)
     counts_keys = list(counts_affixes_concept.keys())
     counts_values = np.array(list(counts_affixes_concept.values()))
     p_affix_given_concept = counts_values / n_exemplars_concept
-    logging.debug(f"Probabilities for concept: {dict(zip(counts_keys, p_affix_given_concept))}")
+    p_affix_given_concept_dict = dict(zip(counts_keys, p_affix_given_concept))
+    logging.debug(f"Probabilities for concept: {p_affix_given_concept_dict}")
     logging.debug(f"Alpha: {alpha}")
 
     # If alpha is 1.0: stop calculation here and return probabilities.
     if math.isclose(alpha, 1.0):
-        return dict(zip(counts_keys, p_affix_given_concept))
+        return p_affix_given_concept_dict
 
     # Scale probabilities with alpha in log space (make distribution peakier)
     log_scaled = np.log(p_affix_given_concept) * alpha
