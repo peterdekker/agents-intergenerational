@@ -35,8 +35,11 @@ ENABLE_MULTITHREADING = True
 PROPORTION_L2 = 0.5
 REDUCTION_PHONOTACTICS_L1 = False
 REDUCTION_PHONOTACTICS_L2 = False
-AFFIX_PRIOR_L1 = False
-AFFIX_PRIOR_L2 = False
+AFFIX_PRIOR_COMBINED_L1 = False
+AFFIX_PRIOR_COMBINED_L2 = False
+AFFIX_PRIOR_ONLY_L1 = False
+AFFIX_PRIOR_ONLY_L2 = False
+AFFIX_PRIOR_ONLY_PROB = 0.5
 ALPHA_L1 = 1
 ALPHA_L2 = 1  # 1000
 INTERACTION_L1 = False
@@ -68,8 +71,11 @@ model_params = {
     "proportion_l2": {"script": PROPORTION_L2},
     "reduction_phonotactics_l1": {"script": REDUCTION_PHONOTACTICS_L1},
     "reduction_phonotactics_l2": {"script": REDUCTION_PHONOTACTICS_L2},
-    "affix_prior_l1": {"script": AFFIX_PRIOR_L1},
-    "affix_prior_l2": {"script": AFFIX_PRIOR_L2},
+    "affix_prior_combined_l1": {"script": AFFIX_PRIOR_COMBINED_L1},
+    "affix_prior_combined_l2": {"script": AFFIX_PRIOR_COMBINED_L2},
+    "affix_prior_only_l1": {"script": AFFIX_PRIOR_ONLY_L1},
+    "affix_prior_only_l2": {"script": AFFIX_PRIOR_ONLY_L2},
+    "affix_prior_only_prob": {"script": AFFIX_PRIOR_ONLY_PROB},
     "alpha_l1": {"script": ALPHA_L1},
     "alpha_l2": {"script": ALPHA_L2},
     "interaction_l1": {"script": INTERACTION_L1},
@@ -88,6 +94,6 @@ evaluation_params = {
 }
 
 bool_params = ["reduction_phonotactics_l1", "reduction_phonotactics_l2",
-               "affix_prior_l1", "affix_prior_l2", "interaction_l1"]
+               "affix_prior_combined_l1", "affix_prior_combined_l2", "affix_prior_only_l1", "affix_prior_only_l2", "interaction_l1"]
 
 string_params = ["runlabel", "plot_from_raw"]

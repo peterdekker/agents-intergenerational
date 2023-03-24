@@ -10,7 +10,7 @@ from agents import stats
 
 
 class Agent:
-    def __init__(self, pos, model, data, init, affix_prior, reduction_phonotactics, alpha, l2):
+    def __init__(self, pos, model, data, init, affix_prior_combined, affix_prior_only, affix_prior_only_prob, reduction_phonotactics, alpha, l2):
         '''
          Create a new speech agent.
 
@@ -21,7 +21,9 @@ class Agent:
         '''
         self.model = model
         self.pos = pos
-        self.affix_prior = affix_prior
+        self.affix_prior_combined = affix_prior_combined
+        self.affix_prior_only = affix_prior_only
+        self.affix_prior_only_prob = affix_prior_only_prob
         self.reduction_phonotactics = reduction_phonotactics
         self.alpha = alpha
         self.l2 = l2
@@ -80,10 +82,13 @@ class Agent:
         prefix = None
         suffix = None
         if prefixing:
-            if self.affix_prior:
+            if self.affix_prior_combined:
 
                 # prefixes = list weighted by prob * prior_prob
-                prefixes = misc.weighted_affixes_prior(lex_concept, person, "prefix", self.affixes)
+                prefixes = misc.weighted_affixes_prior(lex_concept, person, "prefix", self.affixes, "combined")
+            elif self.affix_prior_only:
+                # prefixes = list weighted by prob * prior_prob
+                prefixes = misc.weighted_affixes_prior(lex_concept, person, "prefix", self.affixes, "only", self.affix_prior_only_prob)
             else:
                 prefixes = misc.distribution_from_exemplars(
                     lex_concept, person, "prefix", self.affixes, alpha=self.alpha)
@@ -104,9 +109,11 @@ class Agent:
         #     -- transitive: do not use suffix
         #     -- intransitive: use suffix with probability, because it is not obligatory
         if suffixing:
-            if self.affix_prior:
-                suffixes = misc.weighted_affixes_prior(lex_concept, person, "suffix", self.affixes)
+            if self.affix_prior_combined:
+                suffixes = misc.weighted_affixes_prior(lex_concept, person, "suffix", self.affixes, "combined")
                 # suffixes = list weighted by prob * prior_prob
+            elif self.affix_prior_only:
+                suffixes = misc.weighted_affixes_prior(lex_concept, person, "suffix", self.affixes, "only", self.affix_prior_only_prob)
             else:
                 suffixes = misc.distribution_from_exemplars(
                     lex_concept, person, "suffix", self.affixes, alpha=self.alpha)

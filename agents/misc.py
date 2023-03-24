@@ -1,4 +1,4 @@
-import editdistance
+# import editdistance
 import math
 import numpy as np
 import os
@@ -146,7 +146,7 @@ def spread_l2_agents(proportion_l2, n_agents):
     return [bool(x) for x in l2]
 
 
-def weighted_affixes_prior(lex_concept, person, affix_type, affixes):
+def weighted_affixes_prior(lex_concept, person, affix_type, affixes, mode, affix_prior_only_prob=None):
     affixes_concept = affixes[(lex_concept, person, affix_type)]
     logging.debug(f"Affixes for concept: {affixes_concept}")
     n_exemplars_concept = len(affixes_concept)
@@ -166,9 +166,19 @@ def weighted_affixes_prior(lex_concept, person, affix_type, affixes):
     p_affix = {aff: count/n_exemplars_all for aff, count in counts_affixes_all.items()}
     logging.debug(f"Probabilities for all: {p_affix}")
 
-    if mode=="only_affix_prior":
-        return p_affix
-    elif mode=="affix_prior_combined":
+    if mode == "only":
+        # With a certain probability, use distribution of all concepts
+        # rest of times, use distribution of specific concept
+        logging.debug("Only affix prior mode.")
+        if RG.random() < affix_prior_only_prob:
+            logging.debug(f"Use affix prior: {p_affix}")
+            return p_affix
+        else:
+            logging.debug(f"Use concept distribution: {p_affix_given_concept}")
+            return p_affix_given_concept
+    # Combine affix prior for all concepts and distribution of specific concept
+    elif mode == "combined":
+        logging.debug("Combined mode.")
         # combined: p(affix|concept) * p(affix) [prior]
         p_combined = {aff: p_aff_conc * p_affix[aff] for aff, p_aff_conc in p_affix_given_concept.items()}
         logging.debug(f"Combined: {p_combined}")
@@ -176,6 +186,8 @@ def weighted_affixes_prior(lex_concept, person, affix_type, affixes):
         p_combined_normalized = {aff: p_comb/total for aff, p_comb in p_combined.items()}
         logging.debug(f"Combined normalized: {p_combined_normalized}")
         return p_combined_normalized
+    else:
+        raise ValueError("Mode not recognized.")
 
 
 def distribution_from_exemplars(lex_concept, person, affix_type, affixes, alpha):

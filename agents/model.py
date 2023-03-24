@@ -3,14 +3,14 @@
 # from mesa.space import SingleGrid
 # from mesa.datacollection import DataCollector
 
-from agents.config import N_AGENTS, DATA_FILE, CLTS_ARCHIVE_PATH, CLTS_ARCHIVE_URL, CLTS_PATH, RG, INTERACTIONS_PER_GENERATION
+from agents.config import N_AGENTS, DATA_FILE, CLTS_ARCHIVE_PATH, CLTS_ARCHIVE_URL, CLTS_PATH, RG
 from agents import stats
 from agents import misc
 from agents.agent import Agent
 from agents.data import Data
 
 
-import numpy as np
+# import numpy as np
 import pandas as pd
 
 
@@ -21,7 +21,7 @@ class Model:
 
     def __init__(self, n_agents, proportion_l2,
                  reduction_phonotactics_l1, reduction_phonotactics_l2, alpha_l1, alpha_l2,
-                 affix_prior_l1, affix_prior_l2, interaction_l1, interaction_l1_shield_initialization, generations, interactions_per_generation, run_id):
+                 affix_prior_combined_l1, affix_prior_combined_l2, affix_prior_only_l1, affix_prior_only_l2, affix_prior_only_prob, interaction_l1, interaction_l1_shield_initialization, generations, interactions_per_generation, run_id):
         '''
         Initialize field
         '''
@@ -29,8 +29,10 @@ class Model:
         assert proportion_l2 >= 0 and proportion_l2 <= 1
         assert isinstance(reduction_phonotactics_l1, bool)
         assert isinstance(reduction_phonotactics_l2, bool)
-        assert isinstance(affix_prior_l1, bool)
-        assert isinstance(affix_prior_l2, bool)
+        assert isinstance(affix_prior_combined_l1, bool)
+        assert isinstance(affix_prior_combined_l2, bool)
+        assert isinstance(affix_prior_only_l1, bool)
+        assert isinstance(affix_prior_only_l2, bool)
         assert isinstance(interaction_l1, bool)
         assert interaction_l1_shield_initialization % 1 == 0
         assert generations % 1 == 0
@@ -42,8 +44,11 @@ class Model:
         self.reduction_phonotactics_l2 = reduction_phonotactics_l2
         self.alpha_l1 = alpha_l1
         self.alpha_l2 = alpha_l2
-        self.affix_prior_l1 = affix_prior_l1
-        self.affix_prior_l2 = affix_prior_l2
+        self.affix_prior_combined_l1 = affix_prior_combined_l1
+        self.affix_prior_combined_l2 = affix_prior_combined_l2
+        self.affix_prior_only_l1 = affix_prior_only_l1
+        self.affix_prior_only_l2 = affix_prior_only_l2
+        self.affix_prior_only_prob = affix_prior_only_prob
         self.interaction_l1 = interaction_l1
         self.interaction_l1_shield_initialization = int(interaction_l1_shield_initialization)
         self.generations = int(generations)
@@ -107,8 +112,6 @@ class Model:
         # self.running = True
         # self.datacollector.collect(self)
 
-
-
     def run(self):
 
         self.correct_interactions = 0
@@ -122,8 +125,8 @@ class Model:
         stats.calculate_internal_stats(agents_first_gen, self.current_generation,
                                        self.proportion_l2, self.stats_entries)
         stats.calculate_correct_interactions(self.correct_interactions, self.total_interactions, self.current_generation,
-                                   self.proportion_l2, self.stats_entries)
-        
+                                             self.proportion_l2, self.stats_entries)
+
         # agents_l1 = [a for a in agents if not a.is_l2()]
         # agents_l2 = [a for a in agents if a.is_l2()]
 
@@ -147,7 +150,9 @@ class Model:
         # its contents.
         for i in range(self.n_agents):
             agent = Agent(i, self, self.data, init=init_l2 if l2_agents[i] else init_l1,
-                          affix_prior=self.affix_prior_l2 if l2_agents[i] else self.affix_prior_l1,
+                          affix_prior_combined=self.affix_prior_combined_l2 if l2_agents[i] else self.affix_prior_combined_l1,
+                          affix_prior_only=self.affix_prior_only_l2 if l2_agents[i] else self.affix_prior_only_l1,
+                          affix_prior_only_prob=self.affix_prior_only_prob,
                           reduction_phonotactics=self.reduction_phonotactics_l2 if l2_agents[
                               i] else self.reduction_phonotactics_l1,
                           alpha=self.alpha_l2 if l2_agents[i] else self.alpha_l1,
@@ -192,7 +197,7 @@ class Model:
             for agent_prev in self.agents_prev_gen:
                 if len(agents_new_gen_interacting) > 0:
                     agent_prev.speak(RG.choice(agents_new_gen_interacting))
-        
+
         self.agents_prev_gen = agents_new_gen
 
         stats.calculate_internal_stats(agents_new_gen, self.current_generation,
@@ -200,7 +205,7 @@ class Model:
 
         # Now compute proportion of correct interaction
         stats.calculate_correct_interactions(self.correct_interactions, self.total_interactions, self.current_generation,
-                                   self.proportion_l2, self.stats_entries)
+                                             self.proportion_l2, self.stats_entries)
 
         # Compute proportion non-empty cells in communicative measure
         # self.prop_communicated_prefix_l1 = stats.prop_communicated(
