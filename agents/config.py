@@ -91,9 +91,11 @@ evaluation_params = {
     "iterations": ITERATIONS,
     "runlabel": "",
     "plot_from_raw": ""
+    "evaluate_prop_l2": {"script": False},
+    "evaluate_param": {"script": False},
 }
 
 bool_params = ["reduction_phonotactics_l1", "reduction_phonotactics_l2",
-               "affix_prior_combined_l1", "affix_prior_combined_l2", "affix_prior_only_l1", "affix_prior_only_l2", "interaction_l1"]
+               "affix_prior_combined_l1", "affix_prior_combined_l2", "affix_prior_only_l1", "affix_prior_only_l2", "interaction_l1", "evaluate_prop_l2", "evaluate_param"]
 
 string_params = ["runlabel", "plot_from_raw"]
