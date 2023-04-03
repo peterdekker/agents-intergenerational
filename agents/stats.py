@@ -47,13 +47,13 @@ def calculate_internal_stats(agents, generation, proportion_l2, stats_entries):
     for agents_set, agent_type in zip([agents_l1, agents_l2, agents], ["l1", "l2", "total"]):
         for affix_type in ["prefix", "suffix"]:
             stat_nonzero = prop_internal_nonzero_agents(agents_set, affix_type)
-            stats_entry_nonzero = {"generation": generation, "proportion_l2": proportion_l2, "stat_name": f"prop_internal_{affix_type}" if agent_type ==
-                                   "total" else f"prop_internal_{affix_type}_{agent_type}", "stat_value": stat_nonzero}
+            stats_entry_nonzero = {"generation": generation, "stat_name": f"prop_internal_{affix_type}" if agent_type ==
+                                   "total" else f"prop_internal_{affix_type}_{agent_type}", "stat_value": stat_nonzero} # "proportion_l2": proportion_l2, 
             stats_entries.append(stats_entry_nonzero)
 
             stat_n_affixes = prop_internal_n_affixes_agents(agents_set, affix_type)
-            stats_entry_n_affixes = {"generation": generation, "proportion_l2": proportion_l2, "stat_name": f"prop_internal_n_affixes_{affix_type}" if agent_type ==
-                                     "total" else f"prop_internal_n_affixes_{affix_type}_{agent_type}", "stat_value": stat_n_affixes}
+            stats_entry_n_affixes = {"generation": generation, "stat_name": f"prop_internal_n_affixes_{affix_type}" if agent_type ==
+                                     "total" else f"prop_internal_n_affixes_{affix_type}_{agent_type}", "stat_value": stat_n_affixes} #"proportion_l2": proportion_l2, 
             stats_entries.append(stats_entry_n_affixes)
 
 
@@ -63,7 +63,7 @@ def calculate_correct_interactions(correct_interactions, total_interactions, cur
     # number of interactions where initiator actually speaks.
     # Interactions where initiator does not speak, because system is empty, are excluded
     proportion_correct_interactions = correct_interactions / total_interactions if total_interactions > 0 else 0
-    stats_entry_prop_correct = {"generation": current_generation, "proportion_l2": proportion_l2,
+    stats_entry_prop_correct = {"generation": current_generation, #"proportion_l2": proportion_l2,
                                 "stat_name": "prop_correct", "stat_value": proportion_correct_interactions}
     stats_entries.append(stats_entry_prop_correct)
 

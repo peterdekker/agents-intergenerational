@@ -28,17 +28,17 @@ GENERALIZE_LEX_CONCEPTS = True
 IMG_FORMAT = "pdf"
 OUTPUT_DIR = f'output-{str(datetime.datetime.now()).replace(" ","-").replace(":",".")}'
 
-ENABLE_MULTITHREADING = True
+ENABLE_MULTITHREADING = False
 
 
 ### User settable parameteres
 PROPORTION_L2 = 0.5
-REDUCTION_PHONOTACTICS_L1 = False
-REDUCTION_PHONOTACTICS_L2 = False
+REDUCTION_PHONOTACTICS_L1 = True
+REDUCTION_PHONOTACTICS_L2 = True
 AFFIX_PRIOR_COMBINED_L1 = False
 AFFIX_PRIOR_COMBINED_L2 = False
-AFFIX_PRIOR_ONLY_L1 = False
-AFFIX_PRIOR_ONLY_L2 = False
+AFFIX_PRIOR_ONLY_L1 = True
+AFFIX_PRIOR_ONLY_L2 = True
 AFFIX_PRIOR_ONLY_PROB = 0.5
 ALPHA_L1 = 1
 ALPHA_L2 = 1  # 1000
@@ -50,7 +50,7 @@ ITERATIONS = 50
 GENERATIONS = 200
 INTERACTIONS_PER_GENERATION = 100
 
-# Bkacup with UI elements
+# Backup with UI elements
 # model_params = {
 #     "n_agents": {"ui": N_AGENTS, "script": N_AGENTS},
 #     "proportion_l2": {"ui": Slider("Proportion L2", PROPORTION_L2, 0.0, 1.0, 0.1), "script": PROPORTION_L2},
@@ -81,19 +81,21 @@ model_params = {
     "interaction_l1": {"script": INTERACTION_L1},
     "interaction_l1_shield_initialization": {"script": INTERACTION_L1_SHIELD_INITIALIZATION},
     "interactions_per_generation": {"script": INTERACTIONS_PER_GENERATION},
-    "generations": {"script": GENERATIONS},
 }
 
 # model_params_ui = {k: v["ui"] for k, v in model_params.items()}
 model_params_script = {k: v["script"] for k, v in model_params.items()}
 
 evaluation_params = {
-    "iterations": ITERATIONS,
-    "runlabel": "",
-    "plot_from_raw": ""
+    "iterations": {"script": ITERATIONS},
+    "runlabel": {"script": ""},
+    "plot_from_raw": {"script": ""},
     "evaluate_prop_l2": {"script": False},
     "evaluate_param": {"script": False},
+    "generations": {"script": GENERATIONS},
 }
+
+eval_params_script = {k: v["script"] for k, v in evaluation_params.items()}
 
 bool_params = ["reduction_phonotactics_l1", "reduction_phonotactics_l2",
                "affix_prior_combined_l1", "affix_prior_combined_l2", "affix_prior_only_l1", "affix_prior_only_l2", "interaction_l1", "evaluate_prop_l2", "evaluate_param"]

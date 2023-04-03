@@ -4,7 +4,7 @@ import argparse
 
 from agents.model import Model
 from agents import misc
-from agents.config import model_params_script, evaluation_params, bool_params, string_params, OUTPUT_DIR, IMG_FORMAT, ENABLE_MULTITHREADING
+from agents.config import model_params_script, eval_params_script, evaluation_params, bool_params, string_params, OUTPUT_DIR, IMG_FORMAT, ENABLE_MULTITHREADING
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -54,18 +54,20 @@ def params_print(params):
 
 
 def model_wrapper(arg):
-    fixed_params, var_param, var_param_setting, run_id = arg
-    all_params = fixed_params | {var_param: var_param_setting}
-    m = Model(**all_params, run_id=run_id)
+    fixed_params, vpn, vpv, prop_l2_value, iteration, generations = arg
+    var_params = {"proportion_l2": prop_l2_value}
+    if vpn is not None:
+        var_params = var_params | {vpn: vpv}
+    all_params = fixed_params | var_params
+    m = Model(**all_params, run_id=iteration, generations=generations, var_param_name=vpn, var_param_value=vpv)
     stats_df = m.run()
-    print(f" - {var_param}: {var_param_setting}. Iteration {run_id}.")
+    print(f" - {params_print(var_params)}Iteration {iteration}.  Generations: {generations}.")
     return stats_df
 
 
 def evaluate_model(cartesian_var_params_runs, iterations):
-    print(f"Iterations: {iterations}")
-    print(f"Variable parameters: {params_print(var_params)}")
-    
+    print(f"Iterations: {iterations}.")
+
     with Pool(processes=None if ENABLE_MULTITHREADING else 1) as pool:
         dfs_multi = pool.map(model_wrapper, cartesian_var_params_runs)
     return pd.concat(dfs_multi).reset_index(drop=True)
@@ -83,7 +85,7 @@ def rolling_avg(df, window, stats):
 def create_graph_course_sb(course_df, variable_param, stat, output_dir, label, runlabel):
     # generations = fixed_params["generations"]
     y_label = "proportion affixes non-empty"
-    course_df_stat = course_df[course_df["stat_name"]==stat]
+    course_df_stat = course_df[course_df["stat_name"] == stat]
     course_df_stat = course_df_stat.rename(columns={"stat_value": y_label})
     ax = sns.lineplot(data=course_df_stat, x="generation", y=y_label, hue=variable_param)
     ax.set_ylim(0, 1)
@@ -130,21 +132,24 @@ def main():
     parser = argparse.ArgumentParser(description='Run agent model from terminal.')
     model_group = parser.add_argument_group('model', 'Model parameters')
     for param in model_params_script:
-        model_group.add_argument(f"--{param}",
+        model_group.add_argument(f"--{param}", nargs="+",
                                  type=str2bool if param in bool_params else float)
     evaluation_group = parser.add_argument_group('evaluation', 'Evaluation parameters')
     for param in evaluation_params:
         if param in bool_params:
             evaluation_group.add_argument(f'--{param}', action='store_true')
         elif param in string_params:
-            evaluation_group.add_argument(f'--{param}', type=str, default=evaluation_params[param])
+            evaluation_group.add_argument(f'--{param}', type=str, default=eval_params_script[param])
         else:
-            evaluation_group.add_argument(f"--{param}", type=float, default=evaluation_params[param])
+            evaluation_group.add_argument(f"--{param}", type=int,
+                                          default=eval_params_script[param])
 
     # Parse arguments
     args = vars(parser.parse_args())
     # Evaluation params
     iterations = int(args["iterations"])
+
+    generations = int(args["generations"])
     runlabel = args["runlabel"]
     # Different modes
     plot_from_raw_on = args["plot_from_raw"] != ""
@@ -178,40 +183,46 @@ def main():
 
     # If we are running the model, not just plotting from results file
     if not plot_from_raw_on:
-        given_params = {k: v for k, v in args.items() if k in model_params_script and v is not None}
+        given_model_params = {k: v for k, v in args.items() if k in model_params_script and v is not None}
+        prop_l2_settings = [0.0, 0.2, 0.4, 0.6, 0.8, 1.0]
         if evaluate_prop_l2:
-            # Use proportion L2 as variable (independent) param, set given params as fixed params.
-            var_params = {"proportion_l2": [0.0, 0.2, 0.4, 0.6, 0.8, 1.0]}
+            # Check that only one parameter setting is given per parameter
+            assert all([len(v)==1 for v in given_model_params.values() if v is not None])
+            # Use given parameters as fixed parameters, or defaults otherwise. Exclude proportion_l2 to be evaluated.
+            fixed_params = {k: (v_default if k not in given_model_params else given_model_params[k][0]) for k, v_default in model_params_script.items(
+            ) if k != "proportion_l2"}
         elif evaluate_param:
-            if len(given_params)>1
-                ValueError("Only 1 parameter can be given in evaluate_param mode")
-            var_params = {"proportion_l2": [0.0, 0.2, 0.4, 0.6, 0.8, 1.0]} | given_params
+            if len(given_model_params) > 1:
+                raise ValueError("Only 1 parameter can be given in evaluate_param mode")
+            # Use all fixed parameters from defaults. given_model_params are variable params to be evaluated, exlucde those and proportion_l2.
+            fixed_params = {k: v_default for k, v_default in model_params_script.items(
+            ) if k not in given_model_params and k != "proportion_l2"}
         else:
             ValueError("Choose a mode: evaluate_prop_l2 or evaluate_param.")
+        print(params_print(fixed_params))
         cartesian_var_params_runs = []
-        for run_id in range(iterations):
-            for var_param in var_params:
-                # Redetermine fixed parameters for chosen var parameter
+        for iteration in range(iterations):
+            for prop_l2_setting in prop_l2_settings:
                 if evaluate_prop_l2:
-                    fixed_params = {k: (v_default if k not in given_params else given_params[k]) for k, v_default in model_params_script.items() if k != var_param}
-                elif evaluate_param:
-                    fixed_params = {k: v for k, v in model_params_script.items() if k != var_param}
-                print(f"Var param: {var_param}. Fixed params: {params_print(fixed_params)}")
-                for var_param_setting in var_params[var_param]:
-                    cp = (fixed_params, var_param, var_param_setting, run_id)
+                    cp = (fixed_params, None, None, prop_l2_setting, iteration, generations)
                     cartesian_var_params_runs.append(cp)
+                elif evaluate_param:
+                    for var_param in given_model_params:  # should be only 1
+                        for var_param_value in given_model_params[var_param]:
+                            cp = (fixed_params, var_param, var_param_value, prop_l2_setting, iteration, generations)
+                            cartesian_var_params_runs.append(cp)
         # Old one line loop
         # [({
         #     k: (v if k not in given_params else given_params[k]) for k, v in model_params_script.items() if k != var_param}, var_param, var_param_setting, run_id)
         #     for var_param_setting in var_params[var_param] for var_param in var_params for run_id in range(iterations)]
 
         course_df = evaluate_model(cartesian_var_params_runs, iterations)
-        course_df.to_csv(os.path.join(output_dir_custom, f"{var_param}-raw.csv"))
         if evaluate_prop_l2:
+            course_df.to_csv(os.path.join(output_dir_custom, "proportion_l2-raw.csv"))
             create_graph_end_sb(course_df, "proportion_l2", stats_internal,
-                            output_dir_custom, "raw", runlabel, type="complexity")
-            create_graph_course_sb(course_df, "proportion_l2", 
-                "prop_internal_suffix", output_dir_custom, "raw", runlabel)
+                                output_dir_custom, "raw", runlabel, type="complexity")
+            create_graph_course_sb(course_df, "proportion_l2",
+                                   "prop_internal_suffix", output_dir_custom, "raw", runlabel)
             # Create extra diagnostic plots for avg #affixes per speaker
             create_graph_end_sb(course_df, "proportion_l2", stats_internal_n_affixes,
                                 output_dir_custom, "n_affixes_raw", runlabel, type="n_affixes")
@@ -219,8 +230,10 @@ def main():
             create_graph_end_sb(course_df, "proportion_l2", stats_prop_correct, output_dir_custom,
                                 "prop_correct", runlabel, type="prop_correct")
         elif evaluate_param:
+            var_param = list(given_model_params.keys())[0]
+            course_df.to_csv(os.path.join(output_dir_custom, f"{var_param}-raw.csv"))
             create_graph_end_sb(course_df, var_param, ["prop_internal_suffix"],
-                            output_dir_custom, "raw", runlabel, type="complexity")
+                                output_dir_custom, "raw", runlabel, type="complexity")
         else:
             ValueError("Choose a mode: evaluate_prop_l2 or evaluate_param.")
 

@@ -21,7 +21,7 @@ class Model:
 
     def __init__(self, n_agents, proportion_l2,
                  reduction_phonotactics_l1, reduction_phonotactics_l2, alpha_l1, alpha_l2,
-                 affix_prior_combined_l1, affix_prior_combined_l2, affix_prior_only_l1, affix_prior_only_l2, affix_prior_only_prob, interaction_l1, interaction_l1_shield_initialization, generations, interactions_per_generation, run_id):
+                 affix_prior_combined_l1, affix_prior_combined_l2, affix_prior_only_l1, affix_prior_only_l2, affix_prior_only_prob, interaction_l1, interaction_l1_shield_initialization, generations, interactions_per_generation, run_id, var_param_name, var_param_value):
         '''
         Initialize field
         '''
@@ -63,6 +63,8 @@ class Model:
         self.clts = misc.load_clts(CLTS_ARCHIVE_PATH, CLTS_ARCHIVE_URL, CLTS_PATH)
 
         self.stats_entries = []
+        self.var_param_name = var_param_name
+        self.var_param_value = var_param_value
 
         # Stats
 
@@ -135,6 +137,9 @@ class Model:
 
         self.stats_df = pd.DataFrame(self.stats_entries)
         self.stats_df["run_id"] = self.run_id
+        self.stats_df["proportion_l2"] = self.proportion_l2
+        # The parameter to be evaluated, in evaluate_param mode. 
+        self.stats_df[self.var_param_name] = self.var_param_value
 
         return self.stats_df
 
