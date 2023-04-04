@@ -20,8 +20,8 @@ class Model:
     '''
 
     def __init__(self, n_agents, proportion_l2,
-                 reduction_phonotactics_l1, reduction_phonotactics_l2, alpha_l1, alpha_l2,
-                 affix_prior_combined_l1, affix_prior_combined_l2, affix_prior_only_l1, affix_prior_only_l2, affix_prior_only_prob, interaction_l1, interaction_l1_shield_initialization, generations, interactions_per_generation, run_id, var_param_name, var_param_value):
+                 reduction_phonotactics_l1, reduction_phonotactics_l2, reduction_phonotactics_prob, alpha_l1, alpha_l2,
+                 affix_prior_combined_l1, affix_prior_combined_l2, affix_prior_only_l1, affix_prior_only_l2, affix_prior_only_prob, interaction_l1, interaction_l1_shield_initialization, generations, interactions_per_generation, run_id, var_param1_name, var_param1_value, var_param2_name, var_param2_value):
         '''
         Initialize field
         '''
@@ -42,6 +42,7 @@ class Model:
         self.proportion_l2 = proportion_l2
         self.reduction_phonotactics_l1 = reduction_phonotactics_l1
         self.reduction_phonotactics_l2 = reduction_phonotactics_l2
+        self.reduction_phonotactics_prob = reduction_phonotactics_prob
         self.alpha_l1 = alpha_l1
         self.alpha_l2 = alpha_l2
         self.affix_prior_combined_l1 = affix_prior_combined_l1
@@ -63,8 +64,10 @@ class Model:
         self.clts = misc.load_clts(CLTS_ARCHIVE_PATH, CLTS_ARCHIVE_URL, CLTS_PATH)
 
         self.stats_entries = []
-        self.var_param_name = var_param_name
-        self.var_param_value = var_param_value
+        self.var_param1_name = var_param1_name
+        self.var_param1_value = var_param1_value
+        self.var_param2_name = var_param2_name
+        self.var_param2_value = var_param2_value
 
         # Stats
 
@@ -138,8 +141,11 @@ class Model:
         self.stats_df = pd.DataFrame(self.stats_entries)
         self.stats_df["run_id"] = self.run_id
         self.stats_df["proportion_l2"] = self.proportion_l2
-        # The parameter to be evaluated, in evaluate_param mode. 
-        self.stats_df[self.var_param_name] = self.var_param_value
+        # The parameters to be evaluated, in evaluate_param/evaluate_params_heatmap mode.
+        if self.var_param1_name:
+            self.stats_df[self.var_param1_name] = self.var_param1_value
+        if self.var_param2_name:
+            self.stats_df[self.var_param2_name] = self.var_param2_value
 
         return self.stats_df
 
@@ -159,7 +165,7 @@ class Model:
                           affix_prior_only=self.affix_prior_only_l2 if l2_agents[i] else self.affix_prior_only_l1,
                           affix_prior_only_prob=self.affix_prior_only_prob,
                           reduction_phonotactics=self.reduction_phonotactics_l2 if l2_agents[
-                              i] else self.reduction_phonotactics_l1,
+                              i] else self.reduction_phonotactics_l1, reduction_phonotactics_prob = self.reduction_phonotactics_prob,
                           alpha=self.alpha_l2 if l2_agents[i] else self.alpha_l1,
                           l2=l2_agents[i])
             # self.schedule.add(agent)

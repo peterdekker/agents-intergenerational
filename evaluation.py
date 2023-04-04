@@ -54,12 +54,19 @@ def params_print(params):
 
 
 def model_wrapper(arg):
-    fixed_params, vpn, vpv, prop_l2_value, iteration, generations = arg
-    var_params = {"proportion_l2": prop_l2_value}
-    if vpn is not None:
-        var_params = var_params | {vpn: vpv}
+    fixed_params, var_params, prop_l2_value, iteration, generations = arg
+    # Extract variable paramater names, before we add proportion_l2 as another variable parameter
+    var_params_items = len(var_params.items())
+    vpn1, vpv1 = var_params_items[0]
+    if len(var_params_items) == 2:
+        vpn2, vpv2 = var_params_items[1]
+    else:
+        vpn2, vpv2 = None, None
+    # add proportion l2 as another variable parameter
+    var_params = var_params | {"proportion_l2": prop_l2_value}
     all_params = fixed_params | var_params
-    m = Model(**all_params, run_id=iteration, generations=generations, var_param_name=vpn, var_param_value=vpv)
+    m = Model(**all_params, run_id=iteration, generations=generations, var_param1_name=vpn1,
+              var_param1_value=vpv1, var_param2_name=vpn2, var_param2_value=vpv2)
     stats_df = m.run()
     print(f" - {params_print(var_params)}Iteration {iteration}.  Generations: {generations}.")
     return stats_df
@@ -82,7 +89,7 @@ def rolling_avg(df, window, stats):
 
 
 # TODO: For course, filter stats on only average L1+l2 statistic
-def create_graph_course_sb(course_df, variable_param, stat, output_dir, label, runlabel):
+def create_graph_course_sb(course_df, variable_param, stat, output_dir, runlabel):
     # generations = fixed_params["generations"]
     y_label = "proportion affixes non-empty"
     course_df_stat = course_df[course_df["stat_name"] == stat]
@@ -91,11 +98,11 @@ def create_graph_course_sb(course_df, variable_param, stat, output_dir, label, r
     ax.set_ylim(0, 1)
     sns.despine(left=True, bottom=True)
     plt.savefig(os.path.join(
-        output_dir, f"{variable_param}-{label}-course{'-'+runlabel if runlabel else ''}.{IMG_FORMAT}"), format=IMG_FORMAT, dpi=300)
+        output_dir, f"{variable_param}-course{'-'+runlabel if runlabel else ''}.{IMG_FORMAT}"), format=IMG_FORMAT, dpi=300)
     plt.clf()
 
 
-def create_graph_end_sb(course_df, variable_param, stats, output_dir, label, runlabel, type):
+def create_graph_end_sb(course_df, variable_param, stats, output_dir, runlabel, type):
     if type == "complexity":
         y_label = "proportion affixes non-empty"
     elif type == "n_affixes":
@@ -124,7 +131,30 @@ def create_graph_end_sb(course_df, variable_param, stats, output_dir, label, run
         ax.set_ylim(0, 1)
     sns.despine(left=True, bottom=True)
     plt.savefig(os.path.join(
-        output_dir, f"{variable_param}-{label}-end{'-'+runlabel if runlabel else ''}.{IMG_FORMAT}"), format=IMG_FORMAT, dpi=300)
+        output_dir, f"{variable_param}-{type}-end{'-'+runlabel if runlabel else ''}.{IMG_FORMAT}"), format=IMG_FORMAT, dpi=300)
+    plt.clf()
+
+
+def create_heatmap(course_df, variable_param1, variable_param2, stats, output_dir, runlabel):
+
+    df_stats = course_df[course_df["stat_name"].isin(stats)]
+    df_stats = df_stats.rename(columns={"stat_value": y_label})
+
+    # Use last iteration as data
+    generations = max(df_stats["generation"])
+    df_tail = df_stats[df_stats["generation"] == generations]
+    if variable_param == "proportion_l2":
+        # evaluate_prop_l2 mode
+        # Use different stats as colours
+        ax = sns.lineplot(data=df_tail, x="proportion_l2", y=y_label, hue="stat_name")
+    else:
+        # When evaluate_param mode is on, is variable_param as colour
+        ax = sns.lineplot(data=df_tail, x="proportion_l2", y=y_label, hue=variable_param)
+    if type == "complexity":  # or type == "prop_correct":
+        ax.set_ylim(0, 1)
+    sns.despine(left=True, bottom=True)
+    plt.savefig(os.path.join(
+        output_dir, f"{variable_param}-heatmap{'-'+runlabel if runlabel else ''}.{IMG_FORMAT}"), format=IMG_FORMAT, dpi=300)
     plt.clf()
 
 
@@ -155,6 +185,7 @@ def main():
     plot_from_raw_on = args["plot_from_raw"] != ""
     evaluate_prop_l2 = args["evaluate_prop_l2"]
     evaluate_param = args["evaluate_param"]
+    evaluate_params_heatmap = args["evaluate_params_heatmap"]
 
     output_dir_custom = OUTPUT_DIR
     if runlabel != "":
@@ -187,29 +218,41 @@ def main():
         prop_l2_settings = [0.0, 0.2, 0.4, 0.6, 0.8, 1.0]
         if evaluate_prop_l2:
             # Check that only one parameter setting is given per parameter
-            assert all([len(v)==1 for v in given_model_params.values() if v is not None])
+            assert all([len(v) == 1 for v in given_model_params.values() if v is not None])
             # Use given parameters as fixed parameters, or defaults otherwise. Exclude proportion_l2 to be evaluated.
             fixed_params = {k: (v_default if k not in given_model_params else given_model_params[k][0]) for k, v_default in model_params_script.items(
             ) if k != "proportion_l2"}
-        elif evaluate_param:
-            if len(given_model_params) > 1:
-                raise ValueError("Only 1 parameter can be given in evaluate_param mode")
+        elif evaluate_param or evaluate_params_heatmap:
+            if evaluate_param and len(given_model_params) != 1:
+                raise ValueError("Exactly 1 parameter has to be given in evaluate_param mode")
+            if evaluate_params_heatmap and len(given_model_params) != 2:
+                raise ValueError("Exactly 2 parameters have to be given in evaluate_params_heatmap mode")
             # Use all fixed parameters from defaults. given_model_params are variable params to be evaluated, exlucde those and proportion_l2.
             fixed_params = {k: v_default for k, v_default in model_params_script.items(
             ) if k not in given_model_params and k != "proportion_l2"}
         else:
-            ValueError("Choose a mode: evaluate_prop_l2 or evaluate_param.")
-        print(params_print(fixed_params))
+            ValueError("Choose a mode: evaluate_prop_l2 or evaluate_param or evaluate_params_heatmap.")
+        print(f"Fixed model parameters: {params_print(fixed_params)}")
         cartesian_var_params_runs = []
-        for iteration in range(iterations):
-            for prop_l2_setting in prop_l2_settings:
+        for prop_l2_setting in prop_l2_settings:
+            for iteration in range(iterations):
                 if evaluate_prop_l2:
-                    cp = (fixed_params, None, None, prop_l2_setting, iteration, generations)
+                    cp = (fixed_params, {}, prop_l2_setting, iteration, generations)
                     cartesian_var_params_runs.append(cp)
                 elif evaluate_param:
-                    for var_param in given_model_params:  # should be only 1
-                        for var_param_value in given_model_params[var_param]:
-                            cp = (fixed_params, var_param, var_param_value, prop_l2_setting, iteration, generations)
+                    var_param, var_param_values = list(given_model_params.items())[0]
+                    for var_param_value in var_param_values:
+                        cp = (fixed_params, {var_param: var_param_value},
+                              prop_l2_setting, iteration, generations)
+                        cartesian_var_params_runs.append(cp)
+                elif evaluate_params_heatmap:
+                    var_param1, var_param1_values = list(given_model_params.items())[0]
+                    var_param2, var_param2_values = list(given_model_params.items())[1]
+                    print(f"Taking into account variable parameters: {var_param1} and {var_param2}")
+                    for var_param1_value in var_param1_values:
+                        for var_param2_value in var_param2_values:
+                            cp = (fixed_params, {
+                                  var_param1: var_param1_value, var_param2: var_param2_value}, prop_l2_setting, iteration, generations)
                             cartesian_var_params_runs.append(cp)
         # Old one line loop
         # [({
@@ -218,24 +261,31 @@ def main():
 
         course_df = evaluate_model(cartesian_var_params_runs, iterations)
         if evaluate_prop_l2:
-            course_df.to_csv(os.path.join(output_dir_custom, "proportion_l2-raw.csv"))
+            course_df.to_csv(os.path.join(output_dir_custom, "proportion_l2.csv"))
             create_graph_end_sb(course_df, "proportion_l2", stats_internal,
-                                output_dir_custom, "raw", runlabel, type="complexity")
+                                output_dir_custom, runlabel, type="complexity")
             create_graph_course_sb(course_df, "proportion_l2",
-                                   "prop_internal_suffix", output_dir_custom, "raw", runlabel)
+                                   "prop_internal_suffix", output_dir_custom, "complexity", runlabel)
             # Create extra diagnostic plots for avg #affixes per speaker
             create_graph_end_sb(course_df, "proportion_l2", stats_internal_n_affixes,
-                                output_dir_custom, "n_affixes_raw", runlabel, type="n_affixes")
+                                output_dir_custom, runlabel, type="n_affixes")
             # Create extra diagnostic plots for prop correct interactions
             create_graph_end_sb(course_df, "proportion_l2", stats_prop_correct, output_dir_custom,
-                                "prop_correct", runlabel, type="prop_correct")
+                                runlabel, type="prop_correct")
         elif evaluate_param:
             var_param = list(given_model_params.keys())[0]
-            course_df.to_csv(os.path.join(output_dir_custom, f"{var_param}-raw.csv"))
-            create_graph_end_sb(course_df, var_param, ["prop_internal_suffix"],
-                                output_dir_custom, "raw", runlabel, type="complexity")
+            course_df.to_csv(os.path.join(output_dir_custom, f"{var_param}-evalparam.csv"))
+            create_graph_end_sb(course_df, var_param, ["prop_internal_suffix_l2"],
+                                output_dir_custom, runlabel, type="complexity")
+        elif evaluate_params_heatmap:
+            var_param1 = list(given_model_params.keys())[1]
+            var_param2 = list(given_model_params.keys())[2]
+            course_df.to_csv(os.path.join(output_dir_custom, f"{var_param1}-{var_param2}-evalparamsheat.csv"))
+            create_heatmap(course_df, var_param1, var_param2, ["prop_internal_suffix_l2"],
+                           output_dir_custom, runlabel)
+
         else:
-            ValueError("Choose a mode: evaluate_prop_l2 or evaluate_param.")
+            ValueError("Choose a mode: evaluate_prop_l2 or evaluate_param or evaluate_params_heatmap.")
 
         # course_df_rolling = rolling_avg(course_df, ROLLING_AVG_WINDOW, stats_internal)
         # create_graph_course_sb(course_df_rolling, var_param, [

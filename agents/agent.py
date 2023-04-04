@@ -10,7 +10,7 @@ from agents import stats
 
 
 class Agent:
-    def __init__(self, pos, model, data, init, affix_prior_combined, affix_prior_only, affix_prior_only_prob, reduction_phonotactics, alpha, l2):
+    def __init__(self, pos, model, data, init, affix_prior_combined, affix_prior_only, affix_prior_only_prob, reduction_phonotactics, reduction_phonotactics_prob, alpha, l2):
         '''
          Create a new speech agent.
 
@@ -25,6 +25,7 @@ class Agent:
         self.affix_prior_only = affix_prior_only
         self.affix_prior_only_prob = affix_prior_only_prob
         self.reduction_phonotactics = reduction_phonotactics
+        self.reduction_phonotactics_prob = reduction_phonotactics_prob
         self.alpha = alpha
         self.l2 = l2
 
@@ -95,8 +96,9 @@ class Agent:
             if len(prefixes) > 0:
                 prefix = misc.affix_choice(prefixes)
                 if self.reduction_phonotactics:
-                    prefix = misc.reduce_phonotactics(
-                        "prefix", prefix, form, self.model.clts, speaker_type=self.l2)
+                    if RG.random() < self.reduction_phonotactics_prob:
+                        prefix = misc.reduce_phonotactics(
+                            "prefix", prefix, form, self.model.clts, speaker_type=self.l2)
             else:
                 # Just skip this whole interaction. Only listen for this concept until it gets filled with at least one form.
                 return
@@ -125,8 +127,9 @@ class Agent:
             if len(suffixes) > 0:
                 suffix = misc.affix_choice(suffixes)
                 if self.reduction_phonotactics:
-                    suffix = misc.reduce_phonotactics(
-                        "suffix", suffix, form, self.model.clts, speaker_type=self.l2)
+                    if RG.random() < self.reduction_phonotactics_prob:
+                        suffix = misc.reduce_phonotactics(
+                            "suffix", suffix, form, self.model.clts, speaker_type=self.l2)
             else:
                 # Just skip this whole interaction. Only listen for this concept until it gets filled with at least one form.
                 return
