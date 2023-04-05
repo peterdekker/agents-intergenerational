@@ -56,7 +56,7 @@ def params_print(params):
 def model_wrapper(arg):
     fixed_params, var_params, prop_l2_value, iteration, generations = arg
     # Extract variable paramater names, before we add proportion_l2 as another variable parameter
-    var_params_items = len(var_params.items())
+    var_params_items = list(var_params.items())
     vpn1, vpv1 = var_params_items[0]
     if len(var_params_items) == 2:
         vpn2, vpv2 = var_params_items[1]
@@ -94,7 +94,7 @@ def create_graph_course_sb(course_df, variable_param, stat, output_dir, runlabel
     y_label = "proportion affixes non-empty"
     course_df_stat = course_df[course_df["stat_name"] == stat]
     course_df_stat = course_df_stat.rename(columns={"stat_value": y_label})
-    ax = sns.lineplot(data=course_df_stat, x="generation", y=y_label, hue=variable_param)
+    ax = sns.lineplot(data=course_df_stat, x="generation", y=y_label, hue=variable_param, legend="full")
     ax.set_ylim(0, 1)
     sns.despine(left=True, bottom=True)
     plt.savefig(os.path.join(
@@ -123,10 +123,10 @@ def create_graph_end_sb(course_df, variable_param, stats, output_dir, runlabel, 
     if variable_param == "proportion_l2":
         # evaluate_prop_l2 mode
         # Use different stats as colours
-        ax = sns.lineplot(data=df_tail, x="proportion_l2", y=y_label, hue="stat_name")
+        ax = sns.lineplot(data=df_tail, x="proportion_l2", y=y_label, hue="stat_name", legend="full")
     else:
         # When evaluate_param mode is on, is variable_param as colour
-        ax = sns.lineplot(data=df_tail, x="proportion_l2", y=y_label, hue=variable_param)
+        ax = sns.lineplot(data=df_tail, x="proportion_l2", y=y_label, hue=variable_param, legend="full")
     if type == "complexity":  # or type == "prop_correct":
         ax.set_ylim(0, 1)
     sns.despine(left=True, bottom=True)
@@ -138,18 +138,14 @@ def create_graph_end_sb(course_df, variable_param, stats, output_dir, runlabel, 
 def create_heatmap(course_df, variable_param1, variable_param2, stats, output_dir, runlabel):
 
     df_stats = course_df[course_df["stat_name"].isin(stats)]
-    df_stats = df_stats.rename(columns={"stat_value": y_label})
+    #df_stats = df_stats.rename(columns={"stat_value": y_label})
+    #df_pivot = df_stats.pivot(index=variable_param1, columns=variable_param2, values=?)
 
     # Use last iteration as data
     generations = max(df_stats["generation"])
     df_tail = df_stats[df_stats["generation"] == generations]
-    if variable_param == "proportion_l2":
-        # evaluate_prop_l2 mode
-        # Use different stats as colours
-        ax = sns.lineplot(data=df_tail, x="proportion_l2", y=y_label, hue="stat_name")
-    else:
-        # When evaluate_param mode is on, is variable_param as colour
-        ax = sns.lineplot(data=df_tail, x="proportion_l2", y=y_label, hue=variable_param)
+    df_tail.groupby([variable_param1,variable_param2])["proportion_l2","stat_value"].corr().drop(columns="stat_value").drop("proportion_l2",level=2).droplevel(2)
+    ax = sns.lineplot(data=df_tail, x="proportion_l2", y=y_label, hue=variable_param, legend="full")
     if type == "complexity":  # or type == "prop_correct":
         ax.set_ylim(0, 1)
     sns.despine(left=True, bottom=True)
@@ -248,7 +244,6 @@ def main():
                 elif evaluate_params_heatmap:
                     var_param1, var_param1_values = list(given_model_params.items())[0]
                     var_param2, var_param2_values = list(given_model_params.items())[1]
-                    print(f"Taking into account variable parameters: {var_param1} and {var_param2}")
                     for var_param1_value in var_param1_values:
                         for var_param2_value in var_param2_values:
                             cp = (fixed_params, {
@@ -278,11 +273,11 @@ def main():
             create_graph_end_sb(course_df, var_param, ["prop_internal_suffix_l2"],
                                 output_dir_custom, runlabel, type="complexity")
         elif evaluate_params_heatmap:
-            var_param1 = list(given_model_params.keys())[1]
-            var_param2 = list(given_model_params.keys())[2]
+            var_param1 = list(given_model_params.keys())[0]
+            var_param2 = list(given_model_params.keys())[1]
             course_df.to_csv(os.path.join(output_dir_custom, f"{var_param1}-{var_param2}-evalparamsheat.csv"))
-            create_heatmap(course_df, var_param1, var_param2, ["prop_internal_suffix_l2"],
-                           output_dir_custom, runlabel)
+            # create_heatmap(course_df, var_param1, var_param2, ["prop_internal_suffix_l2"],
+            #                output_dir_custom, runlabel)
 
         else:
             ValueError("Choose a mode: evaluate_prop_l2 or evaluate_param or evaluate_params_heatmap.")
