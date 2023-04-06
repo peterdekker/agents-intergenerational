@@ -139,19 +139,20 @@ def create_heatmap(course_df, variable_param1, variable_param2, stats, output_di
 
     df_stats = course_df[course_df["stat_name"].isin(stats)]
     #df_stats = df_stats.rename(columns={"stat_value": y_label})
-    #df_pivot = df_stats.pivot(index=variable_param1, columns=variable_param2, values=?)
+    # df_pivot = df_stats.pivot(index=variable_param1, columns=variable_param2, values=?)
 
     # Use last iteration as data
     generations = max(df_stats["generation"])
     df_tail = df_stats[df_stats["generation"] == generations]
-    df_tail.groupby([variable_param1,variable_param2])["proportion_l2","stat_value"].corr().drop(columns="stat_value").drop("proportion_l2",level=2).droplevel(2)
-    ax = sns.lineplot(data=df_tail, x="proportion_l2", y=y_label, hue=variable_param, legend="full")
-    if type == "complexity":  # or type == "prop_correct":
-        ax.set_ylim(0, 1)
-    sns.despine(left=True, bottom=True)
+    df_corr = df_tail.groupby([variable_param1, variable_param2])[["proportion_l2", "stat_value"]].corr().drop(
+        columns="stat_value").drop("proportion_l2", level=2).droplevel(2)
+    df_pivot = df_corr.unstack()
+    sns.heatmap(data=df_pivot)
+    #sns.despine(left=True, bottom=True)
     plt.savefig(os.path.join(
-        output_dir, f"{variable_param}-heatmap{'-'+runlabel if runlabel else ''}.{IMG_FORMAT}"), format=IMG_FORMAT, dpi=300)
+        output_dir, f"heatmap-{variable_param1}-{variable_param2}-{'-'+runlabel if runlabel else ''}.{IMG_FORMAT}"), format=IMG_FORMAT, dpi=300)
     plt.clf()
+    df_pivot.to_csv(os.path.join(output_dir, "heatmap.csv"))
 
 
 def main():
@@ -276,8 +277,8 @@ def main():
             var_param1 = list(given_model_params.keys())[0]
             var_param2 = list(given_model_params.keys())[1]
             course_df.to_csv(os.path.join(output_dir_custom, f"{var_param1}-{var_param2}-evalparamsheat.csv"))
-            # create_heatmap(course_df, var_param1, var_param2, ["prop_internal_suffix_l2"],
-            #                output_dir_custom, runlabel)
+            create_heatmap(course_df, var_param1, var_param2, ["prop_internal_suffix_l2"],
+                           output_dir_custom, runlabel)
 
         else:
             ValueError("Choose a mode: evaluate_prop_l2 or evaluate_param or evaluate_params_heatmap.")
