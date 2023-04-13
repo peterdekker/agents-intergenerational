@@ -10,7 +10,7 @@ from agents import stats
 
 
 class Agent:
-    def __init__(self, pos, model, data, init, affix_prior_combined, affix_prior_only, affix_prior_only_prob, reduction_phonotactics, reduction_phonotactics_prob, alpha, l2):
+    def __init__(self, pos, model, data, init, affix_prior_combined, affix_prior_only, reduction_phonotactics, alpha, l2):
         '''
          Create a new speech agent.
 
@@ -23,9 +23,7 @@ class Agent:
         self.pos = pos
         self.affix_prior_combined = affix_prior_combined
         self.affix_prior_only = affix_prior_only
-        self.affix_prior_only_prob = affix_prior_only_prob
         self.reduction_phonotactics = reduction_phonotactics
-        self.reduction_phonotactics_prob = reduction_phonotactics_prob
         self.alpha = alpha
         self.l2 = l2
 
@@ -88,15 +86,14 @@ class Agent:
                 # prefixes = list weighted by prob * prior_prob
                 prefixes = misc.weighted_affixes_prior(lex_concept, person, "prefix", self.affixes, "combined")
             elif self.affix_prior_only:
-                # prefixes = list weighted by prob * prior_prob
-                prefixes = misc.weighted_affixes_prior(lex_concept, person, "prefix", self.affixes, "only", self.affix_prior_only_prob)
+                prefixes = misc.weighted_affixes_prior(lex_concept, person, "prefix", self.affixes, "only", self.model.affix_prior_only_prob)
             else:
                 prefixes = misc.distribution_from_exemplars(
                     lex_concept, person, "prefix", self.affixes, alpha=self.alpha)
             if len(prefixes) > 0:
                 prefix = misc.affix_choice(prefixes)
                 if self.reduction_phonotactics:
-                    if RG.random() < self.reduction_phonotactics_prob:
+                    if RG.random() < self.model.reduction_phonotactics_prob:
                         prefix = misc.reduce_phonotactics(
                             "prefix", prefix, form, self.model.clts, speaker_type=self.l2)
             else:
@@ -115,7 +112,7 @@ class Agent:
                 suffixes = misc.weighted_affixes_prior(lex_concept, person, "suffix", self.affixes, "combined")
                 # suffixes = list weighted by prob * prior_prob
             elif self.affix_prior_only:
-                suffixes = misc.weighted_affixes_prior(lex_concept, person, "suffix", self.affixes, "only", self.affix_prior_only_prob)
+                suffixes = misc.weighted_affixes_prior(lex_concept, person, "suffix", self.affixes, "only", self.model.affix_prior_only_prob)
             else:
                 suffixes = misc.distribution_from_exemplars(
                     lex_concept, person, "suffix", self.affixes, alpha=self.alpha)
@@ -127,7 +124,7 @@ class Agent:
             if len(suffixes) > 0:
                 suffix = misc.affix_choice(suffixes)
                 if self.reduction_phonotactics:
-                    if RG.random() < self.reduction_phonotactics_prob:
+                    if RG.random() < self.model.reduction_phonotactics_prob:
                         suffix = misc.reduce_phonotactics(
                             "suffix", suffix, form, self.model.clts, speaker_type=self.l2)
             else:

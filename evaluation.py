@@ -57,7 +57,10 @@ def model_wrapper(arg):
     fixed_params, var_params, prop_l2_value, iteration, generations = arg
     # Extract variable paramater names, before we add proportion_l2 as another variable parameter
     var_params_items = list(var_params.items())
-    vpn1, vpv1 = var_params_items[0]
+    if len(var_params_items) >= 1:
+        vpn1, vpv1 = var_params_items[0]
+    else:
+        vpn1, vpv1 = None, None
     if len(var_params_items) == 2:
         vpn2, vpv2 = var_params_items[1]
     else:
@@ -144,9 +147,17 @@ def create_heatmap(course_df, variable_param1, variable_param2, stats, output_di
     # Use last iteration as data
     generations = max(df_stats["generation"])
     df_tail = df_stats[df_stats["generation"] == generations]
-    df_corr = df_tail.groupby([variable_param1, variable_param2])[["proportion_l2", "stat_value"]].corr().drop(
-        columns="stat_value").drop("proportion_l2", level=2).droplevel(2)
-    df_pivot = df_corr.unstack()
+
+    ### Slope: Difference in stat value between highest and lowest prop L2, 
+    # Find non-empty entries (sometimes there is no value), group by param combination, find stat value (average over runs) of highest prop L2, subtract stat value (average) of lowest prop L2
+    df_slope_propl2 = df_tail[df_tail["stat_value"].notna()].groupby([variable_param1, variable_param2])[["proportion_l2","stat_value"]].apply(lambda x: x[x["proportion_l2"]==max(x["proportion_l2"])].mean() - x[x["proportion_l2"]==min(x["proportion_l2"])].mean())
+    df_pivot = df_slope_propl2.reset_index().pivot(index=variable_param1, columns=variable_param2, values="stat_value")
+    
+    # Correlation calculation, alternative for slope
+    # df_corr = df_tail.groupby([variable_param1, variable_param2])[["proportion_l2", "stat_value"]].corr().drop(
+    #     columns="stat_value").drop("proportion_l2", level=2).droplevel(2)
+    # df_pivot = df_corr.unstack()
+
     sns.heatmap(data=df_pivot)
     #sns.despine(left=True, bottom=True)
     plt.savefig(os.path.join(
@@ -261,7 +272,7 @@ def main():
             create_graph_end_sb(course_df, "proportion_l2", stats_internal,
                                 output_dir_custom, runlabel, type="complexity")
             create_graph_course_sb(course_df, "proportion_l2",
-                                   "prop_internal_suffix", output_dir_custom, "complexity", runlabel)
+                                   "prop_internal_suffix", output_dir_custom, runlabel)
             # Create extra diagnostic plots for avg #affixes per speaker
             create_graph_end_sb(course_df, "proportion_l2", stats_internal_n_affixes,
                                 output_dir_custom, runlabel, type="n_affixes")

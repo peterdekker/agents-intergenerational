@@ -163,9 +163,8 @@ class Model:
             agent = Agent(i, self, self.data, init=init_l2 if l2_agents[i] else init_l1,
                           affix_prior_combined=self.affix_prior_combined_l2 if l2_agents[i] else self.affix_prior_combined_l1,
                           affix_prior_only=self.affix_prior_only_l2 if l2_agents[i] else self.affix_prior_only_l1,
-                          affix_prior_only_prob=self.affix_prior_only_prob,
                           reduction_phonotactics=self.reduction_phonotactics_l2 if l2_agents[
-                              i] else self.reduction_phonotactics_l1, reduction_phonotactics_prob = self.reduction_phonotactics_prob,
+                              i] else self.reduction_phonotactics_l1,
                           alpha=self.alpha_l2 if l2_agents[i] else self.alpha_l1,
                           l2=l2_agents[i])
             # self.schedule.add(agent)
