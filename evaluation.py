@@ -27,6 +27,9 @@ from multiprocessing import Pool
 stats_internal = ["prop_internal_prefix_l1", "prop_internal_suffix_l1",
                   "prop_internal_prefix_l2", "prop_internal_suffix_l2", "prop_internal_prefix", "prop_internal_suffix"]
 
+stats_internal_len = ["prop_internal_len_prefix_l1", "prop_internal_len_suffix_l1",
+                            "prop_internal_len_prefix_l2", "prop_internal_len_suffix_l2", "prop_internal_len_prefix", "prop_internal_len_suffix"]
+
 stats_internal_n_affixes = ["prop_internal_n_affixes_prefix_l1", "prop_internal_n_affixes_suffix_l1",
                             "prop_internal_n_affixes_prefix_l2", "prop_internal_n_affixes_suffix_l2", "prop_internal_n_affixes_prefix", "prop_internal_n_affixes_suffix"]
 
@@ -108,6 +111,8 @@ def create_graph_course_sb(course_df, variable_param, stat, output_dir, runlabel
 def create_graph_end_sb(course_df, variable_param, stats, output_dir, runlabel, type):
     if type == "complexity":
         y_label = "proportion affixes non-empty"
+    elif type == "len":
+        y_label = "average affix length"
     elif type == "n_affixes":
         y_label = "n affixes"
     elif type == "prop_correct":
@@ -274,6 +279,8 @@ def main():
             create_graph_course_sb(course_df, "proportion_l2",
                                    "prop_internal_suffix", output_dir_custom, runlabel)
             # Create extra diagnostic plots for avg #affixes per speaker
+            create_graph_end_sb(course_df, "proportion_l2", stats_internal_len,
+                                output_dir_custom, runlabel, type="len")
             create_graph_end_sb(course_df, "proportion_l2", stats_internal_n_affixes,
                                 output_dir_custom, runlabel, type="n_affixes")
             # Create extra diagnostic plots for prop correct interactions

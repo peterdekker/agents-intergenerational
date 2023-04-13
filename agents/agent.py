@@ -95,7 +95,7 @@ class Agent:
                 if self.reduction_phonotactics:
                     if RG.random() < self.model.reduction_phonotactics_prob:
                         prefix = misc.reduce_phonotactics(
-                            "prefix", prefix, form, self.model.clts, speaker_type=self.l2)
+                            "prefix", prefix, form, self.model.clts, drop_border_phoneme=self.model.reduction_phonotactics_drop_border_phoneme)
             else:
                 # Just skip this whole interaction. Only listen for this concept until it gets filled with at least one form.
                 return
@@ -126,7 +126,7 @@ class Agent:
                 if self.reduction_phonotactics:
                     if RG.random() < self.model.reduction_phonotactics_prob:
                         suffix = misc.reduce_phonotactics(
-                            "suffix", suffix, form, self.model.clts, speaker_type=self.l2)
+                            "suffix", suffix, form, self.model.clts, drop_border_phoneme=self.model.reduction_phonotactics_drop_border_phoneme)
             else:
                 # Just skip this whole interaction. Only listen for this concept until it gets filled with at least one form.
                 return

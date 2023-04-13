@@ -20,7 +20,7 @@ class Model:
     '''
 
     def __init__(self, n_agents, proportion_l2,
-                 reduction_phonotactics_l1, reduction_phonotactics_l2, reduction_phonotactics_prob, alpha_l1, alpha_l2,
+                 reduction_phonotactics_l1, reduction_phonotactics_l2, reduction_phonotactics_prob, reduction_phonotactics_drop_border_phoneme, alpha_l1, alpha_l2,
                  affix_prior_combined_l1, affix_prior_combined_l2, affix_prior_only_l1, affix_prior_only_l2, affix_prior_only_prob, interaction_l1, interaction_l1_shield_initialization, generations, interactions_per_generation, run_id, var_param1_name, var_param1_value, var_param2_name, var_param2_value):
         '''
         Initialize field
@@ -29,6 +29,7 @@ class Model:
         assert proportion_l2 >= 0 and proportion_l2 <= 1
         assert isinstance(reduction_phonotactics_l1, bool)
         assert isinstance(reduction_phonotactics_l2, bool)
+        assert isinstance(reduction_phonotactics_drop_border_phoneme, bool)
         assert isinstance(affix_prior_combined_l1, bool)
         assert isinstance(affix_prior_combined_l2, bool)
         assert isinstance(affix_prior_only_l1, bool)
@@ -42,6 +43,7 @@ class Model:
         self.proportion_l2 = proportion_l2
         self.reduction_phonotactics_l1 = reduction_phonotactics_l1
         self.reduction_phonotactics_l2 = reduction_phonotactics_l2
+        self.reduction_phonotactics_drop_border_phoneme = reduction_phonotactics_drop_border_phoneme
         self.reduction_phonotactics_prob = reduction_phonotactics_prob
         self.alpha_l1 = alpha_l1
         self.alpha_l2 = alpha_l2
@@ -128,9 +130,9 @@ class Model:
         self.agents_prev_gen = agents_first_gen
 
         stats.calculate_internal_stats(agents_first_gen, self.current_generation,
-                                       self.proportion_l2, self.stats_entries)
+                                       self.stats_entries)
         stats.calculate_correct_interactions(self.correct_interactions, self.total_interactions, self.current_generation,
-                                             self.proportion_l2, self.stats_entries)
+                                             self.stats_entries)
 
         # agents_l1 = [a for a in agents if not a.is_l2()]
         # agents_l2 = [a for a in agents if a.is_l2()]
@@ -211,11 +213,11 @@ class Model:
         self.agents_prev_gen = agents_new_gen
 
         stats.calculate_internal_stats(agents_new_gen, self.current_generation,
-                                       self.proportion_l2, self.stats_entries)
+                                       self.stats_entries)
 
         # Now compute proportion of correct interaction
         stats.calculate_correct_interactions(self.correct_interactions, self.total_interactions, self.current_generation,
-                                             self.proportion_l2, self.stats_entries)
+                                             self.stats_entries)
 
         # Compute proportion non-empty cells in communicative measure
         # self.prop_communicated_prefix_l1 = stats.prop_communicated(

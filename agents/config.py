@@ -37,6 +37,7 @@ PROPORTION_L2 = 0.5
 REDUCTION_PHONOTACTICS_L1 = True
 REDUCTION_PHONOTACTICS_L2 = True
 REDUCTION_PHONOTACTICS_PROB = 1.0
+REDUCTION_PHONOTACTICS_DROP_BORDER_PHONEME = True
 AFFIX_PRIOR_COMBINED_L1 = False
 AFFIX_PRIOR_COMBINED_L2 = False
 AFFIX_PRIOR_ONLY_L1 = True
@@ -74,6 +75,7 @@ model_params = {
     "reduction_phonotactics_l1": {"script": REDUCTION_PHONOTACTICS_L1},
     "reduction_phonotactics_l2": {"script": REDUCTION_PHONOTACTICS_L2},
     "reduction_phonotactics_prob": {"script": REDUCTION_PHONOTACTICS_PROB},
+    "reduction_phonotactics_drop_border_phoneme": {"script": REDUCTION_PHONOTACTICS_DROP_BORDER_PHONEME},
     "affix_prior_combined_l1": {"script": AFFIX_PRIOR_COMBINED_L1},
     "affix_prior_combined_l2": {"script": AFFIX_PRIOR_COMBINED_L2},
     "affix_prior_only_l1": {"script": AFFIX_PRIOR_ONLY_L1},
@@ -101,7 +103,7 @@ evaluation_params = {
 
 eval_params_script = {k: v["script"] for k, v in evaluation_params.items()}
 
-bool_params = ["reduction_phonotactics_l1", "reduction_phonotactics_l2",
+bool_params = ["reduction_phonotactics_l1", "reduction_phonotactics_l2", "reduction_phonotactics_drop_border_phoneme",
                "affix_prior_combined_l1", "affix_prior_combined_l2", "affix_prior_only_l1", "affix_prior_only_l2", "interaction_l1", "evaluate_prop_l2", "evaluate_param", "evaluate_params_heatmap"]
 
 string_params = ["runlabel", "plot_from_raw"]
