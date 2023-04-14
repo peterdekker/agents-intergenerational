@@ -291,12 +291,16 @@ def main():
             course_df.to_csv(os.path.join(output_dir_custom, f"{var_param}-evalparam.csv"))
             create_graph_end_sb(course_df, var_param, ["prop_internal_suffix_l2"],
                                 output_dir_custom, runlabel, type="complexity")
+            create_graph_end_sb(course_df, var_param, ["prop_internal_len_suffix_l2"],
+                                output_dir_custom, runlabel, type="len")
         elif evaluate_params_heatmap:
             var_param1 = list(given_model_params.keys())[0]
             var_param2 = list(given_model_params.keys())[1]
             course_df.to_csv(os.path.join(output_dir_custom, f"{var_param1}-{var_param2}-evalparamsheat.csv"))
             create_heatmap(course_df, var_param1, var_param2, ["prop_internal_suffix_l2"],
-                           output_dir_custom, runlabel)
+                           output_dir_custom, f"{runlabel}-complexity")
+            create_heatmap(course_df, var_param1, var_param2, ["prop_internal_len_suffix_l2"],
+                           output_dir_custom, f"{runlabel}-len")
 
         else:
             ValueError("Choose a mode: evaluate_prop_l2 or evaluate_param or evaluate_params_heatmap.")
