@@ -2,6 +2,15 @@
 import numpy as np
 from collections import defaultdict, Counter
 
+def prop_internal_n_unique(agent, affix_type):
+    all_affixes = []
+    for lex_concept in agent.lex_concepts_type[affix_type]:
+        for person in agent.persons:
+            affixes = agent.affixes[(lex_concept, person, affix_type)]
+            all_affixes += affixes
+    n_affixes_unique = len(set(all_affixes))
+
+    return n_affixes_unique if n_affixes_unique > 0 else None
 
 def prop_internal_n_affixes(agent, affix_type):
     n_affixes_cells = []
@@ -76,7 +85,7 @@ def calculate_internal_stats(agents, generation, stats_entries):
             #                          "total" else f"prop_internal_n_affixes_{affix_type}_{agent_type}", "stat_value": stat_n_affixes} #"proportion_l2": proportion_l2,
             # stats_entries.append(stats_entry_n_affixes)
 
-            for stat_name, stat_func in [("prop_internal", prop_internal_nonzero), ("prop_internal_len", prop_internal_len), ("prop_internal_n_affixes", prop_internal_n_affixes)]:
+            for stat_name, stat_func in [("prop_internal", prop_internal_nonzero), ("prop_internal_len", prop_internal_len), ("prop_internal_n_affixes", prop_internal_n_affixes), ("prop_internal_n_unique", prop_internal_n_unique)]:
                 stat_value = apply_stat_agents(stat_func, agents_set, affix_type)
                 stats_entry = {"generation": generation, "stat_name": f"{stat_name}_{affix_type}" if agent_type ==
                                "total" else f"{stat_name}_{affix_type}_{agent_type}", "stat_value": stat_value}

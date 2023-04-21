@@ -32,6 +32,8 @@ stats_internal_len = ["prop_internal_len_prefix_l1", "prop_internal_len_suffix_l
 
 stats_internal_n_affixes = ["prop_internal_n_affixes_prefix_l1", "prop_internal_n_affixes_suffix_l1",
                             "prop_internal_n_affixes_prefix_l2", "prop_internal_n_affixes_suffix_l2", "prop_internal_n_affixes_prefix", "prop_internal_n_affixes_suffix"]
+stats_internal_n_unique = ["prop_internal_n_unique_prefix_l1", "prop_internal_n_unique_suffix_l1",
+                            "prop_internal_n_unique_prefix_l2", "prop_internal_n_unique_suffix_l2", "prop_internal_n_unique_prefix", "prop_internal_n_unique_suffix"]
 
 stats_prop_correct = ["prop_correct"]
 
@@ -115,6 +117,8 @@ def create_graph_end_sb(course_df, variable_param, stats, output_dir, runlabel, 
         y_label = "average affix length"
     elif type == "n_affixes":
         y_label = "n affixes"
+    elif type == "n_unique":
+        y_label = "n unique affixes"
     elif type == "prop_correct":
         y_label = "proportion correct interactions"
     else:
@@ -277,7 +281,7 @@ def main():
             create_graph_end_sb(course_df, "proportion_l2", stats_internal,
                                 output_dir_custom, runlabel, type="complexity")
             create_graph_course_sb(course_df, "proportion_l2",
-                                   "prop_internal_suffix", output_dir_custom, runlabel)
+                                   "prop_internal_suffix_l2", output_dir_custom, runlabel)
             # Create extra diagnostic plots for avg #affixes per speaker
             create_graph_end_sb(course_df, "proportion_l2", stats_internal_len,
                                 output_dir_custom, runlabel, type="len")
@@ -286,6 +290,8 @@ def main():
             # Create extra diagnostic plots for prop correct interactions
             create_graph_end_sb(course_df, "proportion_l2", stats_prop_correct, output_dir_custom,
                                 runlabel, type="prop_correct")
+            create_graph_end_sb(course_df, "proportion_l2", stats_internal_n_unique, output_dir_custom,
+                                runlabel, type="n_unique")
         elif evaluate_param:
             var_param = list(given_model_params.keys())[0]
             course_df.to_csv(os.path.join(output_dir_custom, f"{var_param}-evalparam.csv"))
@@ -293,6 +299,8 @@ def main():
                                 output_dir_custom, runlabel, type="complexity")
             create_graph_end_sb(course_df, var_param, ["prop_internal_len_suffix_l2"],
                                 output_dir_custom, runlabel, type="len")
+            create_graph_end_sb(course_df, var_param, ["prop_internal_n_unique_suffix_l2"],
+                                output_dir_custom, runlabel, type="n_unique")
         elif evaluate_params_heatmap:
             var_param1 = list(given_model_params.keys())[0]
             var_param2 = list(given_model_params.keys())[1]
@@ -301,6 +309,8 @@ def main():
                            output_dir_custom, f"{runlabel}-complexity")
             create_heatmap(course_df, var_param1, var_param2, ["prop_internal_len_suffix_l2"],
                            output_dir_custom, f"{runlabel}-len")
+            create_heatmap(course_df, var_param1, var_param2, ["prop_internal_n_unique_suffix_l2"],
+                           output_dir_custom, f"{runlabel}-n_unique")
 
         else:
             ValueError("Choose a mode: evaluate_prop_l2 or evaluate_param or evaluate_params_heatmap.")

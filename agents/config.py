@@ -5,7 +5,7 @@ import datetime
 import os
 #from mesa.visualization.UserParam import Slider, Checkbox
 
-### Parameters not settable by user
+# Parameters not settable by user
 logging.basicConfig(stream=sys.stderr, level=logging.ERROR)
 
 CURRENTDIR = os.path.dirname(os.path.realpath(__file__))
@@ -31,13 +31,13 @@ OUTPUT_DIR = f'output-{str(datetime.datetime.now()).replace(" ","-").replace(":"
 ENABLE_MULTITHREADING = True
 
 
-### User settable parameteres
+# User settable parameteres
 # Model parameters
 PROPORTION_L2 = 0.5
 REDUCTION_PHONOTACTICS_L1 = True
 REDUCTION_PHONOTACTICS_L2 = True
 REDUCTION_PHONOTACTICS_PROB = 1.0
-REDUCTION_PHONOTACTICS_DROP_BORDER_PHONEME = True
+REDUCTION_PHONOTACTICS_DROP_BORDER_PHONEME = False
 AFFIX_PRIOR_COMBINED_L1 = False
 AFFIX_PRIOR_COMBINED_L2 = False
 AFFIX_PRIOR_ONLY_L1 = True
