@@ -11,7 +11,7 @@ This script requires Python 3.9 or later. To install the dependencies use pip an
 
 
 ## Run evaluation script
-The evaluation script can be invoked to run the model from the command line. It allows running multiple iterations of the model (to average stochasticity), and plot the results with spread in a publishable graph. The script will output a line graph of the morphological complexity, for different proportions of L2 speakers. Also, the evaluation script runs usually faster than the browser visualization.
+The evaluation script can be invoked to run the model from the command line. It allows running multiple iterations of the model (to average stochasticity), and plot the results with spread in a publishable graph. The script will output a line graph of the morphological prop_nonempty, for different proportions of L2 speakers. Also, the evaluation script runs usually faster than the browser visualization.
 
 The evaluation script always evaluates the proportion L2 speakers as independent variable. As command line arguments, you can give the fixed parameters/dependent variables you want to set. For example, to evaluate the model for different proportions of L2 speakers, while enabling L1 affix prior:
 

@@ -111,7 +111,7 @@ def create_graph_course_sb(course_df, variable_param, stat, output_dir, runlabel
 
 
 def create_graph_end_sb(course_df, variable_param, stats, output_dir, runlabel, type):
-    if type == "complexity":
+    if type == "prop_nonempty":
         y_label = "proportion affixes non-empty"
     elif type == "len":
         y_label = "average affix length"
@@ -139,7 +139,7 @@ def create_graph_end_sb(course_df, variable_param, stats, output_dir, runlabel, 
     else:
         # When evaluate_param mode is on, is variable_param as colour
         ax = sns.lineplot(data=df_tail, x="proportion_l2", y=y_label, hue=variable_param, legend="full")
-    if type == "complexity":  # or type == "prop_correct":
+    if type == "prop_nonempty":  # or type == "prop_correct":
         ax.set_ylim(0, 1)
     sns.despine(left=True, bottom=True)
     plt.savefig(os.path.join(
@@ -279,7 +279,7 @@ def main():
         if evaluate_prop_l2:
             course_df.to_csv(os.path.join(output_dir_custom, "proportion_l2.csv"))
             create_graph_end_sb(course_df, "proportion_l2", stats_internal,
-                                output_dir_custom, runlabel, type="complexity")
+                                output_dir_custom, runlabel, type="prop_nonempty")
             create_graph_course_sb(course_df, "proportion_l2",
                                    "prop_internal_suffix_l2", output_dir_custom, runlabel)
             # Create extra diagnostic plots for avg #affixes per speaker
@@ -296,7 +296,7 @@ def main():
             var_param = list(given_model_params.keys())[0]
             course_df.to_csv(os.path.join(output_dir_custom, f"{var_param}-evalparam.csv"))
             create_graph_end_sb(course_df, var_param, ["prop_internal_suffix_l2"],
-                                output_dir_custom, runlabel, type="complexity")
+                                output_dir_custom, runlabel, type="prop_nonempty")
             create_graph_end_sb(course_df, var_param, ["prop_internal_len_suffix_l2"],
                                 output_dir_custom, runlabel, type="len")
             create_graph_end_sb(course_df, var_param, ["prop_internal_n_unique_suffix_l2"],
@@ -306,7 +306,7 @@ def main():
             var_param2 = list(given_model_params.keys())[1]
             course_df.to_csv(os.path.join(output_dir_custom, f"{var_param1}-{var_param2}-evalparamsheat.csv"))
             create_heatmap(course_df, var_param1, var_param2, ["prop_internal_suffix_l2"],
-                           output_dir_custom, f"{runlabel}-complexity")
+                           output_dir_custom, f"{runlabel}-prop_nonempty")
             create_heatmap(course_df, var_param1, var_param2, ["prop_internal_len_suffix_l2"],
                            output_dir_custom, f"{runlabel}-len")
             create_heatmap(course_df, var_param1, var_param2, ["prop_internal_n_unique_suffix_l2"],
