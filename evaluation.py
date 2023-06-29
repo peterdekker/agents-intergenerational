@@ -24,16 +24,16 @@ from multiprocessing import Pool
 #                       "prop_communicated_prefix_l2": lambda m: m.prop_communicated_prefix_l2,
 #                       "prop_communicated_suffix_l2": lambda m: m.prop_communicated_suffix_l2}
 
-stats_internal = ["prop_internal_prefix_l1", "prop_internal_suffix_l1",
-                  "prop_internal_prefix_l2", "prop_internal_suffix_l2", "prop_internal_prefix", "prop_internal_suffix"]
+stats_internal = [#"prop_internal_prefix_l1", "prop_internal_suffix_l1", "prop_internal_prefix", "prop_internal_suffix",
+                  "prop_internal_prefix_l2", "prop_internal_suffix_l2"]
 
-stats_internal_len = ["prop_internal_len_prefix_l1", "prop_internal_len_suffix_l1",
-                            "prop_internal_len_prefix_l2", "prop_internal_len_suffix_l2", "prop_internal_len_prefix", "prop_internal_len_suffix"]
+stats_internal_len = [#"prop_internal_len_prefix_l1", "prop_internal_len_suffix_l1", "prop_internal_len_prefix", "prop_internal_len_suffix",
+                            "prop_internal_len_prefix_l2", "prop_internal_len_suffix_l2"]
 
-stats_internal_n_affixes = ["prop_internal_n_affixes_prefix_l1", "prop_internal_n_affixes_suffix_l1",
-                            "prop_internal_n_affixes_prefix_l2", "prop_internal_n_affixes_suffix_l2", "prop_internal_n_affixes_prefix", "prop_internal_n_affixes_suffix"]
-stats_internal_n_unique = ["prop_internal_n_unique_prefix_l1", "prop_internal_n_unique_suffix_l1",
-                            "prop_internal_n_unique_prefix_l2", "prop_internal_n_unique_suffix_l2", "prop_internal_n_unique_prefix", "prop_internal_n_unique_suffix"]
+stats_internal_n_affixes = [#"prop_internal_n_affixes_prefix_l1", "prop_internal_n_affixes_suffix_l1", "prop_internal_n_affixes_prefix", "prop_internal_n_affixes_suffix",
+                            "prop_internal_n_affixes_prefix_l2", "prop_internal_n_affixes_suffix_l2"]
+stats_internal_n_unique = [#"prop_internal_n_unique_prefix_l1", "prop_internal_n_unique_suffix_l1", "prop_internal_n_unique_prefix", "prop_internal_n_unique_suffix",
+                            "prop_internal_n_unique_prefix_l2", "prop_internal_n_unique_suffix_l2"]
 
 stats_prop_correct = ["prop_correct"]
 
@@ -106,7 +106,7 @@ def create_graph_course_sb(course_df, variable_param, stat, output_dir, runlabel
     ax.set_ylim(0, 1)
     sns.despine(left=True, bottom=True)
     plt.savefig(os.path.join(
-        output_dir, f"{variable_param}-course{'-'+runlabel if runlabel else ''}.{IMG_FORMAT}"), format=IMG_FORMAT, dpi=300)
+        output_dir, f"course{'-'+runlabel if runlabel else ''}.{IMG_FORMAT}"), format=IMG_FORMAT, dpi=300)
     plt.clf()
 
 
@@ -248,7 +248,7 @@ def main():
             fixed_params = {k: v_default for k, v_default in model_params_script.items(
             ) if k not in given_model_params and k != "proportion_l2"}
         else:
-            ValueError("Choose a mode: evaluate_prop_l2 or evaluate_param or evaluate_params_heatmap.")
+            raise ValueError("Choose a mode: evaluate_prop_l2 or evaluate_param or evaluate_params_heatmap.")
         print(f"Fixed model parameters: {params_print(fixed_params)}")
         cartesian_var_params_runs = []
         for prop_l2_setting in prop_l2_settings:
