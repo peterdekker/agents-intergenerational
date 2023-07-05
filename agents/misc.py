@@ -157,7 +157,7 @@ def spread_l2_agents(proportion_l2, n_agents):
     return [bool(x) for x in l2]
 
 
-def weighted_affixes_prior(lex_concept, person, affix_type, affixes, mode, affix_prior_only_prob=None):
+def weighted_affixes_prior(lex_concept, person, affix_type, affixes, mode, affix_prior_prob=None):
     affixes_concept = affixes[(lex_concept, person, affix_type)]
     logging.debug(f"Affixes for concept: {affixes_concept}")
     n_exemplars_concept = len(affixes_concept)
@@ -181,7 +181,7 @@ def weighted_affixes_prior(lex_concept, person, affix_type, affixes, mode, affix
         # With a certain probability, use distribution of all concepts
         # rest of times, use distribution of specific concept
         logging.debug("Only affix prior mode.")
-        if RG.random() < affix_prior_only_prob:
+        if RG.random() < affix_prior_prob:
             logging.debug(f"Use affix prior: {p_affix}")
             return p_affix
         else:
