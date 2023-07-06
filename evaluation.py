@@ -325,10 +325,12 @@ def main():
                                 output_dir_custom, runlabel, type="prop_nonempty")
             create_graph_end(course_df, var_param, ["prop_internal_len_suffix_l2"],
                                 output_dir_custom, runlabel, type="len")
-            create_graph_end(course_df, var_param, ["prop_internal_n_unique_suffix_l2"],
-                                output_dir_custom, runlabel, type="n_unique")
+            create_graph_end(course_df, var_param, ["prop_internal_n_affixes_suffix_l2"],
+                                output_dir_custom, runlabel, type="n_affixes")
             create_graph_end(course_df, var_param, stats_prop_correct,
                                 output_dir_custom, runlabel, type="prop_correct")
+            create_graph_end(course_df, var_param, ["prop_internal_n_unique_suffix_l2"],
+                                output_dir_custom, runlabel, type="n_unique")
         elif evaluate_params_heatmap:
             var_param1 = list(given_model_params.keys())[0]
             var_param2 = list(given_model_params.keys())[1]
