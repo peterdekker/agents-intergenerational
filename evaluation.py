@@ -59,7 +59,7 @@ def params_print(params):
 
 
 def model_wrapper(arg):
-    fixed_params, var_params, prop_l2_value, iteration, generations = arg
+    fixed_params, var_params, output_dir_custom, prop_l2_value, iteration, generations = arg
     # Extract variable paramater names, before we add proportion_l2 as another variable parameter
     var_params_items = list(var_params.items())
     if len(var_params_items) >= 1:
@@ -74,7 +74,7 @@ def model_wrapper(arg):
     var_params = var_params | {"proportion_l2": prop_l2_value}
     all_params = fixed_params | var_params
     m = Model(**all_params, run_id=iteration, generations=generations, var_param1_name=vpn1,
-              var_param1_value=vpv1, var_param2_name=vpn2, var_param2_value=vpv2)
+              var_param1_value=vpv1, var_param2_name=vpn2, var_param2_value=vpv2, output_dir=output_dir_custom)
     stats_df = m.run()
     print(f" - {params_print(var_params)}Iteration {iteration}.  Generations: {generations}.")
     return stats_df
@@ -280,12 +280,12 @@ def main():
         for prop_l2_setting in prop_l2_settings:
             for iteration in range(iterations):
                 if evaluate_prop_l2:
-                    cp = (fixed_params, {}, prop_l2_setting, iteration, generations)
+                    cp = (fixed_params, {}, output_dir_custom, prop_l2_setting, iteration, generations)
                     cartesian_var_params_runs.append(cp)
                 elif evaluate_param:
                     var_param, var_param_values = list(given_model_params.items())[0]
                     for var_param_value in var_param_values:
-                        cp = (fixed_params, {var_param: var_param_value},
+                        cp = (fixed_params, {var_param: var_param_value}, output_dir_custom,
                               prop_l2_setting, iteration, generations)
                         cartesian_var_params_runs.append(cp)
                 elif evaluate_params_heatmap:
@@ -294,7 +294,7 @@ def main():
                     for var_param1_value in var_param1_values:
                         for var_param2_value in var_param2_values:
                             cp = (fixed_params, {
-                                  var_param1: var_param1_value, var_param2: var_param2_value}, prop_l2_setting, iteration, generations)
+                                  var_param1: var_param1_value, var_param2: var_param2_value}, output_dir_custom, prop_l2_setting, iteration, generations)
                             cartesian_var_params_runs.append(cp)
         # Old one line loop
         # [({

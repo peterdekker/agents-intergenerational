@@ -10,8 +10,9 @@ from agents.agent import Agent
 from agents.data import Data
 
 
-# import numpy as np
+import numpy as np
 import pandas as pd
+import os
 
 
 class Model:
@@ -21,7 +22,7 @@ class Model:
 
     def __init__(self, n_agents, proportion_l2,
                  reduction_phonotactics_l1, reduction_phonotactics_l2, reduction_phonotactics_prob, reduction_phonotactics_drop_border_phoneme, alpha_l1, alpha_l2,
-                 affix_prior_combined_l1, affix_prior_combined_l2, affix_prior_l1, affix_prior_l2, affix_prior_prob, interaction_l1, interaction_l1_shield_initialization, generations, interactions_per_generation, run_id, var_param1_name, var_param1_value, var_param2_name, var_param2_value):
+                 affix_prior_combined_l1, affix_prior_combined_l2, affix_prior_l1, affix_prior_l2, affix_prior_prob, interaction_l1, interaction_l1_shield_initialization, generations, interactions_per_generation, run_id, var_param1_name, var_param1_value, var_param2_name, var_param2_value, output_dir):
         '''
         Initialize field
         '''
@@ -57,6 +58,7 @@ class Model:
         self.generations = int(generations)
         self.interactions_per_generation = int(interactions_per_generation)
         self.run_id = run_id
+        self.output_dir = output_dir
 
         # self.schedule = RandomActivation(self)
         self.current_generation = 0
@@ -148,6 +150,17 @@ class Model:
             self.stats_df[self.var_param1_name] = self.var_param1_value
         if self.var_param2_name:
             self.stats_df[self.var_param2_name] = self.var_param2_value
+        
+        # Plot affixes
+        if self.proportion_l2 > 0.0:
+            agents_prev_gen_l2 = [a for a in self.agents_prev_gen if a.is_l2()]
+            np.random.shuffle(agents_prev_gen_l2)
+            sample_agent = agents_prev_gen_l2[0]
+            affixes_emptysymbol = {}
+            for key in sample_agent.affixes:
+                affixes_emptysymbol[key] = ["∅" if aff == "" else aff for aff in sample_agent.affixes[key]]
+            affix_sample_df = pd.DataFrame.from_dict(affixes_emptysymbol, orient="index")
+            affix_sample_df.to_csv(os.path.join(self.output_dir, f"affix_sample_ipg{self.interactions_per_generation}_prop{self.proportion_l2}_run{self.run_id}.csv"))
 
         return self.stats_df
 
