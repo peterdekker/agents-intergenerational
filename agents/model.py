@@ -128,10 +128,8 @@ class Model:
         #  print(self.current_generation, list(map(str, agents_first_gen)))
         self.agents_prev_gen = agents_first_gen
 
-        stats.calculate_internal_stats(agents_first_gen, self.current_generation,
+        stats.calculate_internal_stats(agents_first_gen, self.current_generation, self.correct_interactions, self.total_interactions,
                                        self.stats_entries)
-        stats.calculate_correct_interactions(self.correct_interactions, self.total_interactions, self.current_generation,
-                                             self.stats_entries)
 
         # agents_l1 = [a for a in agents if not a.is_l2()]
         # agents_l2 = [a for a in agents if a.is_l2()]
@@ -215,12 +213,10 @@ class Model:
 
         self.agents_prev_gen = agents_new_gen
 
-        stats.calculate_internal_stats(agents_new_gen, self.current_generation,
+        stats.calculate_internal_stats(agents_new_gen, self.current_generation, self.correct_interactions, self.total_interactions,
                                        self.stats_entries)
 
-        # Now compute proportion of correct interaction
-        stats.calculate_correct_interactions(self.correct_interactions, self.total_interactions, self.current_generation,
-                                             self.stats_entries)
+
 
         # Compute proportion non-empty cells in communicative measure
         # self.prop_communicated_prefix_l1 = stats.prop_communicated(

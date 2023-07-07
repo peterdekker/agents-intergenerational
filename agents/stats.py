@@ -76,7 +76,7 @@ def apply_stat_agents(func, agents, affix_type):
     return np.mean(stat_agents) if len(stat_agents) > 0 else None
 
 
-def calculate_internal_stats(agents, generation, stats_entries):
+def calculate_internal_stats(agents, generation, correct_interactions, total_interactions, stats_entries):
     agents_l1 = [a for a in agents if not a.is_l2()]
     agents_l2 = [a for a in agents if a.is_l2()]
 
@@ -96,22 +96,30 @@ def calculate_internal_stats(agents, generation, stats_entries):
             # stats_entry_n_affixes = {"generation": generation, "stat_name": f"prop_internal_n_affixes_{affix_type}" if agent_type ==
             #                          "total" else f"prop_internal_n_affixes_{affix_type}_{agent_type}", "stat_value": stat_n_affixes} #"proportion_l2": proportion_l2,
             # stats_entries.append(stats_entry_n_affixes)
-
+            
+            # Create dictionary with key-value pair per agent-based statistic
+            stats_entry = {"generation": generation}
             for stat_name, stat_func in [("prop_internal", prop_internal_nonzero), ("prop_internal_len", prop_internal_len), ("prop_internal_n_affixes", prop_internal_n_affixes), ("prop_internal_n_unique", prop_internal_n_unique)]:
+                stat_name_key = f"{stat_name}_{affix_type}" if agent_type == "total" else f"{stat_name}_{affix_type}_{agent_type}"
                 stat_value = apply_stat_agents(stat_func, agents_set, affix_type)
-                stats_entry = {"generation": generation, "stat_name": f"{stat_name}_{affix_type}" if agent_type ==
-                               "total" else f"{stat_name}_{affix_type}_{agent_type}", "stat_value": stat_value}
-                stats_entries.append(stats_entry)
+                stats_entry[stat_name_key] = stat_value
+            
+            # Add population-wide prop correct
+            stats_entry["prop_correct"] = correct_interactions / total_interactions if total_interactions > 0 else 0
+
+            # Append this dictionary (one row for future dataframe) to stats_entries
+            stats_entries.append(stats_entry)
+    
 
 
-def calculate_correct_interactions(correct_interactions, total_interactions, current_generation, stats_entries):
-    # Proportion correct interactions is calculated based on total_interactions:
-    # number of interactions where initiator actually speaks.
-    # Interactions where initiator does not speak, because system is empty, are excluded
-    proportion_correct_interactions = correct_interactions / total_interactions if total_interactions > 0 else 0
-    stats_entry_prop_correct = {"generation": current_generation,  # "proportion_l2": proportion_l2,
-                                "stat_name": "prop_correct", "stat_value": proportion_correct_interactions}
-    stats_entries.append(stats_entry_prop_correct)
+# def calculate_correct_interactions(correct_interactions, total_interactions, current_generation, stats_entries):
+#     # Proportion correct interactions is calculated based on total_interactions:
+#     # number of interactions where initiator actually speaks.
+#     # Interactions where initiator does not speak, because system is empty, are excluded
+#     proportion_correct_interactions = correct_interactions / total_interactions if total_interactions > 0 else 0
+#     stats_entry_prop_correct = {"generation": current_generation,  # "proportion_l2": proportion_l2,
+#                                 "stat_name": "prop_correct", "stat_value": proportion_correct_interactions}
+#     stats_entries.append(stats_entry_prop_correct)
 
 
 def update_communicated_model_stats(model, prefix, suffix, prefixing, suffixing, l2):

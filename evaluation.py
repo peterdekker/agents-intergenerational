@@ -302,6 +302,7 @@ def main():
         #     for var_param_setting in var_params[var_param] for var_param in var_params for run_id in range(iterations)]
 
         course_df = evaluate_model(cartesian_var_params_runs, iterations)
+        course_df = pd.melt(course_df, id_vars=["generation", "run_id", "proportion_l2"], var_name="stat_name", value_name="stat_value")
         if evaluate_prop_l2:
             course_df.to_csv(os.path.join(output_dir_custom, "proportion_l2.csv"))
             create_graph_end(course_df, "proportion_l2", stats_internal,
