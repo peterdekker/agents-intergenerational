@@ -9,10 +9,7 @@ from agents import misc
 from agents.agent import Agent
 from agents.data import Data
 
-
-import numpy as np
 import pandas as pd
-import os
 
 
 class Model:
@@ -153,14 +150,7 @@ class Model:
         
         # Plot affixes
         if self.proportion_l2 > 0.0:
-            agents_prev_gen_l2 = [a for a in self.agents_prev_gen if a.is_l2()]
-            np.random.shuffle(agents_prev_gen_l2)
-            sample_agent = agents_prev_gen_l2[0]
-            affixes_emptysymbol = {}
-            for key in sample_agent.affixes:
-                affixes_emptysymbol[key] = ["∅" if aff == "" else aff for aff in sample_agent.affixes[key]]
-            affix_sample_df = pd.DataFrame.from_dict(affixes_emptysymbol, orient="index")
-            affix_sample_df.to_csv(os.path.join(self.output_dir, f"affix_sample_ipg{self.interactions_per_generation}_prop{self.proportion_l2}_run{self.run_id}.csv"))
+            stats.affix_sample_diagnosis(self.agents_prev_gen, self.output_dir, self.interactions_per_generation, self.proportion_l2, self.run_id)
 
         return self.stats_df
 

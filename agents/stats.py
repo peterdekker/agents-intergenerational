@@ -1,6 +1,8 @@
 
 import numpy as np
+import os
 from collections import defaultdict, Counter
+import pandas as pd
 
 def prop_internal_n_unique(agent, affix_type):
     all_affixes = []
@@ -46,6 +48,16 @@ def prop_internal_nonzero(agent, affix_type):
                 prop_filled_cells.append(prop_filled_cell)
 
     return np.mean(prop_filled_cells) if len(prop_filled_cells) > 0 else None
+
+def affix_sample_diagnosis(agents, output_dir, interactions_per_generation, proportion_l2, run_id):
+    agents_prev_gen_l2 = [a for a in agents if a.is_l2()]
+    np.random.shuffle(agents_prev_gen_l2)
+    sample_agent = agents_prev_gen_l2[0]
+    affixes_emptysymbol = {}
+    for key in sample_agent.affixes:
+        affixes_emptysymbol[key] = ["∅" if aff == "" else aff for aff in sample_agent.affixes[key]]
+    affix_sample_df = pd.DataFrame.from_dict(affixes_emptysymbol, orient="index")
+    affix_sample_df.to_csv(os.path.join(output_dir, f"affix_sample_ipg{interactions_per_generation}_prop{proportion_l2}_run{run_id}.csv"))
 
 # def prop_internal_n_affixes_agents(agents, affix_type):
 #     n_affixes = [prop_internal_n_affixes(a, affix_type) for a in agents]
