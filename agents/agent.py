@@ -10,7 +10,7 @@ from agents import stats
 
 
 class Agent:
-    def __init__(self, pos, model, data, init, affix_prior_combined, affix_prior, reduction_phonotactics, alpha, l2):
+    def __init__(self, pos, model, data, init, affix_prior_combined, affix_prior, phonotactic_reduction, alpha, l2):
         '''
          Create a new speech agent.
 
@@ -23,7 +23,7 @@ class Agent:
         self.pos = pos
         self.affix_prior_combined = affix_prior_combined
         self.affix_prior = affix_prior
-        self.reduction_phonotactics = reduction_phonotactics
+        self.phonotactic_reduction = phonotactic_reduction
         self.alpha = alpha
         self.l2 = l2
 
@@ -92,10 +92,10 @@ class Agent:
                     lex_concept, person, "prefix", self.affixes, alpha=self.alpha)
             if len(prefixes) > 0:
                 prefix = misc.affix_choice(prefixes)
-                if self.reduction_phonotactics:
-                    if RG.random() < self.model.reduction_phonotactics_prob:
+                if self.phonotactic_reduction:
+                    if RG.random() < self.model.phonotactic_reduction_prob:
                         prefix = misc.reduce_phonotactics(
-                            "prefix", prefix, form, self.model.clts, drop_border_phoneme=self.model.reduction_phonotactics_drop_border_phoneme)
+                            "prefix", prefix, form, self.model.clts, drop_border_phoneme=self.model.phonotactic_reduction_drop_border_phoneme)
             else:
                 # Just skip this whole interaction. Only listen for this concept until it gets filled with at least one form.
                 return
@@ -123,10 +123,10 @@ class Agent:
 
             if len(suffixes) > 0:
                 suffix = misc.affix_choice(suffixes)
-                if self.reduction_phonotactics:
-                    if RG.random() < self.model.reduction_phonotactics_prob:
+                if self.phonotactic_reduction:
+                    if RG.random() < self.model.phonotactic_reduction_prob:
                         suffix = misc.reduce_phonotactics(
-                            "suffix", suffix, form, self.model.clts, drop_border_phoneme=self.model.reduction_phonotactics_drop_border_phoneme)
+                            "suffix", suffix, form, self.model.clts, drop_border_phoneme=self.model.phonotactic_reduction_drop_border_phoneme)
             else:
                 # Just skip this whole interaction. Only listen for this concept until it gets filled with at least one form.
                 return

@@ -34,10 +34,10 @@ ENABLE_MULTITHREADING = True
 # User settable parameteres
 # Model parameters
 PROPORTION_L2 = 0.5
-REDUCTION_PHONOTACTICS_L1 = True
-REDUCTION_PHONOTACTICS_L2 = True
-REDUCTION_PHONOTACTICS_PROB = 1.0
-REDUCTION_PHONOTACTICS_DROP_BORDER_PHONEME = False
+PHONOTACTIC_REDUCTION_L1 = True
+PHONOTACTIC_REDUCTION_L2 = True
+PHONOTACTIC_REDUCTION_PROB = 1.0
+PHONOTACTIC_REDUCTION_DROP_BORDER_PHONEME = False
 AFFIX_PRIOR_COMBINED_L1 = False
 AFFIX_PRIOR_COMBINED_L2 = False
 AFFIX_PRIOR_L1 = True
@@ -57,8 +57,8 @@ GENERATIONS = 100
 # model_params = {
 #     "n_agents": {"ui": N_AGENTS, "script": N_AGENTS},
 #     "proportion_l2": {"ui": Slider("proportion_l2", PROPORTION_L2, 0.0, 1.0, 0.1), "script": PROPORTION_L2},
-#     "reduction_phonotactics_l1": {"ui": Checkbox('Reduction phonotactics L1', value=REDUCTION_PHONOTACTICS_L1), "script": REDUCTION_PHONOTACTICS_L1},
-#     "reduction_phonotactics_l2": {"ui": Checkbox('Reduction phonotactics L2', value=REDUCTION_PHONOTACTICS_L2), "script": REDUCTION_PHONOTACTICS_L2},
+#     "phonotactic_reduction_l1": {"ui": Checkbox('Reduction phonotactics L1', value=PHONOTACTIC_REDUCTION_L1), "script": PHONOTACTIC_REDUCTION_L1},
+#     "phonotactic_reduction_l2": {"ui": Checkbox('Reduction phonotactics L2', value=PHONOTACTIC_REDUCTION_L2), "script": PHONOTACTIC_REDUCTION_L2},
 #     "affix_prior_l1": {"ui": Checkbox('Affix prior L1', value=AFFIX_PRIOR_L1), "script": AFFIX_PRIOR_L1},
 #     "affix_prior_l2": {"ui": Checkbox('Affix prior L2', value=AFFIX_PRIOR_L2), "script": AFFIX_PRIOR_L2},
 #     "alpha_l1": {"ui": Slider("alpha L1", ALPHA_L1, 0, 10000, 100), "script": ALPHA_L1},
@@ -72,10 +72,10 @@ GENERATIONS = 100
 model_params = {
     "n_agents": {"ui": N_AGENTS, "script": N_AGENTS},
     "proportion_l2": {"script": PROPORTION_L2},
-    "reduction_phonotactics_l1": {"script": REDUCTION_PHONOTACTICS_L1},
-    "reduction_phonotactics_l2": {"script": REDUCTION_PHONOTACTICS_L2},
-    "reduction_phonotactics_prob": {"script": REDUCTION_PHONOTACTICS_PROB},
-    "reduction_phonotactics_drop_border_phoneme": {"script": REDUCTION_PHONOTACTICS_DROP_BORDER_PHONEME},
+    "phonotactic_reduction_l1": {"script": PHONOTACTIC_REDUCTION_L1},
+    "phonotactic_reduction_l2": {"script": PHONOTACTIC_REDUCTION_L2},
+    "phonotactic_reduction_prob": {"script": PHONOTACTIC_REDUCTION_PROB},
+    "phonotactic_reduction_drop_border_phoneme": {"script": PHONOTACTIC_REDUCTION_DROP_BORDER_PHONEME},
     "affix_prior_combined_l1": {"script": AFFIX_PRIOR_COMBINED_L1},
     "affix_prior_combined_l2": {"script": AFFIX_PRIOR_COMBINED_L2},
     "affix_prior_l1": {"script": AFFIX_PRIOR_L1},
@@ -103,7 +103,7 @@ evaluation_params = {
 
 eval_params_script = {k: v["script"] for k, v in evaluation_params.items()}
 
-bool_params = ["reduction_phonotactics_l1", "reduction_phonotactics_l2", "reduction_phonotactics_drop_border_phoneme",
+bool_params = ["phonotactic_reduction_l1", "phonotactic_reduction_l2", "phonotactic_reduction_drop_border_phoneme",
                "affix_prior_combined_l1", "affix_prior_combined_l2", "affix_prior_l1", "affix_prior_l2", "interaction_l1", "evaluate_prop_l2", "evaluate_param", "evaluate_params_heatmap"]
 
 string_params = ["runlabel", "plot_from_raw"]
