@@ -51,7 +51,7 @@ INTERACTIONS_PER_GENERATION = 100
 
 # Evaluateion parameters
 ITERATIONS = 20
-GENERATIONS = 100
+GENERATIONS = 10000
 
 # Backup with UI elements
 # model_params = {

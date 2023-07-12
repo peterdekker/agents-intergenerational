@@ -180,7 +180,6 @@ def create_heatmap(course_df, variable_param1, variable_param2, stats, output_di
     # Use last 10% of generations as endpoint
     generations = max(df_stats["generation"])
     df_tail = df_stats[df_stats["generation"] >= generations - (generations/10)]
-
     ### Slope: Difference in stat value between highest and lowest prop L2, 
     # Find non-empty entries (sometimes there is no value), group by param combination, find stat value (average over runs) of highest prop L2, subtract stat value (average) of lowest prop L2
     df_slope_propl2 = df_tail[df_tail["stat_value"].notna()].groupby([variable_param1, variable_param2])[["proportion_l2","stat_value"]].apply(lambda x: x[x["proportion_l2"]==max(x["proportion_l2"])].mean() - x[x["proportion_l2"]==min(x["proportion_l2"])].mean())
@@ -302,8 +301,8 @@ def main():
         #     for var_param_setting in var_params[var_param] for var_param in var_params for run_id in range(iterations)]
 
         course_df = evaluate_model(cartesian_var_params_runs, iterations)
-        course_df_long = pd.melt(course_df, id_vars=["generation", "run_id", "proportion_l2"], var_name="stat_name", value_name="stat_value")
         if evaluate_prop_l2:
+            course_df_long = pd.melt(course_df, id_vars=["generation", "run_id", "proportion_l2"], var_name="stat_name", value_name="stat_value")
             course_df.to_csv(os.path.join(output_dir_custom, "proportion_l2.csv"))
             create_graph_end(course_df_long, "proportion_l2", stats_internal,
                                 output_dir_custom, runlabel, type="prop_nonempty")
@@ -321,6 +320,7 @@ def main():
                                 runlabel, type="n_unique")
         elif evaluate_param:
             var_param = list(given_model_params.keys())[0]
+            course_df_long = pd.melt(course_df, id_vars=["generation", "run_id", "proportion_l2", var_param], var_name="stat_name", value_name="stat_value")
             course_df.to_csv(os.path.join(output_dir_custom, f"{var_param}-evalparam.csv"))
             create_graph_end(course_df_long, var_param, ["prop_internal_suffix_l2"],
                                 output_dir_custom, runlabel, type="prop_nonempty")
@@ -335,6 +335,7 @@ def main():
         elif evaluate_params_heatmap:
             var_param1 = list(given_model_params.keys())[0]
             var_param2 = list(given_model_params.keys())[1]
+            course_df_long = pd.melt(course_df, id_vars=["generation", "run_id", "proportion_l2", var_param1, var_param2], var_name="stat_name", value_name="stat_value")
             course_df.to_csv(os.path.join(output_dir_custom, f"{var_param1}-{var_param2}-evalparamsheat.csv"))
             create_heatmap(course_df_long, var_param1, var_param2, ["prop_internal_suffix_l2"],
                            output_dir_custom, f"{runlabel}-prop_nonempty")
