@@ -190,7 +190,7 @@ def create_heatmap(course_df, variable_param1, variable_param2, stats, output_di
     #     columns="stat_value").drop("proportion_l2", level=2).droplevel(2)
     # df_pivot = df_corr.unstack()
 
-    sns.heatmap(data=df_pivot)
+    sns.heatmap(data=df_pivot, vmin=-1.0, vmax=0.0)
     # sns.despine(left=True, bottom=True)
     plt.xlabel(variable_param1.replace("_", " "))
     plt.ylabel(variable_param2.replace("_", " "))
