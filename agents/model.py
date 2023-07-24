@@ -146,8 +146,8 @@ class Model:
         if self.var_param2_name:
             self.stats_df[self.var_param2_name] = self.var_param2_value
         
-        # Plot affixes
-        if self.proportion_l2 > 0.0:
+        # Plot affixes, only for the first run
+        if self.proportion_l2 > 0.0 and self.run_id == 0:
             stats.affix_sample_diagnosis(self.agents_prev_gen, self.output_dir, self.interactions_per_generation, self.proportion_l2, self.run_id)
 
         return self.stats_df
