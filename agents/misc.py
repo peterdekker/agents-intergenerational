@@ -157,18 +157,15 @@ def spread_l2_agents(proportion_l2, n_agents):
     return [bool(x) for x in l2]
 
 
-def weighted_affixes_prior(lex_concept, person, affix_type, affixes, mode, affix_prior_prob=None):
+def weighted_affixes_prior_combined(lex_concept, person, affix_type, affixes, affix_prior_prob=None):
     affixes_concept = affixes[(lex_concept, person, affix_type)]
-    logging.debug(f"Affixes for concept: {affixes_concept}")
-    n_exemplars_concept = len(affixes_concept)
-    counts_affixes_concept = Counter(affixes_concept)
-    logging.debug(f"Counts for concept: {counts_affixes_concept}")
-    # Division maybe more efficient as numpy array (see distribution_from_exemplars), but we need dict later
-    p_affix_given_concept = {aff: count/n_exemplars_concept for aff, count in counts_affixes_concept.items()}
-    logging.debug(f"Probabilities for concept: {p_affix_given_concept}")
+    p_affix_given_concept, p_affix_given_concept_dict, _ = compute_affix_given_concept(affixes_concept)
 
     affixes_affix_type = {(l, p, t): affixes[(l, p, t)] for (l, p, t) in affixes.keys() if t == affix_type and (
         GENERALIZE_PERSONS or p == person) and (GENERALIZE_LEX_CONCEPTS or l == lex_concept)}
+    # Temporary try: generalise over both prefixes and suffixes
+    # affixes_affix_type = {(l, p, t): affixes[(l, p, t)] for (l, p, t) in affixes.keys() if (
+    #      GENERALIZE_PERSONS or p == person) and (GENERALIZE_LEX_CONCEPTS or l == lex_concept)}
     affixes_all = list(chain.from_iterable(affixes_affix_type.values()))
     logging.debug(f"Affixes for all: {affixes_all}")
     n_exemplars_all = len(affixes_all)
@@ -177,50 +174,73 @@ def weighted_affixes_prior(lex_concept, person, affix_type, affixes, mode, affix
     p_affix = {aff: count/n_exemplars_all for aff, count in counts_affixes_all.items()}
     logging.debug(f"Probabilities for all: {p_affix}")
 
-    if mode == "only":
-        # With a certain probability, use distribution of all concepts
-        # rest of times, use distribution of specific concept
-        logging.debug("Only affix prior mode.")
-        if RG.random() < affix_prior_prob:
-            logging.debug(f"Use affix prior: {p_affix}")
-            return p_affix
-        else:
-            logging.debug(f"Use concept distribution: {p_affix_given_concept}")
-            return p_affix_given_concept
-    # Combine affix prior for all concepts and distribution of specific concept
-    elif mode == "combined":
-        logging.debug("Combined mode.")
-        # combined: p(affix|concept) * p(affix) [prior]
-        p_combined = {aff: p_aff_conc * p_affix[aff] for aff, p_aff_conc in p_affix_given_concept.items()}
-        logging.debug(f"Combined: {p_combined}")
-        total = sum(p_combined.values())
-        p_combined_normalized = {aff: p_comb/total for aff, p_comb in p_combined.items()}
-        logging.debug(f"Combined normalized: {p_combined_normalized}")
-        return p_combined_normalized
+    # combined: p(affix|concept) * p(affix) [prior]
+    p_combined = {aff: p_aff_conc * p_affix[aff] for aff, p_aff_conc in p_affix_given_concept.items()}
+    logging.debug(f"Combined: {p_combined}")
+    total = sum(p_combined.values())
+    p_combined_normalized = {aff: p_comb/total for aff, p_comb in p_combined.items()}
+    logging.debug(f"Combined normalized: {p_combined_normalized}")
+    return p_combined_normalized
+
+def use_affix_prior(lex_concept, person, affix_type, affixes, affix_prior_prob=None):
+
+    # DELETE
+    # n_exemplars_concept = len(affixes_concept)
+    # counts_affixes_concept = Counter(affixes_concept)
+    # logging.debug(f"Counts for concept: {counts_affixes_concept}")
+    # # Division maybe more efficient as numpy array (see distribution_from_exemplars), but we need dict later
+    # p_affix_given_concept = {aff: count/n_exemplars_concept for aff, count in counts_affixes_concept.items()}
+    # logging.debug(f"Probabilities for concept: {p_affix_given_concept}")
+    # DELETE
+
+    # With a certain probability, use distribution of all concepts
+    # rest of times, use distribution of specific concept
+    if RG.random() < affix_prior_prob:
+        logging.debug(f"Use affix prior.")
+        affixes_affix_type = {(l, p, t): affixes[(l, p, t)] for (l, p, t) in affixes.keys() if t == affix_type and (
+            GENERALIZE_PERSONS or p == person) and (GENERALIZE_LEX_CONCEPTS or l == lex_concept)}
+        # Temporary try: generalise over both prefixes and suffixes
+        # affixes_affix_type = {(l, p, t): affixes[(l, p, t)] for (l, p, t) in affixes.keys() if (
+        #      GENERALIZE_PERSONS or p == person) and (GENERALIZE_LEX_CONCEPTS or l == lex_concept)}
+        affixes_all = list(chain.from_iterable(affixes_affix_type.values()))
+        # logging.debug(f"Affixes for all: {affixes_all}")
+        # n_exemplars_all = len(affixes_all)
+        # counts_affixes_all = Counter(affixes_all)
+        # logging.debug(f"Counts for all: {counts_affixes_all}")
+        # p_affix = {aff: count/n_exemplars_all for aff, count in counts_affixes_all.items()}
+        # logging.debug(f"Probabilities for all: {p_affix}")
+        _, p_affix_dict, _ = compute_affix_probabilities(affixes_all)
+        return p_affix_dict
     else:
-        raise ValueError("Mode not recognized.")
+        affixes_concept = affixes[(lex_concept, person, affix_type)]
+        _, p_affix_given_concept_dict, _ = compute_affix_probabilities(affixes_concept)
+        logging.debug(f"Use concept distribution: {p_affix_given_concept_dict}")
+        return p_affix_given_concept_dict
+
+def compute_affix_probabilities(affixes):
+    logging.debug(f"Affixes: {affixes}")
+
+    n_exemplars = len(affixes)
+    counts_affixes = Counter(affixes)
+    logging.debug(f"Counts: {counts_affixes}")
+    counts_keys = list(counts_affixes.keys())
+    counts_values = np.array(list(counts_affixes.values()))
+    p = counts_values / n_exemplars
+    p_dict = dict(zip(counts_keys, p))
+    logging.debug(f"Probabilities: {p_dict}")
+    return p, p_dict, counts_keys
 
 
 def distribution_from_exemplars(lex_concept, person, affix_type, affixes, alpha):
     affixes_concept = affixes[(lex_concept, person, affix_type)]
-    logging.debug(f"Affixes for concept: {affixes_concept}")
-    if len(affixes_concept) == 0:
-        return {}
+    p_affix_given_concept, p_affix_given_concept_dict, counts_keys = compute_affix_probabilities(
+        affixes_concept)
 
-    n_exemplars_concept = len(affixes_concept)
-    counts_affixes_concept = Counter(affixes_concept)
-    logging.debug(f"Counts for concept: {counts_affixes_concept}")
-    counts_keys = list(counts_affixes_concept.keys())
-    counts_values = np.array(list(counts_affixes_concept.values()))
-    p_affix_given_concept = counts_values / n_exemplars_concept
-    p_affix_given_concept_dict = dict(zip(counts_keys, p_affix_given_concept))
-    logging.debug(f"Probabilities for concept: {p_affix_given_concept_dict}")
     logging.debug(f"Alpha: {alpha}")
-
     # If alpha is 1.0: stop calculation here and return probabilities.
     if math.isclose(alpha, 1.0):
         return p_affix_given_concept_dict
-
+    raise ValueError("Alpha enabled.")
     # Scale probabilities with alpha in log space (make distribution peakier)
     log_scaled = np.log(p_affix_given_concept) * alpha
     logging.debug(f"Log Scaled: {dict(zip(counts_keys, log_scaled))}")

@@ -84,9 +84,9 @@ class Agent:
             if self.affix_prior_combined:
 
                 # prefixes = list weighted by prob * prior_prob
-                prefixes = misc.weighted_affixes_prior(lex_concept, person, "prefix", self.affixes, "combined")
+                prefixes = misc.weighted_affixes_prior_combined(lex_concept, person, "prefix", self.affixes)
             elif self.affix_prior:
-                prefixes = misc.weighted_affixes_prior(lex_concept, person, "prefix", self.affixes, "only", self.model.affix_prior_prob)
+                prefixes = misc.use_affix_prior(lex_concept, person, "prefix", self.affixes, self.model.affix_prior_prob)
             else:
                 prefixes = misc.distribution_from_exemplars(
                     lex_concept, person, "prefix", self.affixes, alpha=self.alpha)
@@ -109,10 +109,10 @@ class Agent:
         #     -- intransitive: use suffix with probability, because it is not obligatory
         if suffixing:
             if self.affix_prior_combined:
-                suffixes = misc.weighted_affixes_prior(lex_concept, person, "suffix", self.affixes, "combined")
+                suffixes = misc.weighted_affixes_prior_combined(lex_concept, person, "suffix", self.affixes)
                 # suffixes = list weighted by prob * prior_prob
             elif self.affix_prior:
-                suffixes = misc.weighted_affixes_prior(lex_concept, person, "suffix", self.affixes, "only", self.model.affix_prior_prob)
+                suffixes = misc.use_affix_prior(lex_concept, person, "suffix", self.affixes, self.model.affix_prior_prob)
             else:
                 suffixes = misc.distribution_from_exemplars(
                     lex_concept, person, "suffix", self.affixes, alpha=self.alpha)
