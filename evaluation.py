@@ -274,7 +274,10 @@ def main():
             ) if k not in given_model_params and k != "proportion_l2"}
         else:
             raise ValueError("Choose a mode: evaluate_prop_l2 or evaluate_param or evaluate_params_heatmap.")
-        print(f"Fixed model parameters: {params_print(fixed_params)}")
+        fixed_params_print = params_print(fixed_params)
+        print(f"Fixed model parameters: {fixed_params_print}")
+        with open(os.path.join(output_dir_custom, "fixedparams.txt"), "w") as param_file:
+            param_file.write(fixed_params_print)
         cartesian_var_params_runs = []
         for prop_l2_setting in prop_l2_settings:
             for iteration in range(iterations):

@@ -100,8 +100,8 @@ class Agent:
                 # Just skip this whole interaction. Only listen for this concept until it gets filled with at least one form.
                 return
 
-            if prefix == "":
-                raise ValueError("Prefix is empty")
+            # if prefix == "":
+            #     raise ValueError("Prefix is empty")
             signal.prefix = prefix
 
         #  - suffixing verb:

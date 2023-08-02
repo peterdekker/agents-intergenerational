@@ -4,7 +4,7 @@ import numpy as np
 import os
 from itertools import chain
 
-from agents.config import logging, RG, CURRENTDIR, GENERALIZE_PERSONS, GENERALIZE_LEX_CONCEPTS
+from agents.config import logging, RG, CURRENTDIR, GENERALIZE_PERSONS, GENERALIZE_LEX_CONCEPTS, GENERALIZE_PREFIX_SUFFIX
 
 from collections import Counter
 
@@ -163,9 +163,6 @@ def weighted_affixes_prior_combined(lex_concept, person, affix_type, affixes, af
 
     affixes_affix_type = {(l, p, t): affixes[(l, p, t)] for (l, p, t) in affixes.keys() if t == affix_type and (
         GENERALIZE_PERSONS or p == person) and (GENERALIZE_LEX_CONCEPTS or l == lex_concept)}
-    # Temporary try: generalise over both prefixes and suffixes
-    # affixes_affix_type = {(l, p, t): affixes[(l, p, t)] for (l, p, t) in affixes.keys() if (
-    #      GENERALIZE_PERSONS or p == person) and (GENERALIZE_LEX_CONCEPTS or l == lex_concept)}
     affixes_all = list(chain.from_iterable(affixes_affix_type.values()))
     logging.debug(f"Affixes for all: {affixes_all}")
     n_exemplars_all = len(affixes_all)
@@ -197,11 +194,12 @@ def use_affix_prior(lex_concept, person, affix_type, affixes, affix_prior_prob=N
     # rest of times, use distribution of specific concept
     if RG.random() < affix_prior_prob:
         logging.debug(f"Use affix prior.")
-        affixes_affix_type = {(l, p, t): affixes[(l, p, t)] for (l, p, t) in affixes.keys() if t == affix_type and (
+        if GENERALIZE_PREFIX_SUFFIX:
+            affixes_affix_type = {(l, p, t): affixes[(l, p, t)] for (l, p, t) in affixes.keys() if (
+                GENERALIZE_PERSONS or p == person) and (GENERALIZE_LEX_CONCEPTS or l == lex_concept)}
+        else:
+            affixes_affix_type = {(l, p, t): affixes[(l, p, t)] for (l, p, t) in affixes.keys() if t == affix_type and (
             GENERALIZE_PERSONS or p == person) and (GENERALIZE_LEX_CONCEPTS or l == lex_concept)}
-        # Temporary try: generalise over both prefixes and suffixes
-        # affixes_affix_type = {(l, p, t): affixes[(l, p, t)] for (l, p, t) in affixes.keys() if (
-        #      GENERALIZE_PERSONS or p == person) and (GENERALIZE_LEX_CONCEPTS or l == lex_concept)}
         affixes_all = list(chain.from_iterable(affixes_affix_type.values()))
         # logging.debug(f"Affixes for all: {affixes_all}")
         # n_exemplars_all = len(affixes_all)

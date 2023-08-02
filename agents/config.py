@@ -24,6 +24,7 @@ ROLLING_AVG_WINDOW = 100
 
 GENERALIZE_PERSONS = False
 GENERALIZE_LEX_CONCEPTS = True
+GENERALIZE_PREFIX_SUFFIX = False
 
 IMG_FORMATS = ["pdf", "png"]
 OUTPUT_DIR = f'output-{str(datetime.datetime.now()).replace(" ","-").replace(":",".")}'

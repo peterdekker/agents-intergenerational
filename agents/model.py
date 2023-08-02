@@ -3,7 +3,7 @@
 # from mesa.space import SingleGrid
 # from mesa.datacollection import DataCollector
 
-from agents.config import N_AGENTS, DATA_FILE, CLTS_ARCHIVE_PATH, CLTS_ARCHIVE_URL, CLTS_PATH, RG
+from agents.config import DATA_FILE, CLTS_ARCHIVE_PATH, CLTS_ARCHIVE_URL, CLTS_PATH, RG
 from agents import stats
 from agents import misc
 from agents.agent import Agent
@@ -206,7 +206,7 @@ class Model:
 
         # L2 agents (or all agents if interaction_l1 on) learn by being spoken to by previous generation (both L1 and L2)
         for i in range(self.interactions_per_generation):
-            assert len(self.agents_prev_gen) == N_AGENTS
+            assert len(self.agents_prev_gen) == self.n_agents
             for agent_prev in self.agents_prev_gen:
                 if len(agents_new_gen_interacting) > 0:
                     agent_prev.speak(RG.choice(agents_new_gen_interacting))
