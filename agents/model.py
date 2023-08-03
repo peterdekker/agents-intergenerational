@@ -63,6 +63,7 @@ class Model:
         # Agent language model object is created from data file
         self.data = Data(DATA_FILE, self.interaction_l1, self.interaction_l1_shield_initialization)
         self.clts = misc.load_clts(CLTS_ARCHIVE_PATH, CLTS_ARCHIVE_URL, CLTS_PATH)
+        self.cv_pattern_cache = {}
 
         self.stats_entries = []
         self.var_param1_name = var_param1_name

@@ -103,10 +103,14 @@ def infer_possible_persons(affix_type, affix_signal, persons, affixes, lex_conce
     return possible_persons
 
 
-def reduce_phonotactics(affix_type, affix, form, clts, drop_border_phoneme):
+def reduce_phonotactics(affix_type, affix, form, clts, cv_pattern_cache, drop_border_phoneme):
     inflected_form = affix+form if affix_type == "prefix" else form+affix
     spaced_form = " ".join(list(inflected_form))
-    cv_pattern = clts.bipa.translate(spaced_form, clts.soundclass("cv")).replace(" ", "")
+    if spaced_form in cv_pattern_cache:
+        cv_pattern = cv_pattern_cache[spaced_form]
+    else:
+        cv_pattern = clts.bipa.translate(spaced_form, clts.soundclass("cv")).replace(" ", "")
+        cv_pattern_cache[spaced_form] = cv_pattern
     # print(f"{inflected_form} | {cv_pattern}")
     # print(cv_pattern)
     if "CC" in cv_pattern:
