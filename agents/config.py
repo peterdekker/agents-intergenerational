@@ -29,7 +29,7 @@ GENERALIZE_PREFIX_SUFFIX = False
 IMG_FORMATS = ["pdf", "png"]
 OUTPUT_DIR = f'output-{str(datetime.datetime.now()).replace(" ","-").replace(":",".")}'
 
-ENABLE_MULTITHREADING = False
+ENABLE_MULTITHREADING = True
 
 
 # User settable parameteres

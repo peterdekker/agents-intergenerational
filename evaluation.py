@@ -166,6 +166,8 @@ def create_graph_end(course_df, variable_param, stats, output_dir, runlabel, typ
         ax = sns.lineplot(data=df_tail, x=prop_l2_new, y=y_label, hue=variable_param_new, legend="full")
     if type == "prop_nonempty" or type == "prop_correct":
         ax.set_ylim(0, 1)
+    else:
+        ax.set_ylim(bottom=0)
     sns.despine(left=True, bottom=True)
     [plt.savefig(os.path.join(
         output_dir, f"{variable_param_new}-{type}-end{'-'+runlabel if runlabel else ''}.{img_format}"), format=img_format, dpi=300) for img_format in IMG_FORMATS]
