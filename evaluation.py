@@ -124,7 +124,7 @@ def create_graph_course(course_df, variable_param, stat, output_dir, runlabel):
     course_df_stat = course_df[course_df["stat_name"] == stat]
     course_df_stat, variable_param_new, _, _ = rename_vars_plot(course_df_stat, [stat], variable_param)
 
-    ax = sns.lineplot(data=course_df_stat, x="generation", y=y_label, hue=variable_param_new, legend="full")
+    ax = sns.lineplot(data=course_df_stat, x="generation", y=y_label, hue=variable_param_new, legend="full", palette="deep")
     ax.set_ylim(0, 1)
     sns.despine(left=True, bottom=True)
     [plt.savefig(os.path.join(
