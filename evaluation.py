@@ -116,7 +116,7 @@ def rename_vars_plot(course_df, stats, variable_param):
     # raise ValueError()
     return course_df, variable_param_new, stat_name_new, prop_l2_new
 
-# TODO: For course, filter stats on only average L1+l2 statistic
+
 def create_graph_course(course_df, variable_param, stat, output_dir, runlabel):
     # generations = fixed_params["generations"]
     y_label = "proportion affixes non-empty"
@@ -163,7 +163,7 @@ def create_graph_end(course_df, variable_param, stats, output_dir, runlabel, typ
     else:
         # When evaluate_param mode is on, is variable_param as colour
 
-        ax = sns.lineplot(data=df_tail, x=prop_l2_new, y=y_label, hue=variable_param_new, legend="full")
+        ax = sns.lineplot(data=df_tail, x=prop_l2_new, y=y_label, hue=variable_param_new, legend="full", palette="deep")
     if type == "prop_nonempty" or type == "prop_correct":
         ax.set_ylim(0, 1)
     else:
@@ -259,7 +259,7 @@ def main():
     # If we are running the model, not just plotting from results file
     if not plot_from_raw_on:
         given_model_params = {k: v for k, v in args.items() if k in model_params_script and v is not None}
-        prop_l2_settings = [0.0, 0.2, 0.4, 0.6, 0.8, 1.0]
+        prop_l2_settings = [0.2, 0.4, 0.6, 0.8, 1.0]
         if evaluate_prop_l2:
             # Check that only one parameter setting is given per parameter
             assert all([len(v) == 1 for v in given_model_params.values() if v is not None])
@@ -327,6 +327,8 @@ def main():
             var_param = list(given_model_params.keys())[0]
             course_df_long = pd.melt(course_df, id_vars=["generation", "run_id", "proportion_l2", var_param], var_name="stat_name", value_name="stat_value")
             course_df.to_csv(os.path.join(output_dir_custom, f"{var_param}-evalparam.csv"))
+            create_graph_course(course_df_long[course_df_long["proportion_l2"]==1.0], var_param,
+                                   "prop_internal_suffix_l2", output_dir_custom, runlabel)
             create_graph_end(course_df_long, var_param, ["prop_internal_suffix_l2"],
                                 output_dir_custom, runlabel, type="prop_nonempty")
             create_graph_end(course_df_long, var_param, ["prop_internal_len_suffix_l2"],
