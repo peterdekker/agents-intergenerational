@@ -63,8 +63,6 @@ def lookup_lex_concept(signal_form, lex_concepts, lex_concept_data):
 # , ambiguity):
 def infer_person_from_signal(lex_concept, lex_concept_data, affixes, persons, signal):
     logging.debug("Person not given via context, inferring from affix.")
-    # TODO: This assumes listener has same concept matrix, and knows which
-    # verbs are prefixing/suffixing
 
     possible_persons = []
     if lex_concept_data[lex_concept]["prefix"]:
@@ -87,7 +85,6 @@ def infer_person_from_signal(lex_concept, lex_concept_data, affixes, persons, si
     return inferred_person
 
 
-# , ambiguity):
 def infer_possible_persons(affix_type, affix_signal, persons, affixes, lex_concept):
     # Calculate distances of internal affixes to received affix,
     # to find candidate persons
@@ -185,15 +182,6 @@ def weighted_affixes_prior_combined(lex_concept, person, affix_type, affixes, af
 
 def use_affix_prior(lex_concept, person, affix_type, affixes, affix_prior_prob=None):
 
-    # DELETE
-    # n_exemplars_concept = len(affixes_concept)
-    # counts_affixes_concept = Counter(affixes_concept)
-    # logging.debug(f"Counts for concept: {counts_affixes_concept}")
-    # # Division maybe more efficient as numpy array (see distribution_from_exemplars), but we need dict later
-    # p_affix_given_concept = {aff: count/n_exemplars_concept for aff, count in counts_affixes_concept.items()}
-    # logging.debug(f"Probabilities for concept: {p_affix_given_concept}")
-    # DELETE
-
     # With a certain probability, use distribution of all concepts
     # rest of times, use distribution of specific concept
     if RG.random() < affix_prior_prob:
@@ -214,6 +202,7 @@ def use_affix_prior(lex_concept, person, affix_type, affixes, affix_prior_prob=N
         _, p_affix_dict, _ = compute_affix_probabilities(affixes_all)
         return p_affix_dict
     else:
+        # Same code as first lines of now disabled method distribution_from_exemplars
         affixes_concept = affixes[(lex_concept, person, affix_type)]
         _, p_affix_given_concept_dict, _ = compute_affix_probabilities(affixes_concept)
         logging.debug(f"Use concept distribution: {p_affix_given_concept_dict}")
@@ -233,31 +222,32 @@ def compute_affix_probabilities(affixes):
     return p, p_dict, counts_keys
 
 
-def distribution_from_exemplars(lex_concept, person, affix_type, affixes, alpha):
-    affixes_concept = affixes[(lex_concept, person, affix_type)]
-    p_affix_given_concept, p_affix_given_concept_dict, counts_keys = compute_affix_probabilities(
-        affixes_concept)
+# def distribution_from_exemplars(lex_concept, person, affix_type, affixes, alpha):
+#     affixes_concept = affixes[(lex_concept, person, affix_type)]
+#     p_affix_given_concept, p_affix_given_concept_dict, counts_keys = compute_affix_probabilities(
+#         affixes_concept)
 
-    logging.debug(f"Alpha: {alpha}")
-    # If alpha is 1.0: stop calculation here and return probabilities.
-    if math.isclose(alpha, 1.0):
-        return p_affix_given_concept_dict
-    raise ValueError("Alpha enabled.")
-    # Scale probabilities with alpha in log space (make distribution peakier)
-    log_scaled = np.log(p_affix_given_concept) * alpha
-    logging.debug(f"Log Scaled: {dict(zip(counts_keys, log_scaled))}")
-    log_moved = log_scaled - np.max(log_scaled)  # Move highest value to 0
-    logging.debug(f"Log Moved: {dict(zip(counts_keys, log_moved))}")
-    # Go back to normal probabilities
-    p_moved = np.exp(log_moved)
-    logging.debug(f"Prob Moved: {dict(zip(counts_keys, p_moved))}")
-    p_scaled_normalized = p_moved / np.sum(p_moved)
-    # if math.isclose(total, 0) and len(p_scaled) > 0:
-    #     print(counts_affixes_concept)
-    #     print(p_affix_given_concept)
-    #     print(p_scaled)
-    logging.debug(f"Scaled normalized: {dict(zip(counts_keys, p_scaled_normalized))}")
-    return dict(zip(counts_keys, p_scaled_normalized))
+#     logging.debug(f"Alpha: {alpha}")
+#     # If alpha is 1.0: stop calculation here and return probabilities.
+#     if math.isclose(alpha, 1.0):
+#         return p_affix_given_concept_dict
+    
+#     raise ValueError("Alpha enabled.")
+#     # Scale probabilities with alpha in log space (make distribution peakier)
+#     log_scaled = np.log(p_affix_given_concept) * alpha
+#     logging.debug(f"Log Scaled: {dict(zip(counts_keys, log_scaled))}")
+#     log_moved = log_scaled - np.max(log_scaled)  # Move highest value to 0
+#     logging.debug(f"Log Moved: {dict(zip(counts_keys, log_moved))}")
+#     # Go back to normal probabilities
+#     p_moved = np.exp(log_moved)
+#     logging.debug(f"Prob Moved: {dict(zip(counts_keys, p_moved))}")
+#     p_scaled_normalized = p_moved / np.sum(p_moved)
+#     # if math.isclose(total, 0) and len(p_scaled) > 0:
+#     #     print(counts_affixes_concept)
+#     #     print(p_affix_given_concept)
+#     #     print(p_scaled)
+#     logging.debug(f"Scaled normalized: {dict(zip(counts_keys, p_scaled_normalized))}")
+#     return dict(zip(counts_keys, p_scaled_normalized))
 
 
 def affix_choice(affixes):

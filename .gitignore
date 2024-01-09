@@ -2,7 +2,7 @@ __pycache__
 .pytest_cache
 *.tsv
 .vscode/
-env/
+*env/
 *.pdf
 *.png
 output*

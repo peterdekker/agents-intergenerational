@@ -18,7 +18,7 @@ class Model:
     '''
 
     def __init__(self, n_agents, proportion_l2,
-                 phonotactic_reduction_l1, phonotactic_reduction_l2, phonotactic_reduction_prob, phonotactic_reduction_drop_border_phoneme, alpha_l1, alpha_l2,
+                 phonotactic_reduction_l1, phonotactic_reduction_l2, phonotactic_reduction_prob, phonotactic_reduction_drop_border_phoneme, #, alpha_l1, alpha_l2,
                  affix_prior_combined_l1, affix_prior_combined_l2, affix_prior_l1, affix_prior_l2, affix_prior_prob, interaction_l1, interaction_l1_shield_initialization, generations, interactions_per_generation, run_id, var_param1_name, var_param1_value, var_param2_name, var_param2_value, output_dir):
         '''
         Initialize field
@@ -43,8 +43,8 @@ class Model:
         self.phonotactic_reduction_l2 = phonotactic_reduction_l2
         self.phonotactic_reduction_drop_border_phoneme = phonotactic_reduction_drop_border_phoneme
         self.phonotactic_reduction_prob = phonotactic_reduction_prob
-        self.alpha_l1 = alpha_l1
-        self.alpha_l2 = alpha_l2
+        # self.alpha_l1 = alpha_l1
+        # self.alpha_l2 = alpha_l2
         self.affix_prior_combined_l1 = affix_prior_combined_l1
         self.affix_prior_combined_l2 = affix_prior_combined_l2
         self.affix_prior_l1 = affix_prior_l1
@@ -169,7 +169,7 @@ class Model:
                           affix_prior=self.affix_prior_l2 if l2_agents[i] else self.affix_prior_l1,
                           phonotactic_reduction=self.phonotactic_reduction_l2 if l2_agents[
                               i] else self.phonotactic_reduction_l1,
-                          alpha=self.alpha_l2 if l2_agents[i] else self.alpha_l1,
+                          # alpha=self.alpha_l2 if l2_agents[i] else self.alpha_l1,
                           l2=l2_agents[i])
             # self.schedule.add(agent)
             agents.append(agent)

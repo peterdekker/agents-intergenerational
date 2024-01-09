@@ -10,7 +10,7 @@ from agents import stats
 
 
 class Agent:
-    def __init__(self, pos, model, data, init, affix_prior_combined, affix_prior, phonotactic_reduction, alpha, l2):
+    def __init__(self, pos, model, data, init, affix_prior_combined, affix_prior, phonotactic_reduction, l2): #, alpha (penultimate argument)
         '''
          Create a new speech agent.
 
@@ -24,7 +24,7 @@ class Agent:
         self.affix_prior_combined = affix_prior_combined
         self.affix_prior = affix_prior
         self.phonotactic_reduction = phonotactic_reduction
-        self.alpha = alpha
+        # self.alpha = alpha
         self.l2 = l2
 
         # These vars are not deep copies, because they will not be altered by agents
@@ -85,11 +85,12 @@ class Agent:
 
                 # prefixes = list weighted by prob * prior_prob
                 prefixes = misc.weighted_affixes_prior_combined(lex_concept, person, "prefix", self.affixes)
-            elif self.affix_prior:
-                prefixes = misc.use_affix_prior(lex_concept, person, "prefix", self.affixes, self.model.affix_prior_prob)
+            # elif self.affix_prior:
             else:
-                prefixes = misc.distribution_from_exemplars(
-                    lex_concept, person, "prefix", self.affixes, alpha=self.alpha)
+                prefixes = misc.use_affix_prior(lex_concept, person, "prefix", self.affixes, self.model.affix_prior_prob)
+            # else:
+            #     prefixes = misc.distribution_from_exemplars(
+            #         lex_concept, person, "prefix", self.affixes, alpha=self.alpha)
             if len(prefixes) > 0:
                 prefix = misc.affix_choice(prefixes)
                 if self.phonotactic_reduction:
@@ -111,15 +112,12 @@ class Agent:
             if self.affix_prior_combined:
                 suffixes = misc.weighted_affixes_prior_combined(lex_concept, person, "suffix", self.affixes)
                 # suffixes = list weighted by prob * prior_prob
-            elif self.affix_prior:
-                suffixes = misc.use_affix_prior(lex_concept, person, "suffix", self.affixes, self.model.affix_prior_prob)
+            # elif self.affix_prior:
             else:
-                suffixes = misc.distribution_from_exemplars(
-                    lex_concept, person, "suffix", self.affixes, alpha=self.alpha)
-                # Do not use probabilities and prior probabilities of affixes in whole model.
-                # Use plain exemplar lists. suffixes=unweighted list
-                # suffixes = misc.retrieve_affixes_generalize(
-                #     lex_concept, person, "suffix", self.affixes, self.gen_production_old)
+                suffixes = misc.use_affix_prior(lex_concept, person, "suffix", self.affixes, self.model.affix_prior_prob)
+            # else:
+            #     suffixes = misc.distribution_from_exemplars(
+            #         lex_concept, person, "suffix", self.affixes, alpha=self.alpha)
 
             if len(suffixes) > 0:
                 suffix = misc.affix_choice(suffixes)
@@ -157,7 +155,7 @@ class Agent:
         self.signal_recv = signal
 
         signal_form = self.signal_recv.form
-        # Do reverse lookup in forms dict to find accompanying concept
+        # Do reverse lookup in forms dict to find accompanying concept. Concepts are common knowledge, no inference needed
         lex_concept_inferred = misc.lookup_lex_concept(signal_form, self.lex_concepts, self.lex_concept_data)
 
         # Use affix to infer person
