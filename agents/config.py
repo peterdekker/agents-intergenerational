@@ -32,7 +32,7 @@ OUTPUT_DIR = f'output-{str(datetime.datetime.now()).replace(" ","-").replace(":"
 ENABLE_MULTITHREADING = True
 
 
-# User settable parameteres
+### Defaults for user settable parameteres
 # Model parameters
 PROPORTION_L2 = 0.5
 PHONOTACTIC_REDUCTION_L1 = False
@@ -53,6 +53,8 @@ INTERACTIONS_PER_GENERATION = 10000
 # Evaluateion parameters
 ITERATIONS = 10
 GENERATIONS = 50
+###
+
 
 # Backup with UI elements
 # model_params = {
