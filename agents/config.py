@@ -38,39 +38,23 @@ PROPORTION_L2 = 0.5
 PHONOTACTIC_REDUCTION_L1 = False
 PHONOTACTIC_REDUCTION_L2 = True
 PHONOTACTIC_REDUCTION_PROB = 1.0
-PHONOTACTIC_REDUCTION_DROP_BORDER_PHONEME = False
+PHONOTACTIC_REDUCTION_DROP_BORDER_PHONEME = False ####
 AFFIX_PRIOR_COMBINED_L1 = False
 AFFIX_PRIOR_COMBINED_L2 = False
-AFFIX_PRIOR_L1 = True
-AFFIX_PRIOR_L2 = True
-AFFIX_PRIOR_PROB = 0.1
+GENERALIZATION_L1 = True
+GENERALIZATION_L2 = True
+GENERALIZATION_PROB = 0.1
 ALPHA_L1 = 1
 ALPHA_L2 = 1  # 1000
 INTERACTION_L1 = False
 INTERACTION_L1_SHIELD_INITIALIZATION = 10
 INTERACTIONS_PER_GENERATION = 10000
 
-# Evaluateion parameters
+# Evaluation parameters
 ITERATIONS = 10
 GENERATIONS = 50
 ###
 
-
-# Backup with UI elements
-# model_params = {
-#     "n_agents": {"ui": N_AGENTS, "script": N_AGENTS},
-#     "proportion_l2": {"ui": Slider("proportion_l2", PROPORTION_L2, 0.0, 1.0, 0.1), "script": PROPORTION_L2},
-#     "phonotactic_reduction_l1": {"ui": Checkbox('Reduction phonotactics L1', value=PHONOTACTIC_REDUCTION_L1), "script": PHONOTACTIC_REDUCTION_L1},
-#     "phonotactic_reduction_l2": {"ui": Checkbox('Reduction phonotactics L2', value=PHONOTACTIC_REDUCTION_L2), "script": PHONOTACTIC_REDUCTION_L2},
-#     "affix_prior_l1": {"ui": Checkbox('Affix prior L1', value=AFFIX_PRIOR_L1), "script": AFFIX_PRIOR_L1},
-#     "affix_prior_l2": {"ui": Checkbox('Affix prior L2', value=AFFIX_PRIOR_L2), "script": AFFIX_PRIOR_L2},
-#     "alpha_l1": {"ui": Slider("alpha L1", ALPHA_L1, 0, 10000, 100), "script": ALPHA_L1},
-#     "alpha_l2": {"ui": Slider("alpha L2", ALPHA_L2, 0, 10000, 100), "script": ALPHA_L2},
-#     "interaction_l1": {"ui": Checkbox('Interaction L1', value=INTERACTION_L1), "script": INTERACTION_L1},
-#     "interaction_l1_shield_initialization": {"ui": Slider("Interaction L1 shield initialization", INTERACTION_L1_SHIELD_INITIALIZATION, 0, 1000, 10), "script": INTERACTION_L1_SHIELD_INITIALIZATION},
-#     "interactions_per_generation": {"script": INTERACTIONS_PER_GENERATION},
-#     "generations": {"script": GENERATIONS},
-# }
 
 model_params = {
     "n_agents": {"ui": N_AGENTS, "script": N_AGENTS},
@@ -81,9 +65,9 @@ model_params = {
     "phonotactic_reduction_drop_border_phoneme": {"script": PHONOTACTIC_REDUCTION_DROP_BORDER_PHONEME},
     "affix_prior_combined_l1": {"script": AFFIX_PRIOR_COMBINED_L1},
     "affix_prior_combined_l2": {"script": AFFIX_PRIOR_COMBINED_L2},
-    "affix_prior_l1": {"script": AFFIX_PRIOR_L1},
-    "affix_prior_l2": {"script": AFFIX_PRIOR_L2},
-    "affix_prior_prob": {"script": AFFIX_PRIOR_PROB},
+    "generalization_l1": {"script": GENERALIZATION_L1},
+    "generalization_l2": {"script": GENERALIZATION_L2},
+    "generalization_prob": {"script": GENERALIZATION_PROB},
     # "alpha_l1": {"script": ALPHA_L1},
     # "alpha_l2": {"script": ALPHA_L2},
     "interaction_l1": {"script": INTERACTION_L1},
@@ -107,6 +91,6 @@ evaluation_params = {
 eval_params_script = {k: v["script"] for k, v in evaluation_params.items()}
 
 bool_params = ["phonotactic_reduction_l1", "phonotactic_reduction_l2", "phonotactic_reduction_drop_border_phoneme",
-               "affix_prior_combined_l1", "affix_prior_combined_l2", "affix_prior_l1", "affix_prior_l2", "interaction_l1", "evaluate_prop_l2", "evaluate_param", "evaluate_params_heatmap"]
+               "affix_prior_combined_l1", "affix_prior_combined_l2", "generalization_l1", "generalization_l2", "interaction_l1", "evaluate_prop_l2", "evaluate_param", "evaluate_params_heatmap"]
 
 string_params = ["runlabel", "plot_from_raw"]

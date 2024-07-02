@@ -10,7 +10,7 @@ from agents import stats
 
 
 class Agent:
-    def __init__(self, pos, model, data, init, affix_prior_combined, affix_prior, phonotactic_reduction, l2): #, alpha (penultimate argument)
+    def __init__(self, pos, model, data, init, affix_prior_combined, generalization, phonotactic_reduction, l2): #, alpha (penultimate argument)
         '''
          Create a new speech agent.
 
@@ -22,7 +22,7 @@ class Agent:
         self.model = model
         self.pos = pos
         self.affix_prior_combined = affix_prior_combined
-        self.affix_prior = affix_prior
+        self.generalization = generalization
         self.phonotactic_reduction = phonotactic_reduction
         # self.alpha = alpha
         self.l2 = l2
@@ -85,9 +85,8 @@ class Agent:
 
                 # prefixes = list weighted by prob * prior_prob
                 prefixes = misc.weighted_affixes_prior_combined(lex_concept, person, "prefix", self.affixes)
-            # elif self.affix_prior:
             else:
-                prefixes = misc.use_affix_prior(lex_concept, person, "prefix", self.affixes, self.model.affix_prior_prob)
+                prefixes = misc.use_generalization(lex_concept, person, "prefix", self.affixes, self.model.generalization_prob)
             # else:
             #     prefixes = misc.distribution_from_exemplars(
             #         lex_concept, person, "prefix", self.affixes, alpha=self.alpha)
@@ -112,9 +111,8 @@ class Agent:
             if self.affix_prior_combined:
                 suffixes = misc.weighted_affixes_prior_combined(lex_concept, person, "suffix", self.affixes)
                 # suffixes = list weighted by prob * prior_prob
-            # elif self.affix_prior:
             else:
-                suffixes = misc.use_affix_prior(lex_concept, person, "suffix", self.affixes, self.model.affix_prior_prob)
+                suffixes = misc.use_generalization(lex_concept, person, "suffix", self.affixes, self.model.generalization_prob)
             # else:
             #     suffixes = misc.distribution_from_exemplars(
             #         lex_concept, person, "suffix", self.affixes, alpha=self.alpha)

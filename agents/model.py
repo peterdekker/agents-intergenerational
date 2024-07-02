@@ -19,7 +19,7 @@ class Model:
 
     def __init__(self, n_agents, proportion_l2,
                  phonotactic_reduction_l1, phonotactic_reduction_l2, phonotactic_reduction_prob, phonotactic_reduction_drop_border_phoneme, #, alpha_l1, alpha_l2,
-                 affix_prior_combined_l1, affix_prior_combined_l2, affix_prior_l1, affix_prior_l2, affix_prior_prob, interaction_l1, interaction_l1_shield_initialization, generations, interactions_per_generation, run_id, var_param1_name, var_param1_value, var_param2_name, var_param2_value, output_dir):
+                 affix_prior_combined_l1, affix_prior_combined_l2, generalization_l1, generalization_l2, generalization_prob, interaction_l1, interaction_l1_shield_initialization, generations, interactions_per_generation, run_id, var_param1_name, var_param1_value, var_param2_name, var_param2_value, output_dir):
         '''
         Initialize field
         '''
@@ -30,8 +30,8 @@ class Model:
         assert isinstance(phonotactic_reduction_drop_border_phoneme, bool)
         assert isinstance(affix_prior_combined_l1, bool)
         assert isinstance(affix_prior_combined_l2, bool)
-        assert isinstance(affix_prior_l1, bool)
-        assert isinstance(affix_prior_l2, bool)
+        assert isinstance(generalization_l1, bool)
+        assert isinstance(generalization_l2, bool)
         assert isinstance(interaction_l1, bool)
         assert interaction_l1_shield_initialization % 1 == 0
         assert generations % 1 == 0
@@ -47,9 +47,9 @@ class Model:
         # self.alpha_l2 = alpha_l2
         self.affix_prior_combined_l1 = affix_prior_combined_l1
         self.affix_prior_combined_l2 = affix_prior_combined_l2
-        self.affix_prior_l1 = affix_prior_l1
-        self.affix_prior_l2 = affix_prior_l2
-        self.affix_prior_prob = affix_prior_prob
+        self.generalization_l1 = generalization_l1
+        self.generalization_l2 = generalization_l2
+        self.generalization_prob = generalization_prob
         self.interaction_l1 = interaction_l1
         self.interaction_l1_shield_initialization = int(interaction_l1_shield_initialization)
         self.generations = int(generations)
@@ -166,7 +166,7 @@ class Model:
         for i in range(self.n_agents):
             agent = Agent(i, self, self.data, init=init_l2 if l2_agents[i] else init_l1,
                           affix_prior_combined=self.affix_prior_combined_l2 if l2_agents[i] else self.affix_prior_combined_l1,
-                          affix_prior=self.affix_prior_l2 if l2_agents[i] else self.affix_prior_l1,
+                          generalization=self.generalization_l2 if l2_agents[i] else self.generalization_l1,
                           phonotactic_reduction=self.phonotactic_reduction_l2 if l2_agents[
                               i] else self.phonotactic_reduction_l1,
                           # alpha=self.alpha_l2 if l2_agents[i] else self.alpha_l1,

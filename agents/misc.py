@@ -101,26 +101,29 @@ def infer_possible_persons(affix_type, affix_signal, persons, affixes, lex_conce
 
 
 def reduce_phonotactics(affix_type, affix, form, clts, cv_pattern_cache, drop_border_phoneme):
-    inflected_form = affix+form if affix_type == "prefix" else form+affix
-    spaced_form = " ".join(list(inflected_form))
-    if spaced_form in cv_pattern_cache:
-        cv_pattern = cv_pattern_cache[spaced_form]
+    # inflected_form = affix+form if affix_type == "prefix" else form+affix
+    # spaced_form = " ".join(list(inflected_form))
+    stem_border = form[0] if affix_type == "prefix" else form[-1]
+    affix_border = affix[-1] if affix_type == "prefix" else affix[0]
+    spaced_border_seq = f"{affix_border} {stem_border}" if affix_type == "prefix" else f"{stem_border} {affix_border}"
+    if spaced_border_seq in cv_pattern_cache:
+        cv_pattern = cv_pattern_cache[spaced_border_seq]
     else:
-        cv_pattern = clts.bipa.translate(spaced_form, clts.soundclass("cv")).replace(" ", "")
-        cv_pattern_cache[spaced_form] = cv_pattern
-    # print(f"{inflected_form} | {cv_pattern}")
-    # print(cv_pattern)
-    if "CC" in cv_pattern:
-        # print("CONSONANT CLUSTER!")
+        cv_pattern = clts.bipa.translate(spaced_border_seq, clts.soundclass("cv")).replace(" ", "")
+        cv_pattern_cache[spaced_border_seq] = cv_pattern
+
+    if cv_pattern == "CC":
+        # if cv_pattern.index("CC") < len(cv_pattern) - 4:
+        #     print(f"{inflected_form}:{cv_pattern}")
         if drop_border_phoneme:
-            # print(f"before: {affix}")
             if affix_type == "prefix":
+                print(f"Simplifying prefix: {form} {affix}")
                 affix = affix[:-1]
+                print(f"New: {affix}")
             elif affix_type == "suffix":
                 affix = affix[1:]
             else:
                 raise ValueError()
-            # print(f"after {affix}")
         else:
             # Drop whole affix
             affix = ""
@@ -158,7 +161,7 @@ def spread_l2_agents(proportion_l2, n_agents):
     return [bool(x) for x in l2]
 
 
-def weighted_affixes_prior_combined(lex_concept, person, affix_type, affixes, affix_prior_prob=None):
+def weighted_affixes_prior_combined(lex_concept, person, affix_type, affixes):
     affixes_concept = affixes[(lex_concept, person, affix_type)]
     p_affix_given_concept, p_affix_given_concept_dict, _ = compute_affix_given_concept(affixes_concept)
 
@@ -180,12 +183,12 @@ def weighted_affixes_prior_combined(lex_concept, person, affix_type, affixes, af
     logging.debug(f"Combined normalized: {p_combined_normalized}")
     return p_combined_normalized
 
-def use_affix_prior(lex_concept, person, affix_type, affixes, affix_prior_prob=None):
+def use_generalization(lex_concept, person, affix_type, affixes, generalization_prob=None):
 
     # With a certain probability, use distribution of all concepts
     # rest of times, use distribution of specific concept
-    if RG.random() < affix_prior_prob:
-        logging.debug(f"Use affix prior.")
+    if RG.random() < generalization_prob:
+        logging.debug(f"Use generalization.")
         if GENERALIZE_PREFIX_SUFFIX:
             affixes_affix_type = {(l, p, t): affixes[(l, p, t)] for (l, p, t) in affixes.keys() if (
                 GENERALIZE_PERSONS or p == person) and (GENERALIZE_LEX_CONCEPTS or l == lex_concept)}
