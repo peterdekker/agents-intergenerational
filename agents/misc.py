@@ -103,30 +103,29 @@ def infer_possible_persons(affix_type, affix_signal, persons, affixes, lex_conce
 def reduce_phonotactics(affix_type, affix, form, clts, cv_pattern_cache, drop_border_phoneme):
     # inflected_form = affix+form if affix_type == "prefix" else form+affix
     # spaced_form = " ".join(list(inflected_form))
-    stem_border = form[0] if affix_type == "prefix" else form[-1]
-    affix_border = affix[-1] if affix_type == "prefix" else affix[0]
-    spaced_border_seq = f"{affix_border} {stem_border}" if affix_type == "prefix" else f"{stem_border} {affix_border}"
-    if spaced_border_seq in cv_pattern_cache:
-        cv_pattern = cv_pattern_cache[spaced_border_seq]
-    else:
-        cv_pattern = clts.bipa.translate(spaced_border_seq, clts.soundclass("cv")).replace(" ", "")
-        cv_pattern_cache[spaced_border_seq] = cv_pattern
-
-    if cv_pattern == "CC":
-        # if cv_pattern.index("CC") < len(cv_pattern) - 4:
-        #     print(f"{inflected_form}:{cv_pattern}")
-        if drop_border_phoneme:
-            if affix_type == "prefix":
-                print(f"Simplifying prefix: {form} {affix}")
-                affix = affix[:-1]
-                print(f"New: {affix}")
-            elif affix_type == "suffix":
-                affix = affix[1:]
-            else:
-                raise ValueError()
+    if len(affix) > 0:
+        stem_border = form[0] if affix_type == "prefix" else form[-1]
+        affix_border = affix[-1] if affix_type == "prefix" else affix[0]
+        spaced_border_seq = f"{affix_border} {stem_border}" if affix_type == "prefix" else f"{stem_border} {affix_border}"
+        if spaced_border_seq in cv_pattern_cache:
+            cv_pattern = cv_pattern_cache[spaced_border_seq]
         else:
-            # Drop whole affix
-            affix = ""
+            cv_pattern = clts.bipa.translate(spaced_border_seq, clts.soundclass("cv")).replace(" ", "")
+            cv_pattern_cache[spaced_border_seq] = cv_pattern
+
+        if cv_pattern == "CC":
+            # if cv_pattern.index("CC") < len(cv_pattern) - 4:
+            #     print(f"{inflected_form}:{cv_pattern}")
+            if drop_border_phoneme:
+                if affix_type == "prefix":
+                    affix = affix[:-1]
+                elif affix_type == "suffix":
+                    affix = affix[1:]
+                else:
+                    raise ValueError()
+            else:
+                # Drop whole affix
+                affix = ""
     return affix
 
 
