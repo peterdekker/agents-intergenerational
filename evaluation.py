@@ -24,23 +24,23 @@ from multiprocessing import Pool
 #                       "prop_communicated_prefix_l2": lambda m: m.prop_communicated_prefix_l2,
 #                       "prop_communicated_suffix_l2": lambda m: m.prop_communicated_suffix_l2}
 
-stats_internal = [#"prop_internal_prefix_l1", "prop_internal_suffix_l1", "prop_internal_prefix", "prop_internal_suffix",
-                  "prop_internal_prefix_l2", "prop_internal_suffix_l2"]
+stats_internal = [  # "prop_internal_prefix_l1", "prop_internal_suffix_l1", "prop_internal_prefix", "prop_internal_suffix",
+    "prop_internal_prefix_l2", "prop_internal_suffix_l2"]
 
-stats_internal_len = [#"prop_internal_len_prefix_l1", "prop_internal_len_suffix_l1", "prop_internal_len_prefix", "prop_internal_len_suffix",
-                            "prop_internal_len_prefix_l2", "prop_internal_len_suffix_l2"]
+stats_internal_len = [  # "prop_internal_len_prefix_l1", "prop_internal_len_suffix_l1", "prop_internal_len_prefix", "prop_internal_len_suffix",
+    "prop_internal_len_prefix_l2", "prop_internal_len_suffix_l2"]
 
-stats_internal_n_affixes = [#"prop_internal_n_affixes_prefix_l1", "prop_internal_n_affixes_suffix_l1", "prop_internal_n_affixes_prefix", "prop_internal_n_affixes_suffix",
-                            "prop_internal_n_affixes_prefix_l2", "prop_internal_n_affixes_suffix_l2"]
-stats_internal_n_unique = [#"prop_internal_n_unique_prefix_l1", "prop_internal_n_unique_suffix_l1", "prop_internal_n_unique_prefix", "prop_internal_n_unique_suffix",
-                            "prop_internal_n_unique_prefix_l2", "prop_internal_n_unique_suffix_l2"]
+stats_internal_n_affixes = [  # "prop_internal_n_affixes_prefix_l1", "prop_internal_n_affixes_suffix_l1", "prop_internal_n_affixes_prefix", "prop_internal_n_affixes_suffix",
+    "prop_internal_n_affixes_prefix_l2", "prop_internal_n_affixes_suffix_l2"]
+stats_internal_n_unique = [  # "prop_internal_n_unique_prefix_l1", "prop_internal_n_unique_suffix_l1", "prop_internal_n_unique_prefix", "prop_internal_n_unique_suffix",
+    "prop_internal_n_unique_prefix_l2", "prop_internal_n_unique_suffix_l2"]
 
 stats_prop_correct = ["prop_correct"]
 
 # stats_communicated = ["prop_communicated_prefix_l1", "prop_communicated_suffix_l1",
 #                       "prop_communicated_prefix_l2", "prop_communicated_suffix_l2", "prop_communicated_prefix", "prop_communicated_suffix"]
 
-#stats = {**stats_internal, **stats_communicated}
+# stats = {**stats_internal, **stats_communicated}
 
 
 def str2bool(v):
@@ -95,6 +95,7 @@ def rolling_avg(df, window, stats):
         window=window, min_periods=1).mean().reset_index(level="run", drop=True)
     return df_rolling
 
+
 def rename_vars_plot(course_df, stats, variable_param):
     stat_name_new = "statistic"
     course_df = course_df.rename(columns={"stat_name": stat_name_new})
@@ -102,12 +103,12 @@ def rename_vars_plot(course_df, stats, variable_param):
     stats_renamed = {stat: stat.replace("prop_internal_", "").replace("_", " ") for stat in stats}
     course_df[stat_name_new] = course_df[stat_name_new].replace(stats_renamed)
 
-    variable_param_new = variable_param.replace("_"," ")
+    variable_param_new = variable_param.replace("_", " ")
     course_df = course_df.rename(columns={variable_param: variable_param_new})
 
     # If variable_param is proportion_l2, this does again the same as previous lines
     prop_l2_new = "proportion l2"
-    course_df = course_df.rename(columns={"proportion_l2":prop_l2_new})
+    course_df = course_df.rename(columns={"proportion_l2": prop_l2_new})
     # print(course_df)
     # print(variable_param_new)
     # print(stat_name_new)
@@ -124,7 +125,8 @@ def create_graph_course(course_df, variable_param, stat, output_dir, runlabel):
     course_df_stat = course_df[course_df["stat_name"] == stat]
     course_df_stat, variable_param_new, _, _ = rename_vars_plot(course_df_stat, [stat], variable_param)
 
-    ax = sns.lineplot(data=course_df_stat, x="generation", y=y_label, hue=variable_param_new, legend="full", palette="deep")
+    ax = sns.lineplot(data=course_df_stat, x="generation", y=y_label,
+                      hue=variable_param_new, legend="full", palette="deep")
     ax.set_ylim(0, 1)
     sns.despine(left=True, bottom=True)
     [plt.savefig(os.path.join(
@@ -147,11 +149,11 @@ def create_graph_end(course_df, variable_param, stats, output_dir, runlabel, typ
         ValueError("Unsupported graph type.")
     course_df = course_df.rename(columns={"stat_value": y_label})
     df_stats = course_df[course_df["stat_name"].isin(stats)]
-    df_stats, variable_param_new, stat_name_new, prop_l2_new = rename_vars_plot(df_stats, stats, variable_param)
+    df_stats, variable_param_new, stat_name_new, prop_l2_new = rename_vars_plot(
+        df_stats, stats, variable_param)
     # y_label = "proportion utterances non-empty" if mode=="communicated" else "proportion paradigm cells filled"
     # df_melted = course_df.melt(id_vars=["generations", variable_param],
     #                           value_vars=stats, value_name=y_label, var_name="statistic")
-    
 
     # Use last 10% of generations as endpoint
     generations = max(df_stats["generation"])
@@ -162,8 +164,8 @@ def create_graph_end(course_df, variable_param, stats, output_dir, runlabel, typ
         ax = sns.lineplot(data=df_tail, x=variable_param_new, y=y_label, hue=stat_name_new, legend="full")
     else:
         # When evaluate_param mode is on, is variable_param as colour
-
-        ax = sns.lineplot(data=df_tail, x=prop_l2_new, y=y_label, hue=variable_param_new, legend="full", palette="deep")
+        ax = sns.lineplot(data=df_tail, x=prop_l2_new, y=y_label,
+                          hue=variable_param_new, legend="full", palette="viridis_r") # palette="deep"
     if type == "prop_nonempty" or type == "prop_correct":
         ax.set_ylim(0, 1)
     else:
@@ -176,17 +178,18 @@ def create_graph_end(course_df, variable_param, stats, output_dir, runlabel, typ
 
 def create_heatmap(course_df, variable_param1, variable_param2, stats, output_dir, runlabel):
     df_stats = course_df[course_df["stat_name"].isin(stats)]
-    #df_stats = df_stats.rename(columns={"stat_value": y_label})
+    # df_stats = df_stats.rename(columns={"stat_value": y_label})
     # df_pivot = df_stats.pivot(index=variable_param1, columns=variable_param2, values=?)
 
     # Use last 10% of generations as endpoint
     generations = max(df_stats["generation"])
     df_tail = df_stats[df_stats["generation"] >= generations - (generations/10)]
-    ### Slope: Difference in stat value between highest and lowest prop L2, 
+    # Slope: Difference in stat value between highest and lowest prop L2,
     # Find non-empty entries (sometimes there is no value), group by param combination, find stat value (average over runs) of highest prop L2, subtract stat value (average) of lowest prop L2
-    df_slope_propl2 = df_tail[df_tail["stat_value"].notna()].groupby([variable_param1, variable_param2])[["proportion_l2","stat_value"]].apply(lambda x: x[x["proportion_l2"]==max(x["proportion_l2"])].mean() - x[x["proportion_l2"]==min(x["proportion_l2"])].mean())
+    df_slope_propl2 = df_tail[df_tail["stat_value"].notna()].groupby([variable_param1, variable_param2])[["proportion_l2", "stat_value"]].apply(
+        lambda x: x[x["proportion_l2"] == max(x["proportion_l2"])].mean() - x[x["proportion_l2"] == min(x["proportion_l2"])].mean())
     df_pivot = df_slope_propl2.reset_index().pivot(index=variable_param1, columns=variable_param2, values="stat_value")
-    
+
     # Correlation calculation, alternative for slope
     # df_corr = df_tail.groupby([variable_param1, variable_param2])[["proportion_l2", "stat_value"]].corr().drop(
     #     columns="stat_value").drop("proportion_l2", level=2).droplevel(2)
@@ -226,6 +229,7 @@ def main():
     generations = int(args["generations"])
     runlabel = args["runlabel"]
     # Different modes
+    plot_from_raw = args["plot_from_raw"]
     plot_from_raw_on = args["plot_from_raw"] != ""
     evaluate_prop_l2 = args["evaluate_prop_l2"]
     evaluate_param = args["evaluate_param"]
@@ -255,10 +259,12 @@ def main():
     #         "prop_communicated_suffix"], output_dir_custom, "rolling", runlabel)
     #     create_graph_end(course_df_rolling, var_param,
     #                         stats_communicated, output_dir_custom, "rolling", runlabel)
-
-    # If we are running the model, not just plotting from results file
-    if not plot_from_raw_on:
-        given_model_params = {k: v for k, v in args.items() if k in model_params_script and v is not None}
+    given_model_params = {k: v for k, v in args.items() if k in model_params_script and v is not None}
+    if plot_from_raw_on:
+        course_df = pd.read_csv(plot_from_raw, index_col=0)
+    else:
+        # If we are running the model, not just plotting from results file
+        
         prop_l2_settings = [0.2, 0.4, 0.6, 0.8, 1.0]
         if evaluate_prop_l2:
             # Check that only one parameter setting is given per parameter
@@ -270,7 +276,8 @@ def main():
             if evaluate_param and len(given_model_params) != 1:
                 raise ValueError("Exactly 1 model parameter has to be given in evaluate_param mode")
             if evaluate_params_heatmap and len(given_model_params) != 2:
-                raise ValueError("Exactly 2 model parameters have to be given in evaluate_params_heatmap mode")
+                raise ValueError(
+                    "Exactly 2 model parameters have to be given in evaluate_params_heatmap mode")
             # Use all fixed parameters from defaults. given_model_params are variable params to be evaluated, exlucde those and proportion_l2.
             fixed_params = {k: v_default for k, v_default in model_params_script.items(
             ) if k not in given_model_params and k != "proportion_l2"}
@@ -300,63 +307,67 @@ def main():
                             cp = (fixed_params, {
                                   var_param1: var_param1_value, var_param2: var_param2_value}, output_dir_custom, prop_l2_setting, iteration, generations)
                             cartesian_var_params_runs.append(cp)
-        # Old one line loop
-        # [({
-        #     k: (v if k not in given_params else given_params[k]) for k, v in model_params_script.items() if k != var_param}, var_param, var_param_setting, run_id)
-        #     for var_param_setting in var_params[var_param] for var_param in var_params for run_id in range(iterations)]
 
         course_df = evaluate_model(cartesian_var_params_runs, iterations)
-        if evaluate_prop_l2:
-            course_df_long = pd.melt(course_df, id_vars=["generation", "run_id", "proportion_l2"], var_name="stat_name", value_name="stat_value")
+
+    if evaluate_prop_l2:
+        if not plot_from_raw_on:
             course_df.to_csv(os.path.join(output_dir_custom, "proportion_l2.csv"))
-            create_graph_end(course_df_long, "proportion_l2", stats_internal,
-                                output_dir_custom, runlabel, type="prop_nonempty")
-            create_graph_course(course_df_long, "proportion_l2",
-                                   "prop_internal_suffix_l2", output_dir_custom, runlabel)
-            # Create extra diagnostic plots for avg #affixes per speaker
-            create_graph_end(course_df_long, "proportion_l2", stats_internal_len,
-                                output_dir_custom, runlabel, type="len")
-            create_graph_end(course_df_long, "proportion_l2", stats_internal_n_affixes,
-                                output_dir_custom, runlabel, type="n_affixes")
-            # Create extra diagnostic plots for prop correct interactions
-            create_graph_end(course_df_long, "proportion_l2", stats_prop_correct, output_dir_custom,
-                                runlabel, type="prop_correct")
-            create_graph_end(course_df_long, "proportion_l2", stats_internal_n_unique, output_dir_custom,
-                                runlabel, type="n_unique")
-        elif evaluate_param:
-            var_param = list(given_model_params.keys())[0]
-            course_df_long = pd.melt(course_df, id_vars=["generation", "run_id", "proportion_l2", var_param], var_name="stat_name", value_name="stat_value")
+        course_df_long = pd.melt(
+            course_df, id_vars=["generation", "run_id", "proportion_l2"], var_name="stat_name", value_name="stat_value")
+        
+        create_graph_end(course_df_long, "proportion_l2", stats_internal,
+                         output_dir_custom, runlabel, type="prop_nonempty")
+        create_graph_course(course_df_long, "proportion_l2",
+                            "prop_internal_suffix_l2", output_dir_custom, runlabel)
+        # Create extra diagnostic plots for avg #affixes per speaker
+        create_graph_end(course_df_long, "proportion_l2", stats_internal_len,
+                         output_dir_custom, runlabel, type="len")
+        create_graph_end(course_df_long, "proportion_l2", stats_internal_n_affixes,
+                         output_dir_custom, runlabel, type="n_affixes")
+        # Create extra diagnostic plots for prop correct interactions
+        create_graph_end(course_df_long, "proportion_l2", stats_prop_correct, output_dir_custom,
+                         runlabel, type="prop_correct")
+        create_graph_end(course_df_long, "proportion_l2", stats_internal_n_unique, output_dir_custom,
+                         runlabel, type="n_unique")
+    elif evaluate_param:
+        var_param = list(given_model_params.keys())[0]
+        if not plot_from_raw_on:
             course_df.to_csv(os.path.join(output_dir_custom, f"{var_param}-evalparam.csv"))
-            create_graph_course(course_df_long[course_df_long["proportion_l2"]==1.0], var_param,
-                                   "prop_internal_suffix_l2", output_dir_custom, runlabel)
-            create_graph_end(course_df_long, var_param, ["prop_internal_suffix_l2"],
-                                output_dir_custom, runlabel, type="prop_nonempty")
-            create_graph_end(course_df_long, var_param, ["prop_internal_len_suffix_l2"],
-                                output_dir_custom, runlabel, type="len")
-            create_graph_end(course_df_long, var_param, ["prop_internal_n_affixes_suffix_l2"],
-                                output_dir_custom, runlabel, type="n_affixes")
-            create_graph_end(course_df_long, var_param, stats_prop_correct,
-                                output_dir_custom, runlabel, type="prop_correct")
-            create_graph_end(course_df_long, var_param, ["prop_internal_n_unique_suffix_l2"],
-                                output_dir_custom, runlabel, type="n_unique")
-        elif evaluate_params_heatmap:
-            var_param1 = list(given_model_params.keys())[0]
-            var_param2 = list(given_model_params.keys())[1]
-            course_df_long = pd.melt(course_df, id_vars=["generation", "run_id", "proportion_l2", var_param1, var_param2], var_name="stat_name", value_name="stat_value")
-            course_df.to_csv(os.path.join(output_dir_custom, f"{var_param1}-{var_param2}-evalparamsheat.csv"))
-            create_heatmap(course_df_long, var_param1, var_param2, ["prop_internal_suffix_l2"],
-                           output_dir_custom, f"{runlabel}-prop_nonempty")
-            create_heatmap(course_df_long, var_param1, var_param2, ["prop_internal_len_suffix_l2"],
-                           output_dir_custom, f"{runlabel}-len")
-            create_heatmap(course_df_long, var_param1, var_param2, ["prop_internal_n_unique_suffix_l2"],
-                           output_dir_custom, f"{runlabel}-n_unique")
+        
+        course_df_long = pd.melt(course_df, id_vars=[
+                                 "generation", "run_id", "proportion_l2", var_param], var_name="stat_name", value_name="stat_value")
+        create_graph_course(course_df_long[course_df_long["proportion_l2"] == 1.0], var_param,
+                            "prop_internal_suffix_l2", output_dir_custom, runlabel)
+        create_graph_end(course_df_long, var_param, ["prop_internal_suffix_l2"],
+                         output_dir_custom, runlabel, type="prop_nonempty")
+        create_graph_end(course_df_long, var_param, ["prop_internal_len_suffix_l2"],
+                         output_dir_custom, runlabel, type="len")
+        create_graph_end(course_df_long, var_param, ["prop_internal_n_affixes_suffix_l2"],
+                         output_dir_custom, runlabel, type="n_affixes")
+        create_graph_end(course_df_long, var_param, stats_prop_correct,
+                         output_dir_custom, runlabel, type="prop_correct")
+        create_graph_end(course_df_long, var_param, ["prop_internal_n_unique_suffix_l2"],
+                         output_dir_custom, runlabel, type="n_unique")
+    elif evaluate_params_heatmap:
+        # evaluate_params_heatmap is legacy mode. Not tested with generating plot from results csv (plot_from_raw)
+        var_param1 = list(given_model_params.keys())[0]
+        var_param2 = list(given_model_params.keys())[1]
+        course_df_long = pd.melt(course_df, id_vars=[
+                                 "generation", "run_id", "proportion_l2", var_param1, var_param2], var_name="stat_name", value_name="stat_value")
+        course_df.to_csv(os.path.join(output_dir_custom, f"{var_param1}-{var_param2}-evalparamsheat.csv"))
+        create_heatmap(course_df_long, var_param1, var_param2, ["prop_internal_suffix_l2"],
+                       output_dir_custom, f"{runlabel}-prop_nonempty")
+        create_heatmap(course_df_long, var_param1, var_param2, ["prop_internal_len_suffix_l2"],
+                       output_dir_custom, f"{runlabel}-len")
+        create_heatmap(course_df_long, var_param1, var_param2, ["prop_internal_n_unique_suffix_l2"],
+                       output_dir_custom, f"{runlabel}-n_unique")
+    else:
+        ValueError("Choose a mode: evaluate_prop_l2 or evaluate_param or evaluate_params_heatmap.")
 
-        else:
-            ValueError("Choose a mode: evaluate_prop_l2 or evaluate_param or evaluate_params_heatmap.")
-
-        # course_df_rolling = rolling_avg(course_df, ROLLING_AVG_WINDOW, stats_internal)
-        # create_graph_course(course_df_rolling, var_param, [
-        #     "prop_internal_suffix"], output_dir_custom, "rolling", runlabel)
+    # course_df_rolling = rolling_avg(course_df, ROLLING_AVG_WINDOW, stats_internal)
+    # create_graph_course(course_df_rolling, var_param, [
+    #     "prop_internal_suffix"], output_dir_custom, "rolling", runlabel)
 
 
 if __name__ == "__main__":

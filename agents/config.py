@@ -3,6 +3,10 @@ import logging
 import sys
 import datetime
 import os
+import seaborn as sns
+
+sns.set_theme(font_scale=1.15)
+sns.set_style("ticks")
 #from mesa.visualization.UserParam import Slider, Checkbox
 
 # Parameters not settable by user

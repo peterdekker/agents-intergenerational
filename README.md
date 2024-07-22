@@ -26,3 +26,10 @@ With the ``--evaluate_param`` mode, one can evaluate different values for a spec
  - ``--phonotactic_reduction_prob``: set to 1.0 to turn phonotactic reduction on
  - ``--phonotactic_reduction_drop_border_phoneme``: set to False for full reduction of the affix, set to True for reduction of the border phoneme of the affix
  - ``--generalization_prob``: lexical concept generalisation, set to 1.0 to have full generalisation.
+
+ ## Create plot from existing model run
+ From the csv file from a previous model run, a plot can be generated, without rerunning the simulation, using the option ``--plot_from_raw`` followed by the path to the csv file. In addition to this option, the mode should still be given (evaluate_prop_l2 or evaluate_param), in order to create the right plot. For example, to evaluate proportion L2:
+ ```python3 evaluation.py --plot_from_raw output-oldplot/proportion_l2.csv --evaluate_prop_l2 --runlabel newplotlabel```
+
+ Example to evaluate the parameter generalization_prob:
+ ```python3 evaluation.py --plot_from_raw output-oldplot/generalization_prob-evalparam.csv --evaluate_param --generalization_prob 0.0 0.01 0.05 0.1 0.5 1.0 --runlabel newplotlabel```
