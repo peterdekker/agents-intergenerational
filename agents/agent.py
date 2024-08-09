@@ -87,9 +87,6 @@ class Agent:
                 prefixes = misc.weighted_affixes_prior_combined(lex_concept, person, "prefix", self.affixes)
             else:
                 prefixes = misc.use_generalization(lex_concept, person, "prefix", self.affixes, self.model.generalization_prob)
-            # else:
-            #     prefixes = misc.distribution_from_exemplars(
-            #         lex_concept, person, "prefix", self.affixes, alpha=self.alpha)
             if len(prefixes) > 0:
                 prefix = misc.affix_choice(prefixes)
                 if self.phonotactic_reduction:
@@ -100,22 +97,15 @@ class Agent:
                 # Just skip this whole interaction. Only listen for this concept until it gets filled with at least one form.
                 return
 
-            # if prefix == "":
-            #     raise ValueError("Prefix is empty")
             signal.prefix = prefix
 
         #  - suffixing verb:
-        #     -- transitive: do not use suffix
-        #     -- intransitive: use suffix with probability, because it is not obligatory
         if suffixing:
             if self.affix_prior_combined:
                 suffixes = misc.weighted_affixes_prior_combined(lex_concept, person, "suffix", self.affixes)
                 # suffixes = list weighted by prob * prior_prob
             else:
                 suffixes = misc.use_generalization(lex_concept, person, "suffix", self.affixes, self.model.generalization_prob)
-            # else:
-            #     suffixes = misc.distribution_from_exemplars(
-            #         lex_concept, person, "suffix", self.affixes, alpha=self.alpha)
 
             if len(suffixes) > 0:
                 suffix = misc.affix_choice(suffixes)
@@ -127,8 +117,6 @@ class Agent:
                 # Just skip this whole interaction. Only listen for this concept until it gets filled with at least one form.
                 return
             signal.suffix = suffix
-        # stats.update_communicated_model_stats(
-        #     self.model, prefix, suffix, prefixing, suffixing, self.l2)
 
         # Send signal.
         logging.debug(f"Speaker sends signal: {signal!s}")

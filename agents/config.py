@@ -7,9 +7,8 @@ import seaborn as sns
 
 sns.set_theme(font_scale=1.15)
 sns.set_style("ticks")
-#from mesa.visualization.UserParam import Slider, Checkbox
 
-# Parameters not settable by user
+## Parameters not settable by user
 logging.basicConfig(stream=sys.stderr, level=logging.ERROR)
 
 CURRENTDIR = os.path.dirname(os.path.realpath(__file__))
@@ -19,7 +18,6 @@ CLTS_PATH = os.path.join(CURRENTDIR, "clts-2.1.0")
 
 N_AGENTS = 10
 DATA_FILE = "data/data.csv"
-# DATA_FILE_SYNTHETIC = "data/data-syntheticforms-sample.csv"
 PERSONS = ['1sg', '2sg', '3sg', '1pl.incl', '1pl.excl', '2pl', '3pl']
 
 RG = np.random.default_rng()
@@ -36,13 +34,13 @@ OUTPUT_DIR = f'output-{str(datetime.datetime.now()).replace(" ","-").replace(":"
 ENABLE_MULTITHREADING = True
 
 
-### Defaults for user settable parameteres
+### Defaults for user settable parameters (set via command line arguments, see README)
 # Model parameters
 PROPORTION_L2 = 0.5
 PHONOTACTIC_REDUCTION_L1 = False
 PHONOTACTIC_REDUCTION_L2 = True
 PHONOTACTIC_REDUCTION_PROB = 1.0
-PHONOTACTIC_REDUCTION_DROP_BORDER_PHONEME = False ####
+PHONOTACTIC_REDUCTION_DROP_BORDER_PHONEME = False
 AFFIX_PRIOR_COMBINED_L1 = False
 AFFIX_PRIOR_COMBINED_L2 = False
 GENERALIZATION_L1 = True
@@ -79,7 +77,6 @@ model_params = {
     "interactions_per_generation": {"script": INTERACTIONS_PER_GENERATION},
 }
 
-# model_params_ui = {k: v["ui"] for k, v in model_params.items()}
 model_params_script = {k: v["script"] for k, v in model_params.items()}
 
 evaluation_params = {

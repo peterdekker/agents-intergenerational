@@ -57,7 +57,6 @@ class Model:
         self.run_id = run_id
         self.output_dir = output_dir
 
-        # self.schedule = RandomActivation(self)
         self.current_generation = 0
 
         # Agent language model object is created from data file
@@ -71,53 +70,6 @@ class Model:
         self.var_param2_name = var_param2_name
         self.var_param2_value = var_param2_value
 
-        # Stats
-
-        # self.prop_internal_prefix_l1 = 0.0
-        # self.prop_internal_suffix_l1 = 0.0
-        # self.prop_internal_prefix_l2 = 0.0
-        # self.prop_internal_suffix_l2 = 0.0
-        # self.prop_internal_prefix = 0.0
-        # self.prop_internal_suffix = 0.0
-
-        # Behaviourist
-        # self.prop_communicated_prefix_l1 = 0.0
-        # self.prop_communicated_suffix_l1 = 0.0
-        # self.prop_communicated_prefix_l2 = 0.0
-        # self.prop_communicated_suffix_l2 = 0.0
-        # self.prop_communicated_prefix = 0.0
-        # self.prop_communicated_suffix = 0.0
-
-        # self.communicated_prefix_l1 = []
-        # self.communicated_suffix_l1 = []
-        # self.communicated_prefix_l2 = []
-        # self.communicated_suffix_l2 = []
-        # self.communicated_prefix = []
-        # self.communicated_suffix = []
-        ###
-
-        # self.datacollector = DataCollector(
-        #     {  # "internal_model_distance": "internal_model_distance",
-        #         "prop_internal_prefix_l1": "prop_internal_prefix_l1",
-        #         "prop_internal_suffix_l1": "prop_internal_suffix_l1",
-        #         "prop_internal_prefix_l2": "prop_internal_prefix_l2",
-        #         "prop_internal_suffix_l2": "prop_internal_suffix_l2",
-        #         # "affixes_internal_prefix_l1": "affixes_internal_prefix_l1",
-        #         # "affixes_internal_suffix_l1": "affixes_internal_suffix_l1",
-        #         # "affixes_internal_prefix_l2": "affixes_internal_prefix_l2",
-        #         # "affixes_internal_suffix_l2": "affixes_internal_suffix_l2",
-        #         "prop_communicated_prefix_l1": "prop_communicated_prefix_l1",
-        #         "prop_communicated_suffix_l1": "prop_communicated_suffix_l1",
-        #         "prop_communicated_prefix_l2": "prop_communicated_prefix_l2",
-        #         "prop_communicated_suffix_l2": "prop_communicated_suffix_l2",
-        #         "prop_communicated_prefix": "prop_communicated_prefix",
-        #         "prop_communicated_suffix": "prop_communicated_suffix",
-        #         "proportion_correct_interactions": "proportion_correct_interactions",
-        #         "avg_proportion_correct_interactions": "avg_proportion_correct_interactions",
-        #     }
-        # )
-        # self.running = True
-        # self.datacollector.collect(self)
 
     def run(self):
 
@@ -132,8 +84,6 @@ class Model:
         stats.calculate_internal_stats(agents_first_gen, self.current_generation, self.correct_interactions, self.total_interactions,
                                        self.stats_entries)
 
-        # agents_l1 = [a for a in agents if not a.is_l2()]
-        # agents_l2 = [a for a in agents if a.is_l2()]
 
         for i in range(self.generations):
             self.generation()
@@ -159,10 +109,6 @@ class Model:
 
         # Always use same # L2 agents, but randomly divide them
         l2_agents = misc.spread_l2_agents(proportion_l2, self.n_agents)
-        # Set up agents
-        # We use a grid iterator that returns
-        # the coordinates of a cell as well as
-        # its contents.
         for i in range(self.n_agents):
             agent = Agent(i, self, self.data, init=init_l2 if l2_agents[i] else init_l1,
                           affix_prior_combined=self.affix_prior_combined_l2 if l2_agents[i] else self.affix_prior_combined_l1,
@@ -171,7 +117,6 @@ class Model:
                               i] else self.phonotactic_reduction_l1,
                           # alpha=self.alpha_l2 if l2_agents[i] else self.alpha_l1,
                           l2=l2_agents[i])
-            # self.schedule.add(agent)
             agents.append(agent)
         return agents
 
@@ -199,7 +144,6 @@ class Model:
             agents_new_gen_interacting = [a for a in agents_new_gen if a.is_l2()]
 
         agents_prev_gen_l1 = [a for a in self.agents_prev_gen if not a.is_l2()]
-        # agents_prev_gen_l2 = [a for a in agents_prev_gen if a.is_l2()]
 
         # L1 agents learn directly from a random L1 from the previous generation
         for agent_l1 in agents_new_gen_l1:
@@ -217,18 +161,3 @@ class Model:
         stats.calculate_internal_stats(agents_new_gen, self.current_generation, self.correct_interactions, self.total_interactions,
                                        self.stats_entries)
 
-
-
-        # Compute proportion non-empty cells in communicative measure
-        # self.prop_communicated_prefix_l1 = stats.prop_communicated(
-        #     self.communicated_prefix_l1, label="Prefix L1")
-        # self.prop_communicated_prefix_l2 = stats.prop_communicated(
-        #     self.communicated_prefix_l2, label="Prefix L2")
-        # self.prop_communicated_suffix_l1 = stats.prop_communicated(
-        #     self.communicated_suffix_l1, label="Suffix L1")
-        # self.prop_communicated_suffix_l2 = stats.prop_communicated(
-        #     self.communicated_suffix_l2, label="Suffix L2")
-        # self.prop_communicated_prefix = stats.prop_communicated(
-        #     self.communicated_prefix, label="Prefix")
-        # self.prop_communicated_suffix = stats.prop_communicated(
-        #     self.communicated_suffix, label="Suffix")
