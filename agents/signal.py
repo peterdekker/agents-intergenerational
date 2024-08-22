@@ -3,8 +3,6 @@ class Signal:
         self.form = form
         # Prefix and suffix are set to None by default
         # When a verb is prefixing/suffixing, prefix/suffix will get a string value
-        # This string value can be "", which means empty affix. Difference with NOne
-        # is that this will be added to listeners stack.
         self.prefix = prefix
         self.suffix = suffix
 

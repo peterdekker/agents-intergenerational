@@ -51,23 +51,13 @@ class Data():
             for person in self.persons:
                 for affix_type in ["prefix", "suffix"]:
                     # For now, make it not possible for prefixing verbs to be also suffixing
-                    # TODO: make this check more sophisticated. we just filled this lex_concepts_type
+                    # NOTE: check not very sophisticated. we just filled this lex_concepts_type
                     if lex_concept in self.lex_concepts_type[affix_type]:
                         affix = data_dict[lex_concept][f"{person}_{affix_type}"]
                         # Affix preprocessing: there can be multiple affixes, split by ,
                         affixes_processed = [a.strip(" -") for a in affix.split(",")]
                         if "" in affixes_processed:
                             affixes_processed.remove("")
-                        ###
-                        # if len(affixes_processed) > 1:
-                        #     affixes_processed = [affixes_processed[0]]
-                        ###
-                        # if unique_affix:
-                        #     affixes_processed_unique = []
-                        #     for a in affixes_processed:
-                        #         affixes_processed_unique.append(a+str(unique_affix_id))
-                        #         unique_affix_id += 1
-                        #     affixes_processed = affixes_processed_unique
 
                         # Double affix if there is only 1 affix. So length of list is always 2,
                         # regardless if there are 1 or 2 variants.
@@ -77,5 +67,3 @@ class Data():
                         repeat_list = interaction_l1_shield_initialization if interaction_l1 else 1
                         self.affixes[(lex_concept, person, affix_type)] = affixes_processed * repeat_list
 
-        #print(f"Number of concept cells: {len(self.affixes.keys())}")
-        # check double items: print([item for item, count in collections.Counter(self.concepts).items() if count > 1])

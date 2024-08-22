@@ -4,6 +4,7 @@ import os
 from collections import defaultdict, Counter
 import pandas as pd
 
+
 def prop_internal_n_unique(agent, affix_type):
     all_affixes = []
     for lex_concept in agent.lex_concepts_type[affix_type]:
@@ -13,6 +14,7 @@ def prop_internal_n_unique(agent, affix_type):
     n_affixes_unique = len(set(all_affixes))
 
     return n_affixes_unique if n_affixes_unique > 0 else None
+
 
 def prop_internal_n_affixes(agent, affix_type):
     n_affixes_cells = []
@@ -49,6 +51,7 @@ def prop_internal_nonzero(agent, affix_type):
 
     return np.mean(prop_filled_cells) if len(prop_filled_cells) > 0 else None
 
+
 def affix_sample_diagnosis(agents, output_dir, interactions_per_generation, proportion_l2, run_id):
     agents_prev_gen_l2 = [a for a in agents if a.is_l2()]
     np.random.shuffle(agents_prev_gen_l2)
@@ -57,17 +60,8 @@ def affix_sample_diagnosis(agents, output_dir, interactions_per_generation, prop
     for key in sample_agent.affixes:
         affixes_emptysymbol[key] = ["∅" if aff == "" else aff for aff in sample_agent.affixes[key]]
     affix_sample_df = pd.DataFrame.from_dict(affixes_emptysymbol, orient="index")
-    affix_sample_df.to_csv(os.path.join(output_dir, f"affix_sample_ipg{interactions_per_generation}_prop{proportion_l2}_run{run_id}.csv"))
-
-# def prop_internal_n_affixes_agents(agents, affix_type):
-#     n_affixes = [prop_internal_n_affixes(a, affix_type) for a in agents]
-#     n_affixes = [x for x in n_affixes if x != None]
-#     return np.mean(n_affixes) if len(n_affixes) > 0 else None
-
-# def prop_internal_nonzero_agents(agents, affix_type):
-#     filled_props = [prop_internal_nonzero(a, affix_type) for a in agents]
-#     filled_props = [x for x in filled_props if x != None]
-#     return np.mean(filled_props) if len(filled_props) > 0 else None
+    affix_sample_df.to_csv(os.path.join(
+        output_dir, f"affix_sample_ipg{interactions_per_generation}_prop{proportion_l2}_run{run_id}.csv"))
 
 
 def apply_stat_agents(func, agents, affix_type):
@@ -82,44 +76,20 @@ def calculate_internal_stats(agents, generation, correct_interactions, total_int
 
     for agents_set, agent_type in zip([agents_l1, agents_l2, agents], ["l1", "l2", "total"]):
         for affix_type in ["prefix", "suffix"]:
-            # stat_nonzero = apply_stat_agents(prop_internal_nonzero, agents_set, affix_type)
-            # stats_entry_nonzero = {"generation": generation, "stat_name": f"prop_internal_{affix_type}" if agent_type ==
-            #                        "total" else f"prop_internal_{affix_type}_{agent_type}", "stat_value": stat_nonzero} # "proportion_l2": proportion_l2,
-            # stats_entries.append(stats_entry_nonzero)
 
-            # stat_len = apply_stat_agents(prop_internal_len, agents_set, affix_type)
-            # stats_entry_len = {"generation": generation, "stat_name": f"prop_internal_len_{affix_type}" if agent_type ==
-            #                        "total" else f"prop_internal_len_{affix_type}_{agent_type}", "stat_value": stat_len} # "proportion_l2": proportion_l2,
-            # stats_entries.append(stats_entry_len)
-
-            # stat_n_affixes = apply_stat_agents(prop_internal_n_affixes, agents_set, affix_type)
-            # stats_entry_n_affixes = {"generation": generation, "stat_name": f"prop_internal_n_affixes_{affix_type}" if agent_type ==
-            #                          "total" else f"prop_internal_n_affixes_{affix_type}_{agent_type}", "stat_value": stat_n_affixes} #"proportion_l2": proportion_l2,
-            # stats_entries.append(stats_entry_n_affixes)
-            
             # Create dictionary with key-value pair per agent-based statistic
             stats_entry = {"generation": generation}
             for stat_name, stat_func in [("prop_internal", prop_internal_nonzero), ("prop_internal_len", prop_internal_len), ("prop_internal_n_affixes", prop_internal_n_affixes), ("prop_internal_n_unique", prop_internal_n_unique)]:
                 stat_name_key = f"{stat_name}_{affix_type}" if agent_type == "total" else f"{stat_name}_{affix_type}_{agent_type}"
                 stat_value = apply_stat_agents(stat_func, agents_set, affix_type)
                 stats_entry[stat_name_key] = stat_value
-            
+
             # Add population-wide prop correct
-            stats_entry["prop_correct"] = correct_interactions / total_interactions if total_interactions > 0 else 0
+            stats_entry["prop_correct"] = correct_interactions / \
+                total_interactions if total_interactions > 0 else 0
 
             # Append this dictionary (one row for future dataframe) to stats_entries
             stats_entries.append(stats_entry)
-    
-
-
-# def calculate_correct_interactions(correct_interactions, total_interactions, current_generation, stats_entries):
-#     # Proportion correct interactions is calculated based on total_interactions:
-#     # number of interactions where initiator actually speaks.
-#     # Interactions where initiator does not speak, because system is empty, are excluded
-#     proportion_correct_interactions = correct_interactions / total_interactions if total_interactions > 0 else 0
-#     stats_entry_prop_correct = {"generation": current_generation,  # "proportion_l2": proportion_l2,
-#                                 "stat_name": "prop_correct", "stat_value": proportion_correct_interactions}
-#     stats_entries.append(stats_entry_prop_correct)
 
 
 def update_communicated_model_stats(model, prefix, suffix, prefixing, suffixing, l2):
@@ -141,13 +111,8 @@ def update_communicated_model_stats(model, prefix, suffix, prefixing, suffixing,
 
 
 def prop_communicated(communicated_list, label=""):
-    # if label=="Suffix L2":
-    #     print(communicated_list)
-    # Calculate proportion non-empty communications
     n_non_empty = len([s for s in communicated_list if s != ""])
     n_total = len(communicated_list)
-    # if n_total == 0 and "L1" in label:
-    #     print(f"{label}:empty")
     # Clear communicated list, so new proportion is calculated for next COMMUNICATED_STATS_AFTER_GENERATIONS generations
     communicated_list.clear()
     # Calculate proportion

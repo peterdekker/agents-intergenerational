@@ -8,7 +8,7 @@ import seaborn as sns
 sns.set_theme(font_scale=1.15)
 sns.set_style("ticks")
 
-## Parameters not settable by user
+# Parameters not settable by user
 logging.basicConfig(stream=sys.stderr, level=logging.ERROR)
 
 CURRENTDIR = os.path.dirname(os.path.realpath(__file__))
@@ -34,7 +34,7 @@ OUTPUT_DIR = f'output-{str(datetime.datetime.now()).replace(" ","-").replace(":"
 ENABLE_MULTITHREADING = True
 
 
-### Defaults for user settable parameters (set via command line arguments, see README)
+# Defaults for user settable parameters (set via command line arguments, see README)
 # Model parameters
 PROPORTION_L2 = 0.5
 PHONOTACTIC_REDUCTION_L1 = False
@@ -46,8 +46,6 @@ AFFIX_PRIOR_COMBINED_L2 = False
 GENERALIZATION_L1 = True
 GENERALIZATION_L2 = True
 GENERALIZATION_PROB = 0.1
-ALPHA_L1 = 1
-ALPHA_L2 = 1  # 1000
 INTERACTION_L1 = False
 INTERACTION_L1_SHIELD_INITIALIZATION = 10
 INTERACTIONS_PER_GENERATION = 10000
@@ -70,8 +68,6 @@ model_params = {
     "generalization_l1": {"script": GENERALIZATION_L1},
     "generalization_l2": {"script": GENERALIZATION_L2},
     "generalization_prob": {"script": GENERALIZATION_PROB},
-    # "alpha_l1": {"script": ALPHA_L1},
-    # "alpha_l2": {"script": ALPHA_L2},
     "interaction_l1": {"script": INTERACTION_L1},
     "interaction_l1_shield_initialization": {"script": INTERACTION_L1_SHIELD_INITIALIZATION},
     "interactions_per_generation": {"script": INTERACTIONS_PER_GENERATION},

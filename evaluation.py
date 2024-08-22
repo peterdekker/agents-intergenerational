@@ -4,7 +4,7 @@ import argparse
 
 from agents.model import Model
 from agents import misc
-from agents.config import model_params_script, eval_params_script, evaluation_params, bool_params, string_params, OUTPUT_DIR, IMG_FORMATS, ENABLE_MULTITHREADING
+from agents.config import model_params_script, eval_params_script, evaluation_params, bool_params, string_params, OUTPUT_DIR, IMG_FORMATS, ENABLE_MULTITHREADING, CLTS_ARCHIVE_PATH, CLTS_ARCHIVE_URL, CLTS_PATH
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -109,12 +109,6 @@ def rename_vars_plot(course_df, stats, variable_param):
     # If variable_param is proportion_l2, this does again the same as previous lines
     prop_l2_new = "proportion l2"
     course_df = course_df.rename(columns={"proportion_l2": prop_l2_new})
-    # print(course_df)
-    # print(variable_param_new)
-    # print(stat_name_new)
-    # print(prop_l2_new)
-    # print(stats_renamed)
-    # raise ValueError()
     return course_df, variable_param_new, stat_name_new, prop_l2_new
 
 
@@ -237,34 +231,17 @@ def main():
 
     output_dir_custom = OUTPUT_DIR
     if runlabel != "":
-        # if evaluate_prop_l2:
-        #     runlabel += "-eval_l2"
-        # if evaluate_param:
-        #     runlabel += "-eval_param"
         output_dir_custom = f'{OUTPUT_DIR}-{runlabel}'
     misc.create_output_dir(output_dir_custom)
 
-    # if plot_from_raw_on:
-    # Old code
-    #     course_df_import = pd.read_csv(plot_from_raw, index_col=0)
-    #     # Assume in the imported file, variable parameter was proportion L2
-    #     var_param = "proportion_l2"
-    #     create_graph_course(course_df_import, var_param, [
-    #         "prop_communicated_suffix"], output_dir_custom, "raw", runlabel)
-    #     create_graph_end(course_df_import, var_param,
-    #                         stats_communicated, output_dir_custom, "raw", runlabel)
+    # Download CLTS
+    misc.download_if_needed(CLTS_ARCHIVE_PATH, CLTS_ARCHIVE_URL, CLTS_PATH, "CLTS")
 
-    #     course_df_rolling = rolling_avg(course_df_import, ROLLING_AVG_WINDOW, stats_communicated)
-    #     create_graph_course(course_df_rolling, var_param, [
-    #         "prop_communicated_suffix"], output_dir_custom, "rolling", runlabel)
-    #     create_graph_end(course_df_rolling, var_param,
-    #                         stats_communicated, output_dir_custom, "rolling", runlabel)
     given_model_params = {k: v for k, v in args.items() if k in model_params_script and v is not None}
     if plot_from_raw_on:
         course_df = pd.read_csv(plot_from_raw, index_col=0)
     else:
         # If we are running the model, not just plotting from results file
-        
         prop_l2_settings = [0.2, 0.4, 0.6, 0.8, 1.0]
         if evaluate_prop_l2:
             # Check that only one parameter setting is given per parameter

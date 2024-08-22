@@ -1,13 +1,9 @@
-# from mesa import Model
-# from mesa.time import RandomActivation
-# from mesa.space import SingleGrid
-# from mesa.datacollection import DataCollector
-
-from agents.config import DATA_FILE, CLTS_ARCHIVE_PATH, CLTS_ARCHIVE_URL, CLTS_PATH, RG
+from agents.config import DATA_FILE, CLTS_PATH, RG
 from agents import stats
 from agents import misc
 from agents.agent import Agent
 from agents.data import Data
+
 
 import pandas as pd
 
@@ -18,7 +14,7 @@ class Model:
     '''
 
     def __init__(self, n_agents, proportion_l2,
-                 phonotactic_reduction_l1, phonotactic_reduction_l2, phonotactic_reduction_prob, phonotactic_reduction_drop_border_phoneme, #, alpha_l1, alpha_l2,
+                 phonotactic_reduction_l1, phonotactic_reduction_l2, phonotactic_reduction_prob, phonotactic_reduction_drop_border_phoneme,
                  affix_prior_combined_l1, affix_prior_combined_l2, generalization_l1, generalization_l2, generalization_prob, interaction_l1, interaction_l1_shield_initialization, generations, interactions_per_generation, run_id, var_param1_name, var_param1_value, var_param2_name, var_param2_value, output_dir):
         '''
         Initialize field
@@ -43,8 +39,6 @@ class Model:
         self.phonotactic_reduction_l2 = phonotactic_reduction_l2
         self.phonotactic_reduction_drop_border_phoneme = phonotactic_reduction_drop_border_phoneme
         self.phonotactic_reduction_prob = phonotactic_reduction_prob
-        # self.alpha_l1 = alpha_l1
-        # self.alpha_l2 = alpha_l2
         self.affix_prior_combined_l1 = affix_prior_combined_l1
         self.affix_prior_combined_l2 = affix_prior_combined_l2
         self.generalization_l1 = generalization_l1
@@ -61,7 +55,7 @@ class Model:
 
         # Agent language model object is created from data file
         self.data = Data(DATA_FILE, self.interaction_l1, self.interaction_l1_shield_initialization)
-        self.clts = misc.load_clts(CLTS_ARCHIVE_PATH, CLTS_ARCHIVE_URL, CLTS_PATH)
+        self.clts = misc.load_clts(CLTS_PATH)
         self.cv_pattern_cache = {}
 
         self.stats_entries = []
@@ -70,7 +64,6 @@ class Model:
         self.var_param2_name = var_param2_name
         self.var_param2_value = var_param2_value
 
-
     def run(self):
 
         self.correct_interactions = 0
@@ -78,12 +71,10 @@ class Model:
 
         # Create first generation with only L1 speakers (!), which are instantiated with data
         agents_first_gen = self.create_new_generation(proportion_l2=0.0, init_l1="data", init_l2="empty")
-        #  print(self.current_generation, list(map(str, agents_first_gen)))
         self.agents_prev_gen = agents_first_gen
 
         stats.calculate_internal_stats(agents_first_gen, self.current_generation, self.correct_interactions, self.total_interactions,
                                        self.stats_entries)
-
 
         for i in range(self.generations):
             self.generation()
@@ -96,15 +87,15 @@ class Model:
             self.stats_df[self.var_param1_name] = self.var_param1_value
         if self.var_param2_name:
             self.stats_df[self.var_param2_name] = self.var_param2_value
-        
+
         # Plot affixes, only for the first run
         if self.proportion_l2 > 0.0 and self.run_id == 0:
-            stats.affix_sample_diagnosis(self.agents_prev_gen, self.output_dir, self.interactions_per_generation, self.proportion_l2, self.run_id)
+            stats.affix_sample_diagnosis(self.agents_prev_gen, self.output_dir,
+                                         self.interactions_per_generation, self.proportion_l2, self.run_id)
 
         return self.stats_df
 
     def create_new_generation(self, proportion_l2, init_l1, init_l2):
-        # print("New generation")
         agents = []
 
         # Always use same # L2 agents, but randomly divide them
@@ -115,7 +106,6 @@ class Model:
                           generalization=self.generalization_l2 if l2_agents[i] else self.generalization_l1,
                           phonotactic_reduction=self.phonotactic_reduction_l2 if l2_agents[
                               i] else self.phonotactic_reduction_l1,
-                          # alpha=self.alpha_l2 if l2_agents[i] else self.alpha_l1,
                           l2=l2_agents[i])
             agents.append(agent)
         return agents
@@ -160,4 +150,3 @@ class Model:
 
         stats.calculate_internal_stats(agents_new_gen, self.current_generation, self.correct_interactions, self.total_interactions,
                                        self.stats_entries)
-

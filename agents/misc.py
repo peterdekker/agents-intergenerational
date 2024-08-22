@@ -8,8 +8,6 @@ from agents.config import logging, RG, CURRENTDIR, GENERALIZE_PERSONS, GENERALIZ
 
 from collections import Counter
 
-# Returns list
-
 
 from pyclts import CLTS
 import requests
@@ -19,9 +17,6 @@ import math
 
 def download_if_needed(archive_path, archive_url, file_path, label):
     if not os.path.exists(file_path):
-        # Create parent dirs
-        #p = pathlib.Path(file_path)
-        #p.parent.mkdir(parents=True, exist_ok=True)
         with open(archive_path, 'wb') as f:
             print(f"Downloading {label} from {archive_url}")
             try:
@@ -35,9 +30,7 @@ def download_if_needed(archive_path, archive_url, file_path, label):
                 shutil.unpack_archive(archive_path, CURRENTDIR)
 
 
-def load_clts(clts_archive_path, clts_archive_url, clts_path):
-    # Download CLTS
-    download_if_needed(clts_archive_path, clts_archive_url, clts_path, "CLTS")
+def load_clts(clts_path):
     return CLTS(clts_path)
 
 
@@ -78,9 +71,8 @@ def infer_person_from_signal(lex_concept, lex_concept_data, affixes, persons, si
     if len(possible_persons) == 0:
         possible_persons = persons
 
-    # Choose person, weighted by how many affixes are closest to received affix
+    # Choose person, weighted by how many affixes match received affix
     # (can be one possible person, so choice is trivial)
-    # possible_persons = list(set(possible_persons))
     inferred_person = RG.choice(possible_persons)
     return inferred_person
 
@@ -95,14 +87,10 @@ def infer_possible_persons(affix_type, affix_signal, persons, affixes, lex_conce
             # Add all internal affixes which exactly match signal
             if affix_internal == affix_signal:
                 possible_persons.append(p)
-    #persons_ambig = len(possible_persons) if len(possible_persons) > 0 else len(persons)
-    # ambiguity[f"'{affix_signal}'-{affix_type}"].append(persons_ambig)
     return possible_persons
 
 
 def reduce_phonotactics(affix_type, affix, form, clts, cv_pattern_cache, drop_border_phoneme):
-    # inflected_form = affix+form if affix_type == "prefix" else form+affix
-    # spaced_form = " ".join(list(inflected_form))
     if len(affix) > 0:
         stem_border = form[0] if affix_type == "prefix" else form[-1]
         affix_border = affix[-1] if affix_type == "prefix" else affix[0]
@@ -114,8 +102,6 @@ def reduce_phonotactics(affix_type, affix, form, clts, cv_pattern_cache, drop_bo
             cv_pattern_cache[spaced_border_seq] = cv_pattern
 
         if cv_pattern == "CC":
-            # if cv_pattern.index("CC") < len(cv_pattern) - 4:
-            #     print(f"{inflected_form}:{cv_pattern}")
             if drop_border_phoneme:
                 if affix_type == "prefix":
                     affix = affix[:-1]
@@ -134,9 +120,9 @@ def update_affix_list(prefix_recv, suffix_recv, affixes, lex_concepts_type,
     lex_concept_listener = concept_listener.lex_concept
     person_listener = concept_listener.person
     for affix_type, affix_recv in [("prefix", prefix_recv), ("suffix", suffix_recv)]:
-        # TODO: This assumes listener has same concept matrix, and knows which
+        # NOTE: This assumes listener has same concept matrix, and knows which
         # verbs are prefixing/suffixing.
-        if lex_concept_listener not in lex_concepts_type[affix_type]:  # affix_recv is None:
+        if lex_concept_listener not in lex_concepts_type[affix_type]:
             # If no affix for this verb type received (e.g. prefix), skip
             continue
         # Normal update: do not generalize
@@ -146,7 +132,7 @@ def update_affix_list(prefix_recv, suffix_recv, affixes, lex_concepts_type,
             for person in persons:
                 affix_list = affixes[(lex_concept, person, affix_type)]
                 if affix_recv is None:
-                    # TODO: check should be unnecessary. delete later
+                    # NOTE: check should be unnecessary
                     raise Exception("Affix cannot be None, if this affix type is enabled for this verb!")
                 # Positive update
                 affix_list.append(affix_recv)
@@ -182,6 +168,7 @@ def weighted_affixes_prior_combined(lex_concept, person, affix_type, affixes):
     logging.debug(f"Combined normalized: {p_combined_normalized}")
     return p_combined_normalized
 
+
 def use_generalization(lex_concept, person, affix_type, affixes, generalization_prob=None):
 
     # With a certain probability, use distribution of all concepts
@@ -193,14 +180,8 @@ def use_generalization(lex_concept, person, affix_type, affixes, generalization_
                 GENERALIZE_PERSONS or p == person) and (GENERALIZE_LEX_CONCEPTS or l == lex_concept)}
         else:
             affixes_affix_type = {(l, p, t): affixes[(l, p, t)] for (l, p, t) in affixes.keys() if t == affix_type and (
-            GENERALIZE_PERSONS or p == person) and (GENERALIZE_LEX_CONCEPTS or l == lex_concept)}
+                GENERALIZE_PERSONS or p == person) and (GENERALIZE_LEX_CONCEPTS or l == lex_concept)}
         affixes_all = list(chain.from_iterable(affixes_affix_type.values()))
-        # logging.debug(f"Affixes for all: {affixes_all}")
-        # n_exemplars_all = len(affixes_all)
-        # counts_affixes_all = Counter(affixes_all)
-        # logging.debug(f"Counts for all: {counts_affixes_all}")
-        # p_affix = {aff: count/n_exemplars_all for aff, count in counts_affixes_all.items()}
-        # logging.debug(f"Probabilities for all: {p_affix}")
         _, p_affix_dict, _ = compute_affix_probabilities(affixes_all)
         return p_affix_dict
     else:
@@ -209,6 +190,7 @@ def use_generalization(lex_concept, person, affix_type, affixes, generalization_
         _, p_affix_given_concept_dict, _ = compute_affix_probabilities(affixes_concept)
         logging.debug(f"Use concept distribution: {p_affix_given_concept_dict}")
         return p_affix_given_concept_dict
+
 
 def compute_affix_probabilities(affixes):
     logging.debug(f"Affixes: {affixes}")
@@ -222,34 +204,6 @@ def compute_affix_probabilities(affixes):
     p_dict = dict(zip(counts_keys, p))
     logging.debug(f"Probabilities: {p_dict}")
     return p, p_dict, counts_keys
-
-
-# def distribution_from_exemplars(lex_concept, person, affix_type, affixes, alpha):
-#     affixes_concept = affixes[(lex_concept, person, affix_type)]
-#     p_affix_given_concept, p_affix_given_concept_dict, counts_keys = compute_affix_probabilities(
-#         affixes_concept)
-
-#     logging.debug(f"Alpha: {alpha}")
-#     # If alpha is 1.0: stop calculation here and return probabilities.
-#     if math.isclose(alpha, 1.0):
-#         return p_affix_given_concept_dict
-    
-#     raise ValueError("Alpha enabled.")
-#     # Scale probabilities with alpha in log space (make distribution peakier)
-#     log_scaled = np.log(p_affix_given_concept) * alpha
-#     logging.debug(f"Log Scaled: {dict(zip(counts_keys, log_scaled))}")
-#     log_moved = log_scaled - np.max(log_scaled)  # Move highest value to 0
-#     logging.debug(f"Log Moved: {dict(zip(counts_keys, log_moved))}")
-#     # Go back to normal probabilities
-#     p_moved = np.exp(log_moved)
-#     logging.debug(f"Prob Moved: {dict(zip(counts_keys, p_moved))}")
-#     p_scaled_normalized = p_moved / np.sum(p_moved)
-#     # if math.isclose(total, 0) and len(p_scaled) > 0:
-#     #     print(counts_affixes_concept)
-#     #     print(p_affix_given_concept)
-#     #     print(p_scaled)
-#     logging.debug(f"Scaled normalized: {dict(zip(counts_keys, p_scaled_normalized))}")
-#     return dict(zip(counts_keys, p_scaled_normalized))
 
 
 def affix_choice(affixes):
@@ -269,3 +223,4 @@ def create_output_dir(output_dir):
     # in normal cases dir should be created once and not exist
     if not os.path.exists(output_dir):
         os.mkdir(output_dir)
+

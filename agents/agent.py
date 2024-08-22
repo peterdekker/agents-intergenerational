@@ -10,7 +10,7 @@ from agents import stats
 
 
 class Agent:
-    def __init__(self, pos, model, data, init, affix_prior_combined, generalization, phonotactic_reduction, l2): #, alpha (penultimate argument)
+    def __init__(self, pos, model, data, init, affix_prior_combined, generalization, phonotactic_reduction, l2):
         '''
          Create a new speech agent.
 
@@ -24,7 +24,6 @@ class Agent:
         self.affix_prior_combined = affix_prior_combined
         self.generalization = generalization
         self.phonotactic_reduction = phonotactic_reduction
-        # self.alpha = alpha
         self.l2 = l2
 
         # These vars are not deep copies, because they will not be altered by agents
@@ -49,11 +48,9 @@ class Agent:
 
     def copy_parent(self, agents_prev):
         parent = RG.choice(agents_prev)
-        # print(f"Agent {self.pos} learning from prev gen agent {parent.pos}")
         self.affixes = copy.deepcopy(parent.affixes)
 
     # Methods used when agent speaks
-
     def speak(self, listener):
         '''
          Speak to other agent
@@ -86,7 +83,8 @@ class Agent:
                 # prefixes = list weighted by prob * prior_prob
                 prefixes = misc.weighted_affixes_prior_combined(lex_concept, person, "prefix", self.affixes)
             else:
-                prefixes = misc.use_generalization(lex_concept, person, "prefix", self.affixes, self.model.generalization_prob)
+                prefixes = misc.use_generalization(
+                    lex_concept, person, "prefix", self.affixes, self.model.generalization_prob)
             if len(prefixes) > 0:
                 prefix = misc.affix_choice(prefixes)
                 if self.phonotactic_reduction:
@@ -105,7 +103,8 @@ class Agent:
                 suffixes = misc.weighted_affixes_prior_combined(lex_concept, person, "suffix", self.affixes)
                 # suffixes = list weighted by prob * prior_prob
             else:
-                suffixes = misc.use_generalization(lex_concept, person, "suffix", self.affixes, self.model.generalization_prob)
+                suffixes = misc.use_generalization(
+                    lex_concept, person, "suffix", self.affixes, self.model.generalization_prob)
 
             if len(suffixes) > 0:
                 suffix = misc.affix_choice(suffixes)

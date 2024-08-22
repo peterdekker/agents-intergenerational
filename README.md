@@ -1,6 +1,9 @@
-# Agent-based model of phonotactic factors in generational transmission in Alorese
+# Code for _Phonotactic mechanisms behind contact-induced morphological simplification in Alorese: An agent-based model of intergenerational transmission_
+This repository contains the code for the thesis chapter _Phonotactic mechanisms behind contact-induced morphological simplification in Alorese: An agent-based model of intergenerational transmission_ from the PhD thesis of Peter Dekker. The code has been developed by Peter Dekker and conceptual contributions have been made by Marian Klamer and Bart de Boer.
 
-The data used for the model (in folder data) is based on a list of prefixing verbs and prefix and suffix paradigms on page 31-32 of Nishiyama, K., & Kelen, H. (2007). A grammar of Lamaholot, Eastern Indonesia. Lincom Europa.
+
+## Data
+The data used for the model (in folder data) is based on a list of prefixing verbs and prefix and suffix paradigms on pages 31-32 of: Nishiyama, K., & Kelen, H. (2007). _A grammar of Lamaholot, Eastern Indonesia_. Lincom Europa.
 
 ## Installation
 
