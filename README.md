@@ -25,9 +25,9 @@ With the ``--evaluate_param`` mode, one can evaluate different values for a spec
 ```python3 evaluation.py --evaluate_param --generations 100 --iterations 50 --phonotactic_reduction_prob 0.0 0.25 0.5 0.75 1.0 --runlabel evalphonred```
 
 ## Parameters
-``config.py`` defines the user-settable parameters that can be given to the evaluation script as command line parameters. Some relevant parameterse are:
+``config.py`` defines the user-settable parameters that can be given to the evaluation script as command line parameters. Some relevant parameters are:
  - ``--phonotactic_reduction_prob``: set to 1.0 to turn phonotactic reduction on
- - ``--phonotactic_reduction_drop_border_phoneme``: set to False for full reduction of the affix, set to True for reduction of the border phoneme of the affix
+ - ``--phonotactic_reduction_drop_boundary_phoneme``: set to False for full reduction of the affix, set to True for reduction of the boundary phoneme of the affix
  - ``--generalization_prob``: lexical concept generalisation, set to 1.0 to have full generalisation.
 
  ## Create plot from existing model run

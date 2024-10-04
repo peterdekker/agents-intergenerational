@@ -90,7 +90,7 @@ def infer_possible_persons(affix_type, affix_signal, persons, affixes, lex_conce
     return possible_persons
 
 
-def reduce_phonotactics(affix_type, affix, form, clts, cv_pattern_cache, drop_border_phoneme):
+def reduce_phonotactics(affix_type, affix, form, clts, cv_pattern_cache, drop_boundary_phoneme):
     if len(affix) > 0:
         stem_border = form[0] if affix_type == "prefix" else form[-1]
         affix_border = affix[-1] if affix_type == "prefix" else affix[0]
@@ -102,7 +102,7 @@ def reduce_phonotactics(affix_type, affix, form, clts, cv_pattern_cache, drop_bo
             cv_pattern_cache[spaced_border_seq] = cv_pattern
 
         if cv_pattern == "CC":
-            if drop_border_phoneme:
+            if drop_boundary_phoneme:
                 if affix_type == "prefix":
                     affix = affix[:-1]
                 elif affix_type == "suffix":

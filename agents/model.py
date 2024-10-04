@@ -14,7 +14,7 @@ class Model:
     '''
 
     def __init__(self, n_agents, proportion_l2,
-                 phonotactic_reduction_l1, phonotactic_reduction_l2, phonotactic_reduction_prob, phonotactic_reduction_drop_border_phoneme,
+                 phonotactic_reduction_l1, phonotactic_reduction_l2, phonotactic_reduction_prob, phonotactic_reduction_drop_boundary_phoneme,
                  affix_prior_combined_l1, affix_prior_combined_l2, generalization_l1, generalization_l2, generalization_prob, interaction_l1, interaction_l1_shield_initialization, generations, interactions_per_generation, run_id, var_param1_name, var_param1_value, var_param2_name, var_param2_value, output_dir):
         '''
         Initialize field
@@ -23,7 +23,7 @@ class Model:
         assert proportion_l2 >= 0 and proportion_l2 <= 1
         assert isinstance(phonotactic_reduction_l1, bool)
         assert isinstance(phonotactic_reduction_l2, bool)
-        assert isinstance(phonotactic_reduction_drop_border_phoneme, bool)
+        assert isinstance(phonotactic_reduction_drop_boundary_phoneme, bool)
         assert isinstance(affix_prior_combined_l1, bool)
         assert isinstance(affix_prior_combined_l2, bool)
         assert isinstance(generalization_l1, bool)
@@ -37,7 +37,7 @@ class Model:
         self.proportion_l2 = proportion_l2
         self.phonotactic_reduction_l1 = phonotactic_reduction_l1
         self.phonotactic_reduction_l2 = phonotactic_reduction_l2
-        self.phonotactic_reduction_drop_border_phoneme = phonotactic_reduction_drop_border_phoneme
+        self.phonotactic_reduction_drop_boundary_phoneme = phonotactic_reduction_drop_boundary_phoneme
         self.phonotactic_reduction_prob = phonotactic_reduction_prob
         self.affix_prior_combined_l1 = affix_prior_combined_l1
         self.affix_prior_combined_l2 = affix_prior_combined_l2
