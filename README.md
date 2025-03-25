@@ -1,5 +1,5 @@
 # Code for _Phonotactic mechanisms behind contact-induced morphological simplification in Alorese: An agent-based model of intergenerational transmission_
-This repository contains the code for the thesis chapter _Phonotactic mechanisms behind contact-induced morphological simplification in Alorese: An agent-based model of intergenerational transmission_ from the PhD thesis of Peter Dekker. The code has been developed by Peter Dekker and conceptual contributions have been made by Marian Klamer and Bart de Boer.
+This repository contains the code for the paper _Phonotactic mechanisms behind contact-induced morphological simplification in Alorese: An agent-based model of intergenerational transmission_ by Peter Dekker, Marian Klamer and Bart de Boer. The code has been developed by Peter Dekker and conceptual contributions have been made by Marian Klamer and Bart de Boer.
 
 
 ## Data
